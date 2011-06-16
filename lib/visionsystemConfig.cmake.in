@@ -1,0 +1,13 @@
+# - Config file for the visionsystem lib
+# It defines the following variables
+#
+#  VISIONPROCESS_INCLUDE_DIRS - include directories for visionsystem
+#  VISIONPROCESS_LIBRARY_DIRS - library directories for visionsystem 
+#  VISIONPROCESS_LIBRARIES    - libraries to link against
+ 
+# Tell the user project where to find our headers and libraries
+
+set(VISIONSYSTEM_INCLUDE_DIRS "@INSTALL_HEADERS_PATH@")
+set(VISIONSYSTEM_LIBRARY_DIRS "@INSTALL_LIB_PATH@")
+  
+set(VISIONSYSTEM_LIBRARIES visionsystem)
