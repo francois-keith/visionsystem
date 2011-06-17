@@ -1,3 +1,3 @@
 ### Go to subdirs
 
-# add_subdirectory ("TCM640")			TODO 
+# add_subdirectory ("tcm640")			TODO 
