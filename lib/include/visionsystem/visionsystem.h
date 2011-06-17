@@ -5,7 +5,7 @@
 #include <map>
 #include <boost/any.hpp>
 #include <boost/thread/mutex.hpp>
-#include <visionsystem/camera.h>
+#include <visionsystem/genericcamera.h>
 
 namespace visionsystem {
 
@@ -36,13 +36,13 @@ namespace visionsystem {
 
 		protected :
 
-			void add_camera ( Camera * ) ;
-			std::vector<Plugin*> get_all_subscriptions ( Camera* ) ;
+			void add_camera ( GenericCamera * ) ;
+			std::vector<Plugin*> get_all_subscriptions ( GenericCamera* ) ;
 
 		private :
 
 			
-			std::vector< Camera* >			_cameras ;
+			std::vector< GenericCamera* >			_cameras ;
 			boost::mutex			        _cameras_mutex ;
 
 			std::map< std::string, boost::any >    whiteboard_data ;

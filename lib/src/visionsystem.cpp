@@ -17,7 +17,9 @@ VisionSystem::~VisionSystem() {
 
 vector<Camera*> VisionSystem::get_all_cameras() {
 	_cameras_mutex.lock() ;
-	vector<Camera*> tmp = _cameras ;
+	vector<Camera*> tmp ;
+	for ( int i=0; i<_cameras.size(); i++ )
+		tmp.push_back( (Camera*) _cameras[i] ) ;
 	_cameras_mutex.unlock() ;
 	return tmp ;
 }
@@ -27,7 +29,7 @@ Camera* VisionSystem::get_camera ( string name ) {
 	Camera* tmp = NULL ;
 	for ( int i=0; i<_cameras.size(); i++ )
 		if ( _cameras[i]->get_name() == name )
-			tmp = _cameras[i] ; 			
+			tmp = (Camera*) _cameras[i] ; 			
 	_cameras_mutex.unlock() ;
 	return tmp ;
 }
@@ -38,7 +40,7 @@ Camera* VisionSystem::get_default_camera() {
 	if ( _cameras.size() == 0 )
 		tmp = NULL ;
 	else
-		tmp = _cameras[0] ;
+		tmp = (Camera*) _cameras[0] ;
 	_cameras_mutex.unlock() ;
 	return tmp ;
 }
@@ -60,7 +62,7 @@ void VisionSystem::unregister_to_cam ( Plugin* plugin, Camera* cam ) {
 }
 
 
-void VisionSystem::add_camera( Camera* cam ) {
+void VisionSystem::add_camera( GenericCamera* cam ) {
 	string name = cam->get_name() ;
 	_cameras_mutex.lock() ;
 	for ( int i=0; i< _cameras.size(); i++ )
@@ -68,6 +70,14 @@ void VisionSystem::add_camera( Camera* cam ) {
 			throw ( string("Cannot add camera - A camera name must be unique" ) ) ;
 	_cameras.push_back( cam ) ;
 	_cameras_mutex.unlock() ;
+}
+
+vector<Plugin*> VisionSystem::get_all_subscriptions( GenericCamera* cam ) {
+	vector<Plugin*> tmp ;
+	_subscriptions_mutex.lock() ;
+	tmp = _subscriptions[cam]  ; 
+	_subscriptions_mutex.unlock() ;
+	return tmp ;
 }
 
 

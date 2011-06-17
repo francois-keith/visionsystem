@@ -33,6 +33,7 @@ namespace visionsystem {
 
 	} ;
 
+#include <visionsystem/buffer.hpp>
 
 }
 

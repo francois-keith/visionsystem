@@ -32,7 +32,7 @@ Data* Buffer<Data>::bl_dequeue() {
 		_mutex.lock() ;
 	}
 	tmp = _frames.front() ;
-	_frames.erase(frames.begin()) ;
+	_frames.erase(_frames.begin()) ;
 	_mutex.unlock() ;
 	return tmp ;
 
@@ -46,7 +46,7 @@ Data* Buffer<Data>::nbl_dequeue() {
 		tmp = (Data*) NULL ;
 	else {
 		tmp = _frames.front() ;	
-		_frames.erase( frames.begin() ) ;
+		_frames.erase( _frames.begin() ) ;
 	}
 	_mutex.unlock() ;
 	return tmp ;
@@ -63,7 +63,7 @@ void Buffer<Data>::enqueue( Data* data ) {
 template<typename Data>
 void Buffer<Data>::push( Data* data ) {
 	_mutex.lock() ;
-	_frames.pushback( data ) ;
+	_frames.push_back( data ) ;
 	_mutex.unlock() ;
 }
 
@@ -72,10 +72,10 @@ Data* Buffer<Data>::pull() {
 	Data* tmp ;
 	_mutex.lock() ;
 	if ( _trash.size() == 0 ) 
-		throw ( string ( "Cannot pull from buffer : no available frame " ) ) ;
+		throw ( std::string ( "Cannot pull from buffer : no available frame " ) ) ;
 	else {
 		tmp = _trash.front() ;	
-		_trash.erase( trash.begin() ) ;
+		_trash.erase( _trash.begin() ) ;
 	}
 	_mutex.unlock() ;
 	return tmp ;
