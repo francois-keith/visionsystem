@@ -57,6 +57,6 @@ link_directories( "${VISION_LIBRARY_DIR}"
 ### Go to subdirs
 
 add_subdirectory(  "lib" )
+add_subdirectory(  "controllers" )
 #add_subdirectory(  "core" )
-#add_subdirectory(  "controllers" )
 #add_subdirectory(  "plugins" )
