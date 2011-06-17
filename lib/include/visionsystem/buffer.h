@@ -11,8 +11,8 @@ namespace visionsystem {
 
 		private:
 
-			std::vector< Data > _frames ;
-			std::vector< Data > _trash  ;
+			std::vector< Data* > _frames ;
+			std::vector< Data* > _trash  ;
 			boost::mutex	    _mutex ; 
 
 		public:
@@ -22,14 +22,14 @@ namespace visionsystem {
 
 			// Primitives to use data inside the buffer ( Consummer side )
 
-			Data bl_dequeue() ;	
-			Data nbl_dequeue() ;
-			void enqueue ( Data ) ;				    
+			Data* bl_dequeue() ;	
+			Data* nbl_dequeue() ;
+			void enqueue ( Data* ) ;				    
 
 			// Primitives to feed data to the buffer ( Producer side )
 
-			Data pull() ;
-			void push( Data ) ;
+			Data* pull() ;
+			void push( Data* ) ;
 
 	} ;
 

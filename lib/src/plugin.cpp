@@ -12,6 +12,11 @@ Plugin::Plugin( VisionSystem* vs, std::string plugin_name, std::string sandbox )
 }
 
 
+Plugin::~Plugin() {
+
+}
+
+
 std::string Plugin::get_name() {
 	return _name ;
 }
@@ -37,6 +42,10 @@ std::vector<Camera*> Plugin::get_all_cameras() {
 
 Camera* Plugin::get_camera ( std::string cam_name ) {
 	return _vscore->get_camera( cam_name ) ;
+}
+
+Camera* Plugin::get_default_camera () {
+	return _vscore->get_default_camera() ;
 }
 
 

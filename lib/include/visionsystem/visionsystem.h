@@ -17,11 +17,15 @@ namespace visionsystem {
 
 		public :
 	
-			virtual std::vector<Camera*> get_all_cameras() = 0 ;
-			virtual Camera* get_camera ( std::string cam_name ) = 0 ;
+			VisionSystem() ;
+			~VisionSystem() ;
 			
-			virtual Camera* register_to_cam ( Plugin* plugin, Camera* cam ) = 0 ;
-			virtual void unregister_to_cam  ( Plugin* plugin, Camera* cam ) = 0 ;	
+			std::vector<Camera*> get_all_cameras() ;
+			Camera* get_camera ( std::string cam_name ) ;
+			Camera* get_default_camera() ;
+
+			void register_to_cam ( Plugin* plugin, Camera* cam ) ;
+			void unregister_to_cam  ( Plugin* plugin, Camera* cam ) ;	
 
 			template< typename Obj >
 			void whiteboard_write ( std::string key, Obj value ) ;
@@ -29,11 +33,27 @@ namespace visionsystem {
 			template< typename Obj >
 			Obj whiteboard_read ( std::string key ) ;
 
+
+		protected :
+
+			void add_camera ( Camera * ) ;
+			std::vector<Plugin*> get_all_subscriptions ( Camera* ) ;
+
 		private :
+
+			
+			std::vector< Camera* >			_cameras ;
+			boost::mutex			        _cameras_mutex ;
 
 			std::map< std::string, boost::any >    whiteboard_data ;
 			std::map< std::string, boost::mutex >  whiteboard_mutex ;
-	} ;
+
+			std::map< Camera*, std::vector<Plugin*> >   _subscriptions ;
+			boost::mutex			       	    _subscriptions_mutex ;
+
+
+
+} ;
 
 
 

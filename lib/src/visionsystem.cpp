@@ -1,0 +1,76 @@
+#include <visionsystem/visionsystem.h>
+#include <vector>
+
+using namespace std ;
+
+
+namespace visionsystem {
+
+VisionSystem::VisionSystem() {
+
+}
+
+
+VisionSystem::~VisionSystem() {
+
+}
+
+vector<Camera*> VisionSystem::get_all_cameras() {
+	_cameras_mutex.lock() ;
+	vector<Camera*> tmp = _cameras ;
+	_cameras_mutex.unlock() ;
+	return tmp ;
+}
+
+Camera* VisionSystem::get_camera ( string name ) {
+	_cameras_mutex.lock() ;
+	Camera* tmp = NULL ;
+	for ( int i=0; i<_cameras.size(); i++ )
+		if ( _cameras[i]->get_name() == name )
+			tmp = _cameras[i] ; 			
+	_cameras_mutex.unlock() ;
+	return tmp ;
+}
+
+Camera* VisionSystem::get_default_camera() {
+	Camera* tmp ;
+	_cameras_mutex.lock() ;
+	if ( _cameras.size() == 0 )
+		tmp = NULL ;
+	else
+		tmp = _cameras[0] ;
+	_cameras_mutex.unlock() ;
+	return tmp ;
+}
+
+
+void VisionSystem::register_to_cam ( Plugin* plugin, Camera* cam ) {
+	_subscriptions_mutex.lock() ;
+	_subscriptions[cam].push_back( plugin ) ;
+	_subscriptions_mutex.unlock() ;
+}
+
+
+void VisionSystem::unregister_to_cam ( Plugin* plugin, Camera* cam ) {
+	_subscriptions_mutex.lock() ;
+	for (int i=0; i<_subscriptions[cam].size(); i++ )	
+		if ( _subscriptions[cam][i] == plugin )
+			_subscriptions[cam].erase( _subscriptions[cam].begin() + i ) ;
+	_subscriptions_mutex.unlock() ;
+}
+
+
+void VisionSystem::add_camera( Camera* cam ) {
+	string name = cam->get_name() ;
+	_cameras_mutex.lock() ;
+	for ( int i=0; i< _cameras.size(); i++ )
+		if ( _cameras[i]->get_name() == name )
+			throw ( string("Cannot add camera - A camera name must be unique" ) ) ;
+	_cameras.push_back( cam ) ;
+	_cameras_mutex.unlock() ;
+}
+
+
+}
+
+

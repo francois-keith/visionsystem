@@ -5,6 +5,8 @@
 #include <visionsystem/frame.h>
 #include <visionsystem/buffer.h>
 
+namespace visionsystem {
+
 class GenericCamera : public Camera
 {
 
@@ -12,8 +14,10 @@ class GenericCamera : public Camera
 
 		GenericCamera( std::string name ) ;
 
-		Buffer<Frame*>	_buffer ;
+		Buffer<Frame>	_buffer ;
 
 } ;
+
+}
 
 #endif

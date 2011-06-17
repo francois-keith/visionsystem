@@ -37,9 +37,10 @@ class Plugin
 
 		std::vector<Camera*> get_all_cameras() ;
 		Camera* get_camera ( std::string cam_name )  ;
-		
+		Camera* get_default_camera() ;
+
 		template < typename Timage >
-		Camera* register_to_cam ( std::string name, int N ) ;
+		void register_to_cam ( Camera*, int N ) ;
 		
 		template < typename Timage >
 		Timage* dequeue_image ( Camera* ) ;
@@ -62,7 +63,7 @@ class Plugin
 		VisionSystem*	_vscore ;					// Pointer to the VisionSystem core running this plugin
 		std::string 	_name ;						// Name of the plugin.
 
-		std::map< Camera*, Buffer<Frame*>*  >	frame_buffers ;		// This buffer for the frames received from the cameras	
+		std::map< Camera*, Buffer<Frame>*  >	frame_buffers ;		// This buffer for the frames received from the cameras	
 		std::map< Camera*, boost::any >		img_buffers ;		// This buffer tor the images which will be filled from the frames.
 };
 
