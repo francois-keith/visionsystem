@@ -57,12 +57,12 @@ void VsCore::parse_config_line ( vector<string> &line )
 		cout << "[vs_core] Loading Controller: " << line[1] << " " << sandbox << endl ;
 
 		if (!exists( sandbox )) {
-			cout << "[vs_core] \t WARNING: Could not find sandbox. Creating ... " <<  endl ;
+			cout << "[vs_core]  WARNING: Could not find sandbox. Creating ... " <<  endl ;
 	 		create_directory( sandbox );	
 		}
 
 		if (!is_directory( sandbox )) {
-			cerr << "[vs_core] \t ERROR: Sandbox is a file. Directory expected." << endl ;
+			cerr << "[vs_core]  ERROR: Sandbox is a file. Directory expected." << endl ;
 			return ;
 		}
 
@@ -87,12 +87,12 @@ void VsCore::parse_config_line ( vector<string> &line )
 		cout << "[vs_core] Loading Plugin: " << line[1] << " " << sandbox << endl ;
 
 		if (!exists( sandbox )) {
-			cout << "[vs_core] \t WARNING: Could not find sandbox. Creating ... " <<  endl ;
+			cout << "[vs_core]  WARNING: Could not find sandbox. Creating ... " <<  endl ;
 	 		create_directory( sandbox );	
 		}
 
 		if (!is_directory( sandbox )) {
-			cerr << "[vs_core] \t ERROR: Sandbox is a file. Directory expected." << endl ;
+			cerr << "[vs_core]  ERROR: Sandbox is a file. Directory expected." << endl ;
 			return ;
 		}
 
@@ -196,7 +196,7 @@ void VsCore::run()
 
 	for ( int i=0; i<_controllers.size(); i++) {
 		
-		cout << "[vs_core] \t initialising " << _controllers[i]->get_name() << endl ;
+		cout << "[vs_core]  initialising " << _controllers[i]->get_name() << endl ;
 		
 		vector<GenericCamera*> tmp ;
 		if ( !_controllers[i]->pre_fct(tmp) ) {
@@ -205,7 +205,7 @@ void VsCore::run()
 		}
 		
 		for ( int j=0; j<tmp.size(); j++ ) {
-			cout << "[vs_core] \t \t Found camera " << tmp[j]->get_name() << endl ;
+			cout << "[vs_core]   Found camera " << tmp[j]->get_name() << endl ;
 			add_camera( tmp[j] ) ;
 		}
 	}
@@ -215,7 +215,7 @@ void VsCore::run()
 	cout << "[vs_core] Initialising all plugins " << endl ;
 
 	for ( int i=0; i< _plugins.size(); i++ ) {
-		cout << "[vs_core] \t initializing " << _plugins[i]->get_name() << " ..." << endl ;
+		cout << "[vs_core]  initializing " << _plugins[i]->get_name() << " ..." << endl ;
 		if ( !_plugins[i]->pre_fct() ) {
 			cerr << "[vs_core] ERROR: Could not initialize plugin " << _plugins[i]->get_name() << endl ;
 			return ;
@@ -225,24 +225,23 @@ void VsCore::run()
 	// Start Plugins threads
 
 	cout << "[vs_core] Starting plugins Threads" << endl ;
-/*
+
 	for ( int i=0 ; i<_plugin_threads.size(); i++ )
 		_plugin_threads[i]->start_thread() ;
-*/		
+		
 
 	// Start Controllers threads
 	
 	cout << "[vs_core] Starting controllers Threads" << endl ;
-/*
+
 	for ( int i=0 ; i<_controller_threads.size(); i++ )
 		_controller_threads[i]->start_thread() ;
-*/	
+	
 	// Main loop
-/*
 	
 
 	while (1) {
-		for ( int c=0; c < _cameras.size(); c++ )
+/*		for ( int c=0; c < _cameras.size(); c++ )
 			if ( _subscriptions[_cameras[c]]->size() != 0 ) {
 				boost::any img ;
 				if ( _cameras[c]->image_ready() ) {
@@ -251,26 +250,24 @@ void VsCore::run()
 						(*_subscriptions[_cameras[c]])[p]->push_image ( img ) ;
 				}
 			}
-	}
-*/
+*/	}
+
 	// Stop Plugins threads
 	
 	cout << "[vs_core] Stopping plugins Threads ..." << endl ;
-/*
+
 	for ( int i=0 ; i<_plugin_threads.size(); i++ ) {
-		_plugin_threads[i]->stop() ;
-		_plugin_threads[i]->join_thread() ;
+		_plugin_threads[i]->stop_thread() ;
 	}
-*/
+
 	// Stop Controllers threads
 	
 	cout << "[vs_core] Stopping Controller Threads ..." << endl ;
-/*
+
 	for ( int i=0 ; i<_controller_threads.size(); i++ ) {
-		_controller_threads[i]->pointer->stop() ;
-		_controller_threads[i]->join_thread() ;
+		_controller_threads[i]->stop_thread() ;
 	}
-*/	
+	
 
 	// Plugins post_fct() 
 	

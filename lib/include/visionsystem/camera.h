@@ -15,19 +15,12 @@ namespace visionsystem {
 	{
 		public:
 			
-			Camera( std::string name ) ;			
-			~Camera() ;
-
 			virtual vision::ImageRef get_size() = 0 ;			// These methods can be called by plugins. 
 			virtual bool is_active()  = 0 ;
 			virtual FrameCoding get_coding() = 0 ;
 			virtual float get_fps() = 0 ;
+			virtual std::string get_name() = 0 ;
 	
-			std::string      get_name() ;
-	
-		private:
-
-			std::string 	    _name ;
 	} ;
 
 

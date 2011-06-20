@@ -1,5 +1,6 @@
 ### Go to subdirs
 
-# add_subdirectory ("imgfolder")		TODO 
+add_subdirectory ("imgcam")			
+# add_subdirectory ("foldercam")		TODO 
 # add_subdirectory ("vlc")			TODO
 # add_subdirectory ("socketcam")		TODO

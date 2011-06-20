@@ -12,11 +12,10 @@ class GenericCamera : public Camera
 
 	public:
 
-		GenericCamera( std::string name ) ;
-
 		Buffer<Frame>	_buffer ;
 
 } ;
+
 
 }
 

@@ -20,11 +20,11 @@ class Thread {
 		Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox ) ;
 		~Thread() ;
 
-		data*  pointer  ;
 
 		void start_thread() ;
 		void stop_thread() ;
-		void join_thread() ;
+
+		data*  pointer  ;
 
 	private:
 
@@ -41,6 +41,12 @@ class Thread {
 
 		create_t*	_create_fct ;
 		destroy_t*	_destroy_fct ;
+
+
+	private:
+
+		void main() ;
+		bool _done  ;
 
 } ;	
 
@@ -116,7 +122,11 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
 	// create an instance of the class
 
 	pointer = _create_fct( core, sandbox );
+
+	// Get ready to run th thread
 	
+	_done = false ;
+
 }
 
 
@@ -128,17 +138,23 @@ Thread<Data>::~Thread() {
 
 template<typename Data>
 void Thread<Data>::start_thread() {
-	_thread = boost::thread( &Data::main_fct, pointer );  
+	_thread = boost::thread( &Thread<Data>::main, this );  
 
 }
 
 
 template<typename Data>
-void Thread<Data>::join_thread() {
+void Thread<Data>::stop_thread() {
+	_done = true ;
 	_thread.join() ;   
 }
 
+template< typename Data >
+void Thread<Data>::main() {
+	while ( !_done ) 
+		pointer->loop_fct() ;
 
+}
 
 #endif
 
