@@ -31,6 +31,10 @@ namespace visionsystem {
 			Data* pull() ;
 			void push( Data* ) ;
 
+			// Empty the buffer :
+			
+			void clear() ;
+
 	} ;
 
 #include <visionsystem/buffer.hpp>

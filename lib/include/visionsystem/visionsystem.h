@@ -37,6 +37,8 @@ namespace visionsystem {
 		protected :
 
 			void add_camera ( GenericCamera * ) ;
+			
+			std::vector<GenericCamera*> get_all_genericcameras() ;
 			std::vector<Plugin*> get_all_subscriptions ( GenericCamera* ) ;
 
 		private :

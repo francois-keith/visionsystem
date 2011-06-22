@@ -3,8 +3,8 @@
 
 #include "utils.h"
 
-#define MACROCASE(A)	case A : ret=#A ; break ;
 
+#define MACROCASE(A)	case A : ret=#A ; break ;
 
 using namespace std ;
 

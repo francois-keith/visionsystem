@@ -50,14 +50,20 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 				
 				std::ostringstream conf_filename;
 				conf_filename << get_sandbox() << "/" << list->ids[i].guid << ".conf" ;  
-				cam->read_config_file ( conf_filename.str().c_str() ) ;
+				try {
+					cam->read_config_file ( conf_filename.str().c_str() ) ;
+				} catch ( string msg ) {
+					cerr << "[camdc1394] WARNING : Unable to open config file for cam " << list->ids[i].guid << endl ;
+					cerr << "[camdc1394] trying with default parameters ... " << endl ;
+				}
 
-				cam->apply_settings() ;
+				if ( !cam->apply_settings() ) {
+					cerr << "[camdc1394] ERROR : Could not apply settings to cam " << list->ids[i].guid << endl ;
+					return false ;
+				}
 
-				//FIXME
-
-//				cameraVector.push_back(cam) ;
-//				cam1394Vector_.push_back(cam) ;
+				cams.push_back( (GenericCamera*) cam ) ;
+				_cams.push_back(cam) ;
 
 			}
 
@@ -71,13 +77,40 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 
 void Controller1394::loop_fct() {
 
+		dc1394error_t err ;
+		dc1394video_frame_t *frame = NULL ;
+		Frame* vsframe = NULL ;	
+		for ( int i=0; i < _cams.size(); i++ ) {
+
+			err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_WAIT, &frame ) ;
+		
+			if ( err != DC1394_SUCCESS ) {
+				cerr << "[camdc1394] Could not dequeue frame" << endl ;
+				exit(0) ;
+			}
+
+			vsframe = _cams[i]->_buffer.pull() ;
+
+			memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
+
+			_cams[i]->_buffer.push( vsframe ) ;
+
+			err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
+			
+			if ( err != DC1394_SUCCESS ) {
+				cerr << "[camdc1394] Could not enqueue frame" << endl ;
+				exit(0) ;
+			}
+		}
 }
 
 
 bool Controller1394::post_fct() {
 
-	for ( int i=0; i< _cams.size(); i++ )
+	for ( int i=0; i< _cams.size(); i++ ) {
+		_cams[i]->stop_cam() ;
 		delete ( _cams[i] ) ;
+	}
 
 	if ( d1394_ != NULL ) {	
 		cout << "[camdc1394] Closing DC1394 " << endl ;

@@ -151,8 +151,16 @@ void Thread<Data>::stop_thread() {
 
 template< typename Data >
 void Thread<Data>::main() {
-	while ( !_done ) 
-		pointer->loop_fct() ;
+	
+	try {
+		while ( !_done ) 
+			pointer->loop_fct() ;
+	} catch ( std::string msg ) {
+		
+		std::cerr << msg << std::endl ;
+		return ;
+	
+	}
 
 }
 

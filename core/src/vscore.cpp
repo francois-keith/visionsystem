@@ -239,18 +239,30 @@ void VsCore::run()
 	
 	// Main loop
 	
-
+	Frame* frm ;
+	
 	while (1) {
-/*		for ( int c=0; c < _cameras.size(); c++ )
-			if ( _subscriptions[_cameras[c]]->size() != 0 ) {
-				boost::any img ;
-				if ( _cameras[c]->image_ready() ) {
-					img = _cameras[c]->dequeue_image() ;
-					for ( int p=0; p < _subscriptions[ _cameras[c]]->size(); p++ )
-						(*_subscriptions[_cameras[c]])[p]->push_image ( img ) ;
-				}
+		
+		vector<GenericCamera*> all_cameras = get_all_genericcameras() ;	
+		
+		for ( int c=0; c < all_cameras.size(); c++ ) {
+			
+			frm = all_cameras[c]->_buffer.nbl_dequeue() ;	
+
+			if ( frm != ( Frame*) NULL ) {
+
+				vector<Plugin*> subscribed = get_all_subscriptions ( all_cameras[c] ) ;
+
+				for ( int p=0; p < subscribed.size(); p++ )
+					subscribed[p]->push_frame( (Camera*) all_cameras[c] , frm ) ;
+				
+			all_cameras[c]->_buffer.enqueue( frm ) ;
+			
 			}
-*/	}
+
+
+		}
+	}
 
 	// Stop Plugins threads
 	

@@ -34,7 +34,10 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 	float       get_fps() ;
 	string      get_name() ;
 
+	dc1394camera_t* get_cam() ;
 	void save_capa ( string filename ) ;
+	bool apply_settings() ;
+	bool stop_cam() ;
 	
 	private:
 
@@ -43,7 +46,9 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 	bool	 	_active ;
 	string		_name;
 	uint64_t	_gid ;
-	
+	int		_buffersize ;
+
+
 	dc1394_t 				*handler ;
 	dc1394camera_t 				    *cam ;	       
 	dc1394video_mode_t 			    mode ;	
@@ -53,9 +58,9 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 	
 	std::vector< std::vector<std::string> > features ;
 
-
-
-
+	dc1394bayer_method_t bayer_method ;
+	dc1394color_filter_t bayer_coding ;
+	
 };
 
 

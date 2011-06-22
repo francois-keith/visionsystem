@@ -9,8 +9,15 @@ int main ( int argc, char** argv, char** envv ) {
 
 	VsCore core( argc, argv, envv ) ;
 
-	core.run() ;
-
+	try {
+		core.run() ;
+	
+	} catch ( string msg ) {
+		
+		cerr << msg << endl ;
+	
+	}
+	
 	return 0 ;
 
 }

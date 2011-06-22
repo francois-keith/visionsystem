@@ -4,6 +4,7 @@
 #include <dc1394/dc1394.h>
 #include <string>
 
+
 std::string mode_2_string ( dc1394video_mode_t mode ) ;
 
 std::string feature_2_string ( dc1394feature_t ft ) ;

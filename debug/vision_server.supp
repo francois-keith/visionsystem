@@ -1,0 +1,56 @@
+{
+	dc1394_cond
+	Memcheck:Cond
+	...
+	fun:dc1394_*
+}
+{
+	dc1394_value4
+	Memcheck:Value4
+	...
+	fun:dc1394_*
+}
+{
+	dc1394_ param write(buf)
+	Memcheck:Param
+	write(buf)
+	...
+	fun:dc1394_*
+}
+{
+	dc1394_ param ioctl(generic)
+	Memcheck:Param
+	ioctl(generic)
+	...
+	fun:dc1394_*
+}
+{
+	libgcc_cond
+	Memcheck:Cond
+	obj:*libgcc*
+}
+{
+	libgcc value4
+	Memcheck:Value4
+	obj:*libgcc*
+}
+{
+	libstdc++ cond
+	Memcheck:Cond
+	obj:*libstdc++*
+}
+{
+	libstdc++ value 4
+	Memcheck:Value4
+	obj:*libstdc++*
+}
+{
+	libc cond
+	Memcheck:Cond
+	obj:*libc*
+}
+{
+	libc value 4
+	Memcheck:Value4
+	obj:*libc*
+}

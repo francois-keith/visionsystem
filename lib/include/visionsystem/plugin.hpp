@@ -1,4 +1,3 @@
-
 template< typename Timage >
 void Plugin::register_to_cam ( Camera* cam, int N ) {
 	
@@ -16,7 +15,6 @@ void Plugin::register_to_cam ( Camera* cam, int N ) {
 		imgbuff->enqueue ( new Timage( cam->get_size() ) ) ;
 	}
 
-	return cam ;
 }
 
 
@@ -27,7 +25,7 @@ Timage* Plugin::dequeue_image ( Camera* cam )
 	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage>* >( img_buffers[cam] ) ;
 
 	Frame*  frm = frmbuff->bl_dequeue() ;
-	Timage* img = imgbuff->bl_dequeue() ;
+	Timage* img = imgbuff->pull() ;
 
 	image_fill<Timage> ( img, frm ) ;
 
@@ -53,7 +51,7 @@ void Plugin::unregister_to_cam ( Camera* cam ) {
 	_vscore->unregister_to_cam( this, cam ) ;	
 	
 	Buffer<Frame>  *frmbuff = frame_buffers[cam] ;
-	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage*>* >( img_buffers[cam] ) ;	
+	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage>* >( img_buffers[cam] ) ;	
 	
 	delete imgbuff ;
 	delete frmbuff ;

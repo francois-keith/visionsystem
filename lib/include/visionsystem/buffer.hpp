@@ -55,7 +55,7 @@ Data* Buffer<Data>::nbl_dequeue() {
 template<typename Data>
 void Buffer<Data>::enqueue( Data* data ) {
 	_mutex.lock() ;
-	_trash.pushback ( data ) ;
+	_trash.push_back ( data ) ;
 	_mutex.unlock() ;
 }
 
@@ -81,3 +81,17 @@ Data* Buffer<Data>::pull() {
 	return tmp ;
 
 }
+
+
+template<typename Data>
+void Buffer<Data>::clear() {
+	_mutex.lock() ;
+	for ( int i=0; i<_frames.size() ; i++ )
+		delete _frames[i] ;
+	for ( int i=0; i<_trash.size() ; i++ )
+		delete _trash[i] ;
+	_frames.clear() ;
+	_trash.clear() ;
+	_mutex.unlock() ;
+}
+

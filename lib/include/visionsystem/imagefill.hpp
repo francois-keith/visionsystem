@@ -2,6 +2,7 @@
 #define VS_IMAGEFILL_H
 
 #include <iostream>
+#include <typeinfo>
 #include <visionsystem/frame.h>
 
 template < typename Timage > 
@@ -11,9 +12,6 @@ void image_fill ( Timage* img, visionsystem::Frame* frm ) {
 
 	throw("CONVERSION NOT IMPLEMENTED") ;
 }
-
-
-
 
 
 #endif

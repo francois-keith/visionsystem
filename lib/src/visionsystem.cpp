@@ -72,6 +72,15 @@ void VisionSystem::add_camera( GenericCamera* cam ) {
 	_cameras_mutex.unlock() ;
 }
 
+vector<GenericCamera*> VisionSystem::get_all_genericcameras() {
+	vector<GenericCamera*> tmp ;
+	_cameras_mutex.lock() ;
+	tmp = _cameras ;
+	_cameras_mutex.unlock() ;
+	return tmp ;
+}
+
+
 vector<Plugin*> VisionSystem::get_all_subscriptions( GenericCamera* cam ) {
 	vector<Plugin*> tmp ;
 	_subscriptions_mutex.lock() ;
