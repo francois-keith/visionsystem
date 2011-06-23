@@ -21,7 +21,7 @@ bool Dump2Disk::pre_fct() {
 	_cam = get_default_camera() ;
 	register_to_cam< Image<unsigned char, MONO> >( _cam, 10 ) ;
 
-	for ( int i=0; i < 1000; i++ )
+	for ( int i=0; i < 100; i++ )
 		_buffer.enqueue( new Image<unsigned char, MONO>( _cam->get_size() ) ) ;	
 
 	return true ;
@@ -39,7 +39,7 @@ void Dump2Disk::loop_fct() {
 		Image<unsigned char, MONO> *cpy ;
 		cpy = _buffer.pull() ;
 
-		// Copier image ici
+		cpy->copy( img ) ;
 
 		_buffer.push( cpy ) ;
 	
