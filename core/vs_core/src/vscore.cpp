@@ -15,9 +15,9 @@ VsCore::VsCore( int argc, char** argv, char** envv )
 
 	for (int i = 0 ; envv[i]; i++ ) {
 		if ( strncmp ( envv[i], "HOME=", 5 ) == 0 ) 
-			_basedir = string( &(envv[i][5]) ) + "/.vision_system/" ;
+			_basedir = string( &(envv[i][5]) ) + "/.vs_core/" ;
 		else if ( strncmp ( envv[i], "APPDATA=", 8 ) == 0 )
-			_basedir = string( &(envv[i][8]) ) + "/vision_system/" ;
+			_basedir = string( &(envv[i][8]) ) + "/vs_core/" ;
 	}
 
 	if ( _basedir == "" ) {
@@ -36,7 +36,7 @@ VsCore::VsCore( int argc, char** argv, char** envv )
 
 VsCore::~VsCore()
 {
-	// FIXME
+
 }
 
 
@@ -190,13 +190,18 @@ void VsCore::run()
 	else
 		cout << "[vs_core] " << _plugins.size() << " plugins loaded" << endl ;
 
+
+	// WhiteBoard init
+
+	whiteboard_write< bool >( string("core_stop") , false ) ;
+
 	// Controllers pre_fct() 
 
 	cout << "[vs_core] Initialising all controllers" << endl ;
 
 	for ( int i=0; i<_controllers.size(); i++) {
 		
-		cout << "[vs_core]  initialising " << _controllers[i]->get_name() << endl ;
+		cout << "[vs_core] Initializing " << _controllers[i]->get_name() << endl ;
 		
 		vector<GenericCamera*> tmp ;
 		if ( !_controllers[i]->pre_fct(tmp) ) {
@@ -205,7 +210,7 @@ void VsCore::run()
 		}
 		
 		for ( int j=0; j<tmp.size(); j++ ) {
-			cout << "[vs_core]   Found camera " << tmp[j]->get_name() << endl ;
+			cout << "[vs_core] Found camera " << tmp[j]->get_name() << endl ;
 			add_camera( tmp[j] ) ;
 		}
 	}
@@ -215,7 +220,7 @@ void VsCore::run()
 	cout << "[vs_core] Initialising all plugins " << endl ;
 
 	for ( int i=0; i< _plugins.size(); i++ ) {
-		cout << "[vs_core]  initializing " << _plugins[i]->get_name() << " ..." << endl ;
+		cout << "[vs_core] Initializing " << _plugins[i]->get_name() << " ..." << endl ;
 		if ( !_plugins[i]->pre_fct() ) {
 			cerr << "[vs_core] ERROR: Could not initialize plugin " << _plugins[i]->get_name() << endl ;
 			return ;
@@ -241,7 +246,7 @@ void VsCore::run()
 	
 	Frame* frm ;
 	
-	while (1) {
+	while ( ! whiteboard_read< bool >("core_stop") ) {
 		
 		vector<GenericCamera*> all_cameras = get_all_genericcameras() ;	
 		
@@ -264,39 +269,55 @@ void VsCore::run()
 		}
 	}
 
-	// Stop Plugins threads
-	
-	cout << "[vs_core] Stopping plugins Threads ..." << endl ;
-
-	for ( int i=0 ; i<_plugin_threads.size(); i++ ) {
-		_plugin_threads[i]->stop_thread() ;
-	}
-
 	// Stop Controllers threads
 	
-	cout << "[vs_core] Stopping Controller Threads ..." << endl ;
+	cout << "[vs_core] Sending stop signal to controller Threads ..." << endl ;
 
 	for ( int i=0 ; i<_controller_threads.size(); i++ ) {
-		_controller_threads[i]->stop_thread() ;
+		_controller_threads[i]->request_stop() ;
+	}
+
+	// Join Controllers threads
+	
+	cout << "[vs_core] Waiting for controller threads to stop ..." << endl ;
+
+	for ( int i=0 ; i<_controller_threads.size(); i++ ) {
+		_controller_threads[i]->join() ;
+	}
+
+
+	// Stop Plugins threads
+	
+	cout << "[vs_core] Sending stop signal to plugins Threads ..." << endl ;
+
+	for ( int i=0 ; i<_plugin_threads.size(); i++ ) {
+		_plugin_threads[i]->request_stop() ;
 	}
 	
+	// Join Plugins threads
+	
+	cout << "[vs_core] Waiting for plugin threads to stop ..." << endl ;
 
+	for ( int i=0 ; i<_plugin_threads.size(); i++ ) {
+		_plugin_threads[i]->join() ;
+	}
+	
 	// Plugins post_fct() 
 	
-	cout << "[vs_core] Closing Plugins ..." << endl ;
+	cout << "[vs_core] Calling post_fct() for Plugins ..." << endl ;
 
 	for ( int i=0 ; i<_plugins.size(); i++ ) 
 		_plugins[i]->post_fct() ;
 
 	// Controllers post_fct()
 	
-	cout << "[vs_core] Closing Controllers ... " << endl ;
+	cout << "[vs_core] Calling post_fct() for Controllers ... " << endl ;
 
 	for ( int i=0 ; i<_controllers.size(); i++ ) 
 		_controllers[i]->post_fct() ;
 
 	// Cleaning up a bit
-/*
+
 	for ( int i=0 ; i<_plugin_threads.size(); i++ ) 
 		delete _plugin_threads[i] ;
 	
@@ -305,6 +326,6 @@ void VsCore::run()
 
 	_plugins.clear() ;
 	_controllers.clear() ;
-*/
+
 }
 

@@ -1,6 +1,9 @@
 #include <visionsystem/plugin.h>
+#include <vision/image/image.h>
+#include <visionsystem/buffer.h>
 
 using namespace std ;
+using namespace vision ;
 using namespace visionsystem ;
 
 class Dump2Disk : public Plugin
@@ -16,7 +19,9 @@ class Dump2Disk : public Plugin
 		
 	private:
 
-		Camera*		cam ;
+		Camera*					_cam ;
+		Buffer< Image<unsigned char, MONO> >	_buffer ;
+		bool _done ;
 } ;
 
 PLUGIN(Dump2Disk)

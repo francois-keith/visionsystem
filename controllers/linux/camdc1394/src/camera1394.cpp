@@ -17,7 +17,7 @@ Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 	framerate = 	DC1394_FRAMERATE_30 ;
 	flags =		DC1394_CAPTURE_FLAGS_DEFAULT ;
 	
-	_buffersize = 10 ;	
+	_buffersize = 100 ;	
 	
 	cam = dc1394_camera_new ( handler, gid ) ;	
 

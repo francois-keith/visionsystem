@@ -31,9 +31,11 @@ namespace visionsystem {
 			Data* pull() ;
 			void push( Data* ) ;
 
-			// Empty the buffer :
+			// Misc. 
 			
 			void clear() ;
+			int size() ;
+			bool is_full() ;
 
 	} ;
 

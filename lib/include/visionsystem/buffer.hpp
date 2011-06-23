@@ -15,7 +15,7 @@ Buffer<Data>::~Buffer() {
 		delete (_frames[i]) ;
 
 	for ( int i=0; i<_trash.size(); i++ )
-		delete ( _trash[0] ) ;
+		delete ( _trash[i] ) ;
 
 	_frames.clear() ;
 	_trash.clear()  ;
@@ -26,10 +26,18 @@ template<typename Data>
 Data* Buffer<Data>::bl_dequeue() {
 	Data* tmp ;
 	_mutex.lock() ;
-	while ( _frames.size() == 0 ) {
+	for ( int counter=0; _frames.size() == 0; counter++ ) {
+		
 		_mutex.unlock() ;
+
+		if ( counter == 1000 ) {
+			throw( std::string ("bl_dequeue() : timeout ..." ) ) ;
+		}
+
 		usleep ( 1000 ) ;
+		
 		_mutex.lock() ;
+
 	}
 	tmp = _frames.front() ;
 	_frames.erase(_frames.begin()) ;
@@ -93,5 +101,23 @@ void Buffer<Data>::clear() {
 	_frames.clear() ;
 	_trash.clear() ;
 	_mutex.unlock() ;
+}
+
+template<typename Data>
+bool Buffer<Data>::is_full() {
+	bool tmp ;
+	_mutex.lock() ;
+	tmp = ( _trash.size() == 0 ) ;
+	_mutex.unlock() ;
+	return tmp ;
+}
+	
+template<typename Data>
+int Buffer<Data>::size() {
+	int tmp ;
+	_mutex.lock() ;
+	tmp =  _frames.size() ;
+	_mutex.unlock() ;
+	return tmp ;
 }
 

@@ -1,6 +1,5 @@
 #include "controller.h"
 
-
 Controller1394::Controller1394( VisionSystem *vs, std::string sandbox )
 :Controller( vs, "camdc1394", sandbox) {
 
@@ -24,8 +23,10 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 
 	} else {
 		
-		cout << "[camdc1394] Initializing DC1394 system " << endl ; 
-		
+		#ifdef _DEBUG
+			cout << "[camdc1394] Initializing DC1394 system " << endl ; 
+		#endif
+
 		dc1394camera_list_t * list ;
 		dc1394error_t	err ;
 
@@ -33,15 +34,19 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 
 		if ( list->num == 0 ) {
 
-			cout << "[camdc1394]  No 1394 camera found." << endl ;
+			#ifdef _DEBUG
+				cout << "[camdc1394]  No 1394 camera found." << endl ;
+			#endif
 			return true ;
 
 		} else {
 
 			for ( int i=0; i<list->num; i++ ) {
 				
-				cout <<"[camdc1394] Found camera " << list->ids[i].guid << endl ;					
-	
+				#ifdef _DEBUG
+					cout <<"[camdc1394] Found camera " << list->ids[i].guid << endl ;					
+				#endif
+
 				Camera1394* cam = new Camera1394( d1394_ , list->ids[i].guid ) ;
 
 				std::ostringstream capa_filename;
@@ -107,15 +112,33 @@ void Controller1394::loop_fct() {
 
 bool Controller1394::post_fct() {
 
+	#ifdef _DEBUG
+		cout << "[camdc1394] Entering Post() Function" << endl ;
+	#endif
+
 	for ( int i=0; i< _cams.size(); i++ ) {
 		_cams[i]->stop_cam() ;
 		delete ( _cams[i] ) ;
 	}
+	
+	#ifdef _DEBUG
+		cout << "[camdc1394] cams are deleted" << endl ;
+	#endif
+
 
 	if ( d1394_ != NULL ) {	
-		cout << "[camdc1394] Closing DC1394 " << endl ;
+		
+		#ifdef _DEBUG
+			cout << "[camdc1394] Closing DC1394 " << endl ;
+		#endif
+
 		dc1394_free( d1394_ ) ;
 	}
+
+	#ifdef _DEBUG
+		cout << "[camdc1394] Exiting Post() Function" << endl ;
+	#endif
+
 
 	return true ;
 }

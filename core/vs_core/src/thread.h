@@ -22,7 +22,8 @@ class Thread {
 
 
 		void start_thread() ;
-		void stop_thread() ;
+		void request_stop() ;
+		void join() ;
 
 		data*  pointer  ;
 
@@ -144,8 +145,12 @@ void Thread<Data>::start_thread() {
 
 
 template<typename Data>
-void Thread<Data>::stop_thread() {
+void Thread<Data>::request_stop() {
 	_done = true ;
+}
+
+template<typename Data>
+void Thread<Data>::join() {
 	_thread.join() ;   
 }
 
@@ -157,7 +162,8 @@ void Thread<Data>::main() {
 			pointer->loop_fct() ;
 	} catch ( std::string msg ) {
 		
-		std::cerr << msg << std::endl ;
+		if ( !_done )
+			std::cerr << msg << std::endl ;
 		return ;
 	
 	}
