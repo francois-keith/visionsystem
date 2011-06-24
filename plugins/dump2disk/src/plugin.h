@@ -23,7 +23,6 @@ class Dump2Disk : public Plugin
 
 		Camera*					_cam ;
 		Buffer< Image<unsigned char, MONO> >	_buffer ;
-		bool _done ;
 } ;
 
 PLUGIN(Dump2Disk)

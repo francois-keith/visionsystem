@@ -7,7 +7,6 @@ using namespace vision ;
 Dump2Disk::Dump2Disk( VisionSystem *vs, std::string sandbox ) 
 : Plugin ( vs, "dump2disk", sandbox ) {
 
-	_done = false ;
 }
 
 
