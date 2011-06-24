@@ -7,6 +7,8 @@ using namespace vision ;
 using namespace visionsystem ;
 
 
+//FIXME a compléter
+
 template<>
 void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *img, visionsystem::Frame* frm ) 
 {

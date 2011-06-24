@@ -87,25 +87,29 @@ void Controller1394::loop_fct() {
 		Frame* vsframe = NULL ;	
 		for ( int i=0; i < _cams.size(); i++ ) {
 
-			err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_WAIT, &frame ) ;
+			err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_POLL, &frame ) ;
 		
 			if ( err != DC1394_SUCCESS ) {
 				cerr << "[camdc1394] Could not dequeue frame" << endl ;
 				exit(0) ;
 			}
 
-			vsframe = _cams[i]->_buffer.pull() ;
+			if ( frame ) {
 
-			memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
+				vsframe = _cams[i]->_buffer.pull() ;						
 
-			_cams[i]->_buffer.push( vsframe ) ;
+				memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
 
-			err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
+				_cams[i]->_buffer.push( vsframe ) ;
+
+				err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
 			
-			if ( err != DC1394_SUCCESS ) {
-				cerr << "[camdc1394] Could not enqueue frame" << endl ;
-				exit(0) ;
+				if ( err != DC1394_SUCCESS ) {
+					cerr << "[camdc1394] Could not enqueue frame" << endl ;
+					exit(0) ;
+				}
 			}
+
 		}
 }
 

@@ -6,6 +6,8 @@ using namespace std ;
 using namespace vision ;
 using namespace visionsystem ;
 
+//TODO	penser a ajouter gestion fichier de config
+
 class Dump2Disk : public Plugin
 {
 	public:
