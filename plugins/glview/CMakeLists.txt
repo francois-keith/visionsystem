@@ -1,25 +1,24 @@
-find_package( Dc1394 ) 
+find_package(OpenGL)
+find_package( X11)
+        
+include_directories( "${X11_X11_INCLUDE_PATH}"
+		     "${OPENGL_INCLUDE_DIR}"
+)
 
+### File Lists
 
-if ( DC1394_FOUND )
+file( GLOB glview_src "src/*.cpp" )
+file( GLOB glview_hdr "src/*.h*")
 
-	include_directories ( "${DC1394_INCLUDE_DIR}" )
-	
-	### File Lists
+### Targets
 
-	file( GLOB glview_src "src/*.cpp" )
-	file( GLOB glview_hdr "src/*.h*")
+add_library( "glview" SHARED ${glview_src} ${glview_hdr} )
 
-	### Targets
+target_link_libraries ("glview" ${CONFIGPARSER_LIBRARIES} ${VISION_LIBRARIES} ${X11_X11_LIB} ${OPENGL_gl_LIBRARY} "Xxf86vm" )
 
-	add_library( "glview" SHARED ${glview_src} ${glview_hdr} )
+### INSTAll
 
-	target_link_libraries ("glview" ${VISION_LIBRARIES}  ${DC1394_LIBRARIES} )
+install( TARGETS "glview" LIBRARY DESTINATION
+	 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
 
-	### INSTAll
-
-	install( TARGETS "glview" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
-
-endif ( DC1394_FOUND )
 

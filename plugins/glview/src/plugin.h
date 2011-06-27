@@ -3,8 +3,9 @@
 
 #include <configparser/configparser.h>
 #include <vision/image/image.h>
-
 #include <visionsystem/viewer.h>
+
+#include "glwindow.h"
 
 using namespace std ;
 using namespace configparser ;
@@ -23,13 +24,16 @@ class GLView: public Viewer, public WithConfigFile
 		 void  loop_fct() ;
 		 bool  post_fct() ;
 
-		void gl_print ( ImageRef position, string text ) ;
+		 void gl_print ( ImageRef position, string text ) ;
 
 	private:
 
 		void parse_config_line( vector<string> &line ) ;
 
+	private:
 
+		GLWindow *_win ;
+		Camera   *_cam ;
 } ;
 
 PLUGIN( GLView ) 
