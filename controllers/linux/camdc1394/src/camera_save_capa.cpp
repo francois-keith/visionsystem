@@ -1,6 +1,8 @@
 #include "camera1394.h"
 #include "utils.h"
 
+#include <iostream>
+
 // **************************************************
 // ****
 // **** Save Capabilities to file
@@ -20,7 +22,7 @@ void Camera1394::save_capa ( string filename ) {
     err=dc1394_video_get_supported_modes(cam, &modes);
 
     if ( err != DC1394_SUCCESS ) {
-    	cerr << "[vision_server]	Could not get list of modes" ;
+    	std::cerr << "[vision_server]	Could not get list of modes" ;
 	return ;
     }
 
@@ -51,7 +53,7 @@ void Camera1394::save_capa ( string filename ) {
 	
 		err = dc1394_video_get_supported_framerates (cam, modes.modes[i], &framerates);
 		if ( err != DC1394_SUCCESS ) {	
-			cerr << "[vision_server] ERROR : could not retrieve framerate" << endl ;
+			std::cerr << "[vision_server] ERROR : could not retrieve framerate" << endl ;
 			exit(0) ;
 		}
 			
@@ -119,7 +121,7 @@ void Camera1394::save_capa ( string filename ) {
 							err = dc1394_feature_get_boundaries( cam, features.feature[i].id , &min, &max);
 						
 							if ( err != DC1394_SUCCESS ) {
-								cerr << "[vision_server] ERROR : Could not get boudaries for mode " << featuremode_2_string ( features.feature[i].modes.modes[j] ) << endl ;
+								std::cerr << "[vision_server] ERROR : Could not get boudaries for mode " << featuremode_2_string ( features.feature[i].modes.modes[j] ) << endl ;
 								exit(0) ;
 							}
 						

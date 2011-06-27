@@ -1,5 +1,8 @@
 #include "controller.h"
 
+#include <iostream>
+#include <cstring>
+
 Controller1394::Controller1394( VisionSystem *vs, std::string sandbox )
 :Controller( vs, "camdc1394", sandbox) {
 
@@ -17,14 +20,14 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 
 	if (!d1394_) {
 
-		cerr << "[camdc1394] WARNING : Could not initialize DC1394 System !" << endl ;
+		std::cerr << "[camdc1394] WARNING : Could not initialize DC1394 System !" <<std::endl ;
 		d1394_ = NULL ;
 		return false  ;
 
 	} else {
 		
 		#ifdef _DEBUG
-			cout << "[camdc1394] Initializing DC1394 system " << endl ; 
+			std::cout << "[camdc1394] Initializing DC1394 system " <<std::endl ; 
 		#endif
 
 		dc1394camera_list_t * list ;
@@ -35,7 +38,7 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 		if ( list->num == 0 ) {
 
 			#ifdef _DEBUG
-				cout << "[camdc1394]  No 1394 camera found." << endl ;
+				std::cout << "[camdc1394]  No 1394 camera found." <<std::endl ;
 			#endif
 			return true ;
 
@@ -44,7 +47,7 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 			for ( int i=0; i<list->num; i++ ) {
 				
 				#ifdef _DEBUG
-					cout <<"[camdc1394] Found camera " << list->ids[i].guid << endl ;					
+					std::cout <<"[camdc1394] Found camera " << list->ids[i].guid <<std::endl ;					
 				#endif
 
 				Camera1394* cam = new Camera1394( d1394_ , list->ids[i].guid ) ;
@@ -58,12 +61,12 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 				try {
 					cam->read_config_file ( conf_filename.str().c_str() ) ;
 				} catch ( string msg ) {
-					cerr << "[camdc1394] WARNING : Unable to open config file for cam " << list->ids[i].guid << endl ;
-					cerr << "[camdc1394] trying with default parameters ... " << endl ;
+					std::cerr << "[camdc1394] WARNING : Unable to open config file for cam " << list->ids[i].guid <<std::endl ;
+					std::cerr << "[camdc1394] trying with default parameters ... " <<std::endl ;
 				}
 
 				if ( !cam->apply_settings() ) {
-					cerr << "[camdc1394] ERROR : Could not apply settings to cam " << list->ids[i].guid << endl ;
+					std::cerr << "[camdc1394] ERROR : Could not apply settings to cam " << list->ids[i].guid <<std::endl ;
 					return false ;
 				}
 
@@ -90,7 +93,7 @@ void Controller1394::loop_fct() {
 			err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_POLL, &frame ) ;
 		
 			if ( err != DC1394_SUCCESS ) {
-				cerr << "[camdc1394] Could not dequeue frame" << endl ;
+				std::cerr << "[camdc1394] Could not dequeue frame" <<std::endl ;
 				exit(0) ;
 			}
 
@@ -98,14 +101,14 @@ void Controller1394::loop_fct() {
 
 				vsframe = _cams[i]->_buffer.pull() ;						
 
-				memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
+				std::memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
 
 				_cams[i]->_buffer.push( vsframe ) ;
 
 				err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
 			
 				if ( err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Could not enqueue frame" << endl ;
+					std::cerr << "[camdc1394] Could not enqueue frame" <<std::endl ;
 					exit(0) ;
 				}
 			}
@@ -117,7 +120,7 @@ void Controller1394::loop_fct() {
 bool Controller1394::post_fct() {
 
 	#ifdef _DEBUG
-		cout << "[camdc1394] Entering Post() Function" << endl ;
+		std::cout << "[camdc1394] Entering Post() Function" <<std::endl ;
 	#endif
 
 	for ( int i=0; i< _cams.size(); i++ ) {
@@ -126,21 +129,21 @@ bool Controller1394::post_fct() {
 	}
 	
 	#ifdef _DEBUG
-		cout << "[camdc1394] cams are deleted" << endl ;
+		std::cout << "[camdc1394] cams are deleted" <<std::endl ;
 	#endif
 
 
 	if ( d1394_ != NULL ) {	
 		
 		#ifdef _DEBUG
-			cout << "[camdc1394] Closing DC1394 " << endl ;
+			std::cout << "[camdc1394] Closing DC1394 " <<std::endl ;
 		#endif
 
 		dc1394_free( d1394_ ) ;
 	}
 
 	#ifdef _DEBUG
-		cout << "[camdc1394] Exiting Post() Function" << endl ;
+		std::cout << "[camdc1394] Exiting Post() Function" <<std::endl ;
 	#endif
 
 

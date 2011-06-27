@@ -1,5 +1,7 @@
 #include "camera1394.h"
 
+#include <iostream>
+
 Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 {
 	char tmp[255] ;
@@ -22,8 +24,8 @@ Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 	cam = dc1394_camera_new ( handler, gid ) ;	
 
 	if (!cam) {
-		cerr << "[vision_server] Could not initialise camera with gid " << gid << endl ;
-		cerr << "[vision_server] Aborting." << endl ;
+		std::cerr << "[vision_server] Could not initialise camera with gid " << gid << std::endl ;
+		std::cerr << "[vision_server] Aborting." << std::endl ;
 		exit(1) ;
 	}
 	 

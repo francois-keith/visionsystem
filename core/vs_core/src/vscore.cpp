@@ -1,6 +1,6 @@
-
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
 
 #include <visionsystem/plugin.h>
 
@@ -110,8 +110,8 @@ void VsCore::run()
 
 	// Initialization
 
-	_controller_path = _basedir / "controllers"  ;
-	_plugin_path = _basedir / "plugins" ;
+	_controller_path = path(_basedir) / path("controllers")  ;
+	_plugin_path = path(_basedir) / path("plugins") ;
 
 	// Create base filesystem if needed
 

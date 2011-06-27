@@ -1,5 +1,6 @@
 #include "camera1394.h"
 
+#include <iostream>
 
 bool Camera1394::apply_settings() {
 
