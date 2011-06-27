@@ -27,6 +27,9 @@ bool Dump2Disk::pre_fct() {
 
 }
 
+void Dump2Disk::preloop_fct() {
+}
+
 void Dump2Disk::loop_fct() {
 
 	Image<unsigned char, MONO> *img ;

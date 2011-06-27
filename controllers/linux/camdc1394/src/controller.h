@@ -22,6 +22,7 @@ class Controller1394 : public visionsystem::Controller
 		~Controller1394() ;
 
 		bool pre_fct( vector< GenericCamera* > &cams ) ;
+		void preloop_fct() ;
 		void loop_fct() ;
 		bool post_fct() ;
 

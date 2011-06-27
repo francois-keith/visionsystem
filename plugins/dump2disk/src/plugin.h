@@ -16,6 +16,7 @@ class Dump2Disk : public Plugin
 		~Dump2Disk() ;
 
 		bool pre_fct() ;
+		void preloop_fct() ;
 		void loop_fct() ;
 		bool post_fct() ;
 		

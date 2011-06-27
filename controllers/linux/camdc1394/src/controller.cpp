@@ -83,6 +83,11 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 }
 
 
+void Controller1394::preloop_fct() {
+
+}
+
+
 void Controller1394::loop_fct() {
 
 		dc1394error_t err ;

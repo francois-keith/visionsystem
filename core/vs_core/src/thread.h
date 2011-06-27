@@ -158,8 +158,11 @@ template< typename Data >
 void Thread<Data>::main() {
 	
 	try {
+		pointer->preloop_fct() ;
+
 		while ( !_done ) 
 			pointer->loop_fct() ;
+	
 	} catch ( std::string msg ) {
 		
 		if ( !_done )

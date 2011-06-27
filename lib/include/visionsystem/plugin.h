@@ -27,6 +27,7 @@ class Plugin
 		std::string   get_sandbox() ;
 	
 		virtual bool pre_fct()  = 0 ;		// Called by VisionSystem core.
+		virtual void preloop_fct() = 0 ;	// Called by VisionSystem core.
 		virtual void loop_fct() = 0 ;		// Called by VisionSystem core.
 		virtual bool post_fct() = 0 ;		// Called by VisionSystem core.
 

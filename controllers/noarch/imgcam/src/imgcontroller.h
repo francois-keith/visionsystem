@@ -17,6 +17,7 @@ class ImgController : public visionsystem::Controller
 	private:
 
 		bool pre_fct( std::vector<GenericCamera*> &cam ) ;
+		void preloop_fct() ;
 		void loop_fct() ;
 		bool post_fct() ;
 

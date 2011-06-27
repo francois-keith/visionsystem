@@ -15,7 +15,6 @@ GLView::~GLView() {
 
 bool  GLView::pre_fct() {
 	
-	_win = new GLWindow( "glview", 800,600, false ) ; 
 	_cam = get_default_camera() ;
 
 	register_to_cam< Image<unsigned char, MONO> >( _cam, 10 ) ;
@@ -23,6 +22,10 @@ bool  GLView::pre_fct() {
 	return true ;
 }
 
+
+void  GLView::preloop_fct() {
+	_win = new GLWindow( "glview", 640,480, false ) ; 
+}
 
 void  GLView::loop_fct() {
 

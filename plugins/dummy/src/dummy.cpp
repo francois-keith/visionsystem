@@ -16,6 +16,10 @@ bool Dummy::pre_fct() {
 	return true ;
 }
 
+void Dummy::preloop_fct() {
+}
+
+
 void Dummy::loop_fct() {
 
 	cout << "[Dummy] loop_fct() - 10 Seconds wait" << endl ;

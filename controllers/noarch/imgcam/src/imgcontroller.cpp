@@ -14,6 +14,9 @@ bool ImgController::pre_fct( std::vector<GenericCamera*> &cams ) {
 
 }
 
+void ImgController::preloop_fct() {
+}
+
 void ImgController::loop_fct() {
 
 }

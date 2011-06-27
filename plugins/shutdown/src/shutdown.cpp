@@ -15,6 +15,9 @@ bool Shutdown::pre_fct() {
 	return true ;
 }
 
+void Shutdown::preloop_fct() {
+}
+
 void Shutdown::loop_fct() {
 
 	cout << "[shutdown] Waiting for 10 secs" << endl ;

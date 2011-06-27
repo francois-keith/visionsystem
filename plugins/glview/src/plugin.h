@@ -21,6 +21,7 @@ class GLView: public Viewer, public WithConfigFile
 		~GLView() ;
 
 		 bool  pre_fct() ;
+		 void  preloop_fct() ;
 		 void  loop_fct() ;
 		 bool  post_fct() ;
 

@@ -14,6 +14,7 @@ class Dummy : public Plugin {
 		~Dummy() ;
 
 		bool pre_fct()  ;
+		void preloop_fct()  ;
 		void loop_fct() ;
 		bool post_fct() ;
 
