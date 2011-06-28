@@ -14,6 +14,8 @@ Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 
 	_active = 1 ;
 
+        bayer = 0 ;
+
 	mode  = 	DC1394_VIDEO_MODE_640x480_MONO8 ;
 	speed = 	DC1394_ISO_SPEED_400 ; 
 	framerate = 	DC1394_FRAMERATE_30 ;
@@ -95,6 +97,11 @@ bool Camera1394::is_active() {
 
 
 FrameCoding Camera1394::get_coding() {
+
+if ( bayer == 0 ) {
+
+// If there is no Bayerisation/DeBayerisation ... it's easy
+
 	switch (mode)
 	{
 		case DC1394_VIDEO_MODE_160x120_YUV444:
@@ -138,9 +145,28 @@ FrameCoding Camera1394::get_coding() {
 		case DC1394_VIDEO_MODE_1280x960_RGB8:
 		case DC1394_VIDEO_MODE_1600x1200_RGB8:
 			return VS_RGB8 ;
+			break ;
 	}
+	
+} else {
 
-	return VS_MONO8 ;
+// else ... less it's less easy :)
+
+	switch ( mode ) 
+	{
+		case DC1394_VIDEO_MODE_640x480_MONO8:
+		case DC1394_VIDEO_MODE_800x600_MONO8:
+		case DC1394_VIDEO_MODE_1024x768_MONO8:
+		case DC1394_VIDEO_MODE_1280x960_MONO8:
+		case DC1394_VIDEO_MODE_1600x1200_MONO8:
+			return VS_RGB8 ;
+			break ;
+	}
+}
+
+
+	throw("Unsupported camera mode" ) ;
+
 }
 
 
