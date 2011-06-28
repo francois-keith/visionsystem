@@ -25,16 +25,31 @@ void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *im
 				 	tmp = frm->_data[3*i] + frm->_data[3*i+1] + frm->_data[3*i+2] ;
 				 	img->raw_data[i] = (unsigned char) ( tmp / 3 ) ;
 				}
-
-
-
 				break ;
 		default:
-				cerr << "Frame content : " << frm->_coding << endl ;
 				throw( string( "Image<unsigned char,MONO> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
 	}
 }
 
 
+
+template<>
+void image_fill < Image< uint32_t, RGB > > ( Image<unsigned char,MONO> *img, visionsystem::Frame* frm ) 
+{
+	
+	switch ( frm->_coding ) {
+
+		case VS_MONO8:
+		
+		case VS_RGB8:
+				register int i ;
+				for (i=0; i<img->data_size; i++ )
+					img->raw_data[i] = frm->_data[3*i] << 16 | frm->_data[3*i+1] << 8 | frm->_data[3*i+2] ;			//FIXME a tester
+
+		default:
+				throw( string( "Image<uint32_t,RGB> : CONVERSION NOT IMPLEMENTED" ) ) ;
+				break ;
+	}
+}
 
