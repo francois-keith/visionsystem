@@ -40,7 +40,7 @@ endforeach()
 
 find_package( vision )
 find_package( configparser ) 
-find_package( Boost 1.46.0 COMPONENTS system thread filesystem)
+find_package( Boost 1.40.0 COMPONENTS system thread filesystem)
 
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
