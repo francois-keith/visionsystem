@@ -58,10 +58,13 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 				
 				std::ostringstream conf_filename;
 				conf_filename << get_sandbox() << "/" << list->ids[i].guid << ".conf" ;  
+
 				try {
 					cam->read_config_file ( conf_filename.str().c_str() ) ;
+
 				} catch ( string msg ) {
-					std::cerr << "[camdc1394] WARNING : Unable to open config file for cam " << list->ids[i].guid <<std::endl ;
+					std::cerr << "[camdc1394] WARNING : Unable to open config file : " << conf_filename.str() <<std::endl ;
+					std::cerr << "[camdc1394] Error message : " << msg << std::endl ;
 					std::cerr << "[camdc1394] trying with default parameters ... " <<std::endl ;
 				}
 

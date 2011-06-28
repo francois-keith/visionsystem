@@ -25,7 +25,9 @@ add_executable ( "vs_core" ${vs_core_srcs} ${vs_core_hdrs} )
 target_link_libraries ( "vs_core" visionsystem
 				  ${VISION_LIBRARIES}
 				  ${CONFIGPARSER_LIBRARIES}
-				  ${Boost_LIBRARIES} )  
+				  ${Boost_LIBRARIES}
+				  ${DL_LIBRARIES}
+)  
 
 ### Install
 

@@ -40,7 +40,18 @@ endforeach()
 
 find_package( vision )
 find_package( configparser ) 
-find_package( Boost 1.40.0 COMPONENTS thread filesystem)
+find_package( Boost 1.46.0 COMPONENTS system thread filesystem)
+
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+	find_package( Dl ) 
+
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
+
+
+
 
 ### Set include directories 
         
@@ -48,7 +59,8 @@ include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/lib/include"
 	             "${CMAKE_CURRENT_BINARY_DIR}"
 		     ${VISION_INCLUDE_DIRS} 
 		     ${CONFIGPARSER_INCLUDE_DIRS}
-		     ${Boost_INCLUDE_DIRS} )
+		     ${Boost_INCLUDE_DIRS}
+		     ${DL_INCLUDE_DIR} )
 
 link_directories( "${VISION_LIBRARY_DIR}" 
 		   ${CONFIGPARSER_LIBRARY_DIRS}
