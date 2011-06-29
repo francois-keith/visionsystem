@@ -4,13 +4,12 @@
 #include <cstring>
 
 Controller1394::Controller1394( VisionSystem *vs, std::string sandbox )
-:Controller( vs, "camdc1394", sandbox) {
+:Controller( vs, "camdc1394", sandbox), d1394_(0), _cams(0) {
 
 }
 
 
 Controller1394::~Controller1394() {
-
 }
 
 
@@ -68,6 +67,7 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 					std::cerr << "[camdc1394] trying with default parameters ... " <<std::endl ;
 				}
 
+				if ( cam->is_active() )
 				if ( !cam->apply_settings() ) {
 					std::cerr << "[camdc1394] ERROR : Could not apply settings to cam " << list->ids[i].guid <<std::endl ;
 					return false ;
@@ -109,7 +109,19 @@ void Controller1394::loop_fct() {
 
 				vsframe = _cams[i]->_buffer.pull() ;						
 
-				std::memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
+				if ( _cams[i]->get_bayer() == 0 )
+						
+						std::memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
+				
+				else {
+					
+					dc1394_bayer_decoding_8bit( frame->image,
+		                        			    vsframe->_data,
+					                            frame->size[0],
+		        			                    frame->size[1],
+					                            _cams[i]->get_bayer_coding(),
+					                            _cams[i]->get_bayer_method() );
+				}
 
 				_cams[i]->_buffer.push( vsframe ) ;
 

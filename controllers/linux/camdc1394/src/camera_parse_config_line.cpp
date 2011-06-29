@@ -8,6 +8,9 @@ void Camera1394::parse_config_line ( vector<string> &line ) {
 	if ( fill_member( line, "Active", _active ) ) 
 		return ;
 
+	if ( fill_member( line, "Bayer", bayer ) ) 
+		return ;
+
 	if (line[0] == "Mode") {
 		if (line.size() == 2 )  {
 		

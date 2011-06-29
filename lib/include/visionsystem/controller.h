@@ -18,7 +18,7 @@ namespace visionsystem {
 		public:
 
 			Controller( VisionSystem *vscore, std::string name, std::string sandbox ) ; 
-			~Controller() ;
+			virtual ~Controller() ;
 
 			virtual bool pre_fct( std::vector<GenericCamera*> &cams) = 0 ;	// This function does all the init stuff and should fill vector of pointers to cams.
 			virtual void preloop_fct() = 0 ;				// This function will be run in a thread before the main loop
