@@ -38,7 +38,7 @@ bool Camera1394::apply_settings() {
 		return false ;
 	}
 
-	for (int i=0; i<features.size(); i++ ) {
+	for (size_t i=0; i<features.size(); i++ ) {
 
 		bool ok = false ;
 

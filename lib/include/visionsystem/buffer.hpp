@@ -11,10 +11,10 @@ Buffer<Data>::Buffer() {
 template<typename Data>
 Buffer<Data>::~Buffer() {
 	
-	for ( int i=0; i<_frames.size() ; i++ )
+	for ( size_t i=0; i<_frames.size() ; i++ )
 		delete (_frames[i]) ;
 
-	for ( int i=0; i<_trash.size(); i++ )
+	for ( size_t i=0; i<_trash.size(); i++ )
 		delete ( _trash[i] ) ;
 
 	_frames.clear() ;
@@ -94,9 +94,9 @@ Data* Buffer<Data>::pull() {
 template<typename Data>
 void Buffer<Data>::clear() {
 	_mutex.lock() ;
-	for ( int i=0; i<_frames.size() ; i++ )
+	for ( size_t i=0; i<_frames.size() ; i++ )
 		delete _frames[i] ;
-	for ( int i=0; i<_trash.size() ; i++ )
+	for ( size_t i=0; i<_trash.size() ; i++ )
 		delete _trash[i] ;
 	_frames.clear() ;
 	_trash.clear() ;

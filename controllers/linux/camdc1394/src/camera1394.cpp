@@ -4,13 +4,14 @@
 
 Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 {
-	char tmp[255] ;
-	
 	handler = d ;
 	_gid = gid ;
  	
-	sprintf(tmp, "%ld", gid ) ;
-	_name = string ( tmp ) ;
+    {
+    std::stringstream ss;
+    ss << gid;
+	_name = ss.str() ;
+    }
 
 	_active = 1 ;
 
@@ -84,6 +85,9 @@ ImageRef Camera1394::get_size() {
 		case DC1394_VIDEO_MODE_1600x1200_RGB8:
 			return ImageRef(1600,1200) ;
 			break ;
+        default:
+            std::cerr << "[cam_dc1394] Unhandled mode: cannot set image resolution" << std::endl;
+            break;
 	}
 
 	return ImageRef(1,1) ;
@@ -146,6 +150,8 @@ if ( bayer == 0 ) {
 		case DC1394_VIDEO_MODE_1600x1200_RGB8:
 			return VS_RGB8 ;
 			break ;
+        default:
+            break;
 	}
 	
 } else {
@@ -161,6 +167,8 @@ if ( bayer == 0 ) {
 		case DC1394_VIDEO_MODE_1600x1200_MONO8:
 			return VS_RGB8 ;
 			break ;
+        default:
+            break;
 	}
 }
 
@@ -196,6 +204,9 @@ float Camera1394::get_fps() {
 		case DC1394_FRAMERATE_240 :
 			return 240 ;
 			break ;
+        default:
+            std::cerr << "[cam_dc1394] Unhandled framerate" << std::endl;
+            break;
 	}
 
 	return 0 ;
