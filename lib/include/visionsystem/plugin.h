@@ -21,7 +21,7 @@ class Plugin
 	public: 
 
 		Plugin( VisionSystem* vs, std::string plugin_name, std::string sandbox )  ;		
-		~Plugin() ;
+		virtual ~Plugin() ;
 
 		std::string   get_name();
 		std::string   get_sandbox() ;

@@ -4,13 +4,12 @@
 #include <cstring>
 
 Controller1394::Controller1394( VisionSystem *vs, std::string sandbox )
-:Controller( vs, "camdc1394", sandbox) {
+:Controller( vs, "camdc1394", sandbox), d1394_(0), _cams(0) {
 
 }
 
 
 Controller1394::~Controller1394() {
-
 }
 
 

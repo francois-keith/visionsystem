@@ -18,7 +18,7 @@ namespace visionsystem {
 		public :
 	
 			VisionSystem() ;
-			~VisionSystem() ;
+			virtual ~VisionSystem() ;
 			
 			std::vector<Camera*> get_all_cameras() ;
 			Camera* get_camera ( std::string cam_name ) ;

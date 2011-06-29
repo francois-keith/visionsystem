@@ -12,7 +12,12 @@ VisionSystem::VisionSystem() {
 
 
 VisionSystem::~VisionSystem() {
-
+    for( std::map< std::string, boost::mutex*>::iterator it = whiteboard_mutex.begin();
+            it != whiteboard_mutex.end();
+            ++it )
+    {
+        delete (*it).second;
+    }
 }
 
 vector<Camera*> VisionSystem::get_all_cameras() {

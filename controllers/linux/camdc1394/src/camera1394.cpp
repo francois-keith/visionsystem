@@ -34,7 +34,7 @@ Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 }
 
 Camera1394::~Camera1394() {
-
+    dc1394_camera_free(cam);
 }
 
 
