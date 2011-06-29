@@ -17,7 +17,7 @@ bool  GLView::pre_fct() {
 	
 	_cam = get_default_camera() ;
 
-	register_to_cam< Image<unsigned char, MONO> >( _cam, 10 ) ;
+	register_to_cam< Image<uint32_t, RGB> >( _cam, 10 ) ;
 
 	return true ;
 }
@@ -29,20 +29,20 @@ void  GLView::preloop_fct() {
 
 void  GLView::loop_fct() {
 
-	Image<unsigned char, MONO>	*img ;
-	img = dequeue_image< Image<unsigned char, MONO> >( _cam ) ;
+	Image<uint32_t, RGB>	*img ;
+	img = dequeue_image< Image<uint32_t, RGB> >( _cam ) ;
 
 	_win->draw(img);
 	_win->swap_buffers();
 	_win->processEvents();
 	
-	enqueue_image< Image<unsigned char, MONO> >( _cam, img ) ;
+	enqueue_image< Image<uint32_t, RGB> >( _cam, img ) ;
 }
 
 
 bool  GLView::post_fct() {
 	
-	unregister_to_cam< Image<unsigned char, MONO> >( _cam ) ;
+	unregister_to_cam< Image<uint32_t, RGB> >( _cam ) ;
 	
 	return true ;
 }

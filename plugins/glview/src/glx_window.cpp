@@ -208,6 +208,8 @@ XEvent GLWindow::processEvents() {
 			break;
 			if (MONO_img != NULL )
 				draw(MONO_img);
+			else
+				draw(RGB_img) ;
 			break;
 
 		case ConfigureNotify:
@@ -286,6 +288,56 @@ void GLWindow::draw( Image<unsigned char,MONO> *img) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 }
+
+void GLWindow::draw( Image<uint32_t,RGB> *img) {
+
+	RGB_img = img ;
+
+	unsigned int imWidth = img->width ;
+	unsigned int imHeight = img->height ;
+
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearDepth(1.0f);
+
+	if (winHeight_ == 0) /* Prevent A Divide By Zero If The Window Is Too Small */
+		winHeight_ = 1;
+
+	glViewport(0, 0, winWidth_, winHeight_);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glOrtho(-0.5, (double) imWidth - 0.5, (double) imHeight - 0.5, -0.5,
+			-1.0, 1.0);
+
+	glPixelZoom( (double) winWidth_ / (double) imWidth, 
+	            -(double) winHeight_ / (double) imHeight ) ;
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glFlush();
+
+	// Draw the camera picture
+
+	glRasterPos2d(-0.5, -0.5);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, imWidth * sizeof(unsigned char ));
+
+	glDrawPixels( imWidth, imHeight, GL_RGBA, GL_UNSIGNED_BYTE, img->raw_data );		// FIXME
+
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+}
+
 
 void GLWindow::print(const char* s) {
 	if (!glIsList(fontBase_)) {

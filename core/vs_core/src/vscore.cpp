@@ -215,7 +215,15 @@ void VsCore::run()
 		}
 	}
 
-	// Plugins pre_fect() ;
+	// Test if at least one camera is found
+	
+	Camera* _cm = get_default_camera() ;
+	if ( _cm == NULL ) {
+		cerr << "[vs_core] ERROR : No camera Found. Aborting." << endl ;
+		return ;
+	}
+
+	// Plugins pre_fct() ;
 
 	cout << "[vs_core] Initialising all plugins " << endl ;
 
