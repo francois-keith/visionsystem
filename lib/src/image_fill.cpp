@@ -40,10 +40,11 @@ template<>
 void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsystem::Frame* frm ) 
 {
 	
+	register int i ;
+	
 	switch ( frm->_coding ) {
 
 		case VS_MONO8:
-				register int i ;
 				for (i=0; i<img->width*img->height; i++ )
 					img->raw_data[i] =  ( (uint32_t) frm->_data[3*i] ) << 16  |
 							    ( (uint32_t) frm->_data[3*i] ) << 8 | 
@@ -51,7 +52,6 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 				break ;
 		
 		case VS_RGB8:
-				register int i ;
 				for (i=0; i<img->width*img->height; i++ )
 					img->raw_data[i] =  ( (uint32_t) frm->_data[3*i+2] ) << 16  |
 							    ( (uint32_t) frm->_data[3*i+1] ) << 8 | 
