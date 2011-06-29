@@ -31,6 +31,7 @@ class GLWindow
 		~GLWindow() ;
 
 		void draw( Image<unsigned char, MONO>* img ) ;
+		void draw( Image<uint32_t, RGB>* img ) ;
 		void draw_caption(int captionPos, vector<string> s);
 		void swap_buffers() ;
 		XEvent processEvents() ;

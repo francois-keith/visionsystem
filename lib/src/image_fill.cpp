@@ -2,6 +2,8 @@
 #include <visionsystem/frame.h>
 #include <vision/image/image.h>
 
+#include <stdint.h>
+
 using namespace std ;
 using namespace vision ;
 using namespace visionsystem ;
@@ -35,18 +37,18 @@ void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *im
 
 
 template<>
-void image_fill < Image< uint32_t, RGB > > ( Image<unsigned char,MONO> *img, visionsystem::Frame* frm ) 
+void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsystem::Frame* frm ) 
 {
 	
 	switch ( frm->_coding ) {
 
-		case VS_MONO8:
-		
 		case VS_RGB8:
 				register int i ;
-				for (i=0; i<img->data_size; i++ )
-					img->raw_data[i] = frm->_data[3*i] << 16 | frm->_data[3*i+1] << 8 | frm->_data[3*i+2] ;			//FIXME a tester
-
+				for (i=0; i<img->width*img->height; i++ )
+					img->raw_data[i] =  ( (uint32_t) frm->_data[3*i+2] ) << 16  |
+							    ( (uint32_t) frm->_data[3*i+1] ) << 8 | 
+							    ( (uint32_t) frm->_data[3*i] ) ;  
+				break ;
 		default:
 				throw( string( "Image<uint32_t,RGB> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
