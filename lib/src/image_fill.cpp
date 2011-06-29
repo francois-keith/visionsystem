@@ -1,7 +1,7 @@
 #include <visionsystem/imagefill.hpp>
 #include <visionsystem/frame.h>
 #include <vision/image/image.h>
-
+#include <vision/io/pixelcoding.h>
 #include <stdint.h>
 
 using namespace std ;
@@ -42,6 +42,14 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 	
 	switch ( frm->_coding ) {
 
+		case VS_MONO8:
+				register int i ;
+				for (i=0; i<img->width*img->height; i++ )
+					img->raw_data[i] =  ( (uint32_t) frm->_data[3*i] ) << 16  |
+							    ( (uint32_t) frm->_data[3*i] ) << 8 | 
+							    ( (uint32_t) frm->_data[3*i] ) ;  
+				break ;
+		
 		case VS_RGB8:
 				register int i ;
 				for (i=0; i<img->width*img->height; i++ )
