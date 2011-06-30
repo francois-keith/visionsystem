@@ -59,7 +59,6 @@ class GLWindow
 
 		void resize();
 
-		Image<unsigned char, MONO>	*MONO_img ;
 		Image< uint32_t, RGB >		*RGB_img  ; 
 } ;
 

@@ -45,14 +45,14 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 	switch ( frm->_coding ) {
 
 		case VS_MONO8:
-				for (i=0; i<img->width*img->height; i++ )
-					img->raw_data[i] =  ( (uint32_t) frm->_data[3*i] ) << 16  |
-							    ( (uint32_t) frm->_data[3*i] ) << 8 | 
-							    ( (uint32_t) frm->_data[3*i] ) ;  
+				for (i=0; i<img->pixels; i++ )
+					img->raw_data[i] =  ( (uint32_t) frm->_data[i] ) << 16  |
+							    ( (uint32_t) frm->_data[i] ) << 8 | 
+							    ( (uint32_t) frm->_data[i] ) ;  
 				break ;
 		
 		case VS_RGB8:
-				for (i=0; i<img->width*img->height; i++ )
+				for (i=0; i<img->pixels; i++ )
 					img->raw_data[i] =  ( (uint32_t) frm->_data[3*i+2] ) << 16  |
 							    ( (uint32_t) frm->_data[3*i+1] ) << 8 | 
 							    ( (uint32_t) frm->_data[3*i] ) ;  

@@ -46,7 +46,7 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 
 	fullScreen_ = fullscreen;
 
-	MONO_img = NULL ;
+	RGB_img = NULL ;
 	RGB_img = NULL ;
 
 	/* set best mode to current */
@@ -206,9 +206,6 @@ XEvent GLWindow::processEvents() {
 		case Expose:
 			if (event.xexpose.count != 0)
 			break;
-			if (MONO_img != NULL )
-				draw(MONO_img);
-			else
 				draw(RGB_img) ;
 			break;
 
@@ -238,55 +235,6 @@ XEvent GLWindow::processEvents() {
 	}
 
 	return event ;
-}
-
-void GLWindow::draw( Image<unsigned char,MONO> *img) {
-
-	MONO_img = img ;
-
-	unsigned int imWidth = img->width ;
-	unsigned int imHeight = img->height ;
-
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepth(1.0f);
-
-	if (winHeight_ == 0) /* Prevent A Divide By Zero If The Window Is Too Small */
-		winHeight_ = 1;
-
-	glViewport(0, 0, winWidth_, winHeight_);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	glOrtho(-0.5, (double) imWidth - 0.5, (double) imHeight - 0.5, -0.5,
-			-1.0, 1.0);
-
-	glPixelZoom( (double) winWidth_ / (double) imWidth, 
-	            -(double) winHeight_ / (double) imHeight ) ;
-
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glFlush();
-
-	// Draw the camera picture
-
-	glRasterPos2d(-0.5, -0.5);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, imWidth * sizeof(char));
-
-	glDrawPixels( imWidth, imHeight, GL_LUMINANCE, GL_UNSIGNED_BYTE, img->raw_data );
-
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-
 }
 
 void GLWindow::draw( Image<uint32_t,RGB> *img) {
@@ -366,12 +314,12 @@ void GLWindow::draw_caption(int captionPos, vector<string> s) {
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	int nTopOfBox = MONO_img->width - LINES * LINE_HEIGHT;
-	int nBotOfBox = MONO_img->height + (s.size() -LINES) * LINE_HEIGHT;
+	int nTopOfBox = RGB_img->width - LINES * LINE_HEIGHT;
+	int nBotOfBox = RGB_img->height + (s.size() -LINES) * LINE_HEIGHT;
 
 	glBegin(GL_QUADS);
 	glVertex2d(0.0, nTopOfBox);
-	glVertex2d( MONO_img->width, nTopOfBox);
+	glVertex2d( RGB_img->width, nTopOfBox);
 	glVertex2d( RGB_img->height, nBotOfBox);
 	glVertex2d(0.0, nBotOfBox);
 	glEnd();
@@ -388,7 +336,7 @@ void GLWindow::draw_caption(int captionPos, vector<string> s) {
 		start = 0;
 
 	for (int i = start; i < s.size() && i <= (LINES + start); i++) {
-		glRasterPos2d( MONO_img->width/ 50.0, LINE_OFFSET + MONO_img->height - (LINES - i +start)
+		glRasterPos2d( RGB_img->width/ 50.0, LINE_OFFSET + RGB_img->height - (LINES - i +start)
 				* LINE_HEIGHT);
 		print(s[i].c_str());
 	}
