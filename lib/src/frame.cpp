@@ -47,7 +47,7 @@ Frame::Frame( FrameCoding coding, ImageRef size )
 
 Frame::~Frame() 
 {
-	delete( _data ) ;
+	delete[] _data ;
 
 }
 

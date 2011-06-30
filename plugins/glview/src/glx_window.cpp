@@ -301,7 +301,7 @@ void GLWindow::print(const char* s) {
 
 void GLWindow::draw_caption(int captionPos, vector<string> s) {
 
-	int start=0;
+	unsigned int start=0;
 
 	if (s.size() == 0)
 		return;
@@ -335,7 +335,7 @@ void GLWindow::draw_caption(int captionPos, vector<string> s) {
 	else
 		start = 0;
 
-	for (int i = start; i < s.size() && i <= (LINES + start); i++) {
+	for (size_t i = start; i < s.size() && i <= (LINES + start); i++) {
 		glRasterPos2d( RGB_img->width/ 50.0, LINE_OFFSET + RGB_img->height - (LINES - i +start)
 				* LINE_HEIGHT);
 		print(s[i].c_str());

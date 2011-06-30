@@ -21,7 +21,7 @@ void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *im
 				memcpy( img->raw_data, frm->_data, frm->_data_size ) ;
 				break ;
 		case VS_RGB8:
-				register int i ;
+				register unsigned int i ;
 				int tmp ;
 				for (i=0; i< img->data_size; i++ ) {
 				 	tmp = frm->_data[3*i] + frm->_data[3*i+1] + frm->_data[3*i+2] ;
@@ -40,7 +40,7 @@ template<>
 void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsystem::Frame* frm ) 
 {
 	
-	register int i ;
+	register unsigned int i ;
 	
 	switch ( frm->_coding ) {
 

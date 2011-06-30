@@ -174,10 +174,10 @@ void VsCore::run()
 
 	// Fill controllers and plugin vectors
 
-	for( int i=0; i< _controller_threads.size(); i++ )
+	for( size_t i=0; i< _controller_threads.size(); i++ )
 		_controllers.push_back ( _controller_threads[i]->pointer ) ;
 
-	for( int i=0; i< _plugin_threads.size(); i++ )
+	for( size_t i=0; i< _plugin_threads.size(); i++ )
 		_plugins.push_back ( _plugin_threads[i]->pointer ) ;
 
 	if ( _controllers.size() == 0 )
@@ -199,7 +199,7 @@ void VsCore::run()
 
 	cout << "[vs_core] Initialising all controllers" << endl ;
 
-	for ( int i=0; i<_controllers.size(); i++) {
+	for ( size_t i=0; i<_controllers.size(); i++) {
 		
 		cout << "[vs_core] Initializing " << _controllers[i]->get_name() << endl ;
 		
@@ -209,7 +209,7 @@ void VsCore::run()
 			return ;
 		}
 		
-		for ( int j=0; j<tmp.size(); j++ ) {
+		for ( size_t j=0; j<tmp.size(); j++ ) {
 			cout << "[vs_core] Found camera " << tmp[j]->get_name() << endl ;
 			add_camera( tmp[j] ) ;
 		}
@@ -227,7 +227,7 @@ void VsCore::run()
 
 	cout << "[vs_core] Initialising all plugins " << endl ;
 
-	for ( int i=0; i< _plugins.size(); i++ ) {
+	for ( size_t i=0; i< _plugins.size(); i++ ) {
 		cout << "[vs_core] Initializing " << _plugins[i]->get_name() << " ..." << endl ;
 		if ( !_plugins[i]->pre_fct() ) {
 			cerr << "[vs_core] ERROR: Could not initialize plugin " << _plugins[i]->get_name() << endl ;
@@ -239,7 +239,7 @@ void VsCore::run()
 
 	cout << "[vs_core] Starting plugins Threads" << endl ;
 
-	for ( int i=0 ; i<_plugin_threads.size(); i++ )
+	for ( size_t i=0 ; i<_plugin_threads.size(); i++ )
 		_plugin_threads[i]->start_thread() ;
 		
 
@@ -247,7 +247,7 @@ void VsCore::run()
 	
 	cout << "[vs_core] Starting controllers Threads" << endl ;
 
-	for ( int i=0 ; i<_controller_threads.size(); i++ )
+	for ( size_t i=0 ; i<_controller_threads.size(); i++ )
 		_controller_threads[i]->start_thread() ;
 	
 	// Main loop
@@ -258,7 +258,7 @@ void VsCore::run()
 		
 		vector<GenericCamera*> all_cameras = get_all_genericcameras() ;	
 		
-		for ( int c=0; c < all_cameras.size(); c++ ) {
+		for ( size_t c=0; c < all_cameras.size(); c++ ) {
 			
 			frm = all_cameras[c]->_buffer.nbl_dequeue() ;	
 
@@ -266,7 +266,7 @@ void VsCore::run()
 
 				vector<Plugin*> subscribed = get_all_subscriptions ( all_cameras[c] ) ;
 
-				for ( int p=0; p < subscribed.size(); p++ )
+				for ( size_t p=0; p < subscribed.size(); p++ )
 					subscribed[p]->push_frame( (Camera*) all_cameras[c] , frm ) ;
 				
 			all_cameras[c]->_buffer.enqueue( frm ) ;
@@ -281,7 +281,7 @@ void VsCore::run()
 	
 	cout << "[vs_core] Sending stop signal to controller Threads ..." << endl ;
 
-	for ( int i=0 ; i<_controller_threads.size(); i++ ) {
+	for ( size_t i=0 ; i<_controller_threads.size(); i++ ) {
 		_controller_threads[i]->request_stop() ;
 	}
 
@@ -289,7 +289,7 @@ void VsCore::run()
 	
 	cout << "[vs_core] Waiting for controller threads to stop ..." << endl ;
 
-	for ( int i=0 ; i<_controller_threads.size(); i++ ) {
+	for ( size_t i=0 ; i<_controller_threads.size(); i++ ) {
 		_controller_threads[i]->join() ;
 	}
 
@@ -298,7 +298,7 @@ void VsCore::run()
 	
 	cout << "[vs_core] Sending stop signal to plugins Threads ..." << endl ;
 
-	for ( int i=0 ; i<_plugin_threads.size(); i++ ) {
+	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) {
 		_plugin_threads[i]->request_stop() ;
 	}
 	
@@ -306,7 +306,7 @@ void VsCore::run()
 	
 	cout << "[vs_core] Waiting for plugin threads to stop ..." << endl ;
 
-	for ( int i=0 ; i<_plugin_threads.size(); i++ ) {
+	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) {
 		_plugin_threads[i]->join() ;
 	}
 	
@@ -314,22 +314,22 @@ void VsCore::run()
 	
 	cout << "[vs_core] Calling post_fct() for Plugins ..." << endl ;
 
-	for ( int i=0 ; i<_plugins.size(); i++ ) 
+	for ( size_t i=0 ; i<_plugins.size(); i++ ) 
 		_plugins[i]->post_fct() ;
 
 	// Controllers post_fct()
 	
 	cout << "[vs_core] Calling post_fct() for Controllers ... " << endl ;
 
-	for ( int i=0 ; i<_controllers.size(); i++ ) 
+	for ( size_t i=0 ; i<_controllers.size(); i++ ) 
 		_controllers[i]->post_fct() ;
 
 	// Cleaning up a bit
 
-	for ( int i=0 ; i<_plugin_threads.size(); i++ ) 
+	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) 
 		delete _plugin_threads[i] ;
 	
-	for ( int i=0 ; i<_controller_threads.size(); i++ )
+	for ( size_t i=0 ; i<_controller_threads.size(); i++ )
 		delete _controller_threads[i] ;
 
 	_plugins.clear() ;

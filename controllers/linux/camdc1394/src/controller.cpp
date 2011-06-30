@@ -4,13 +4,12 @@
 #include <cstring>
 
 Controller1394::Controller1394( VisionSystem *vs, std::string sandbox )
-:Controller( vs, "camdc1394", sandbox) {
+:Controller( vs, "camdc1394", sandbox), d1394_(0), _cams(0) {
 
 }
 
 
 Controller1394::~Controller1394() {
-
 }
 
 
@@ -44,7 +43,7 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 
 		} else {
 
-			for ( int i=0; i<list->num; i++ ) {
+			for ( unsigned int i=0; i<list->num; i++ ) {
 				
 				#ifdef _DEBUG
 					std::cout <<"[camdc1394] Found camera " << list->ids[i].guid <<std::endl ;					
@@ -97,7 +96,7 @@ void Controller1394::loop_fct() {
 		dc1394error_t err ;
 		dc1394video_frame_t *frame = NULL ;
 		Frame* vsframe = NULL ;	
-		for ( int i=0; i < _cams.size(); i++ ) {
+		for ( size_t i=0; i < _cams.size(); i++ ) {
 
 			err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_POLL, &frame ) ;
 		
@@ -144,7 +143,7 @@ bool Controller1394::post_fct() {
 		std::cout << "[camdc1394] Entering Post() Function" <<std::endl ;
 	#endif
 
-	for ( int i=0; i< _cams.size(); i++ ) {
+	for ( size_t i=0; i< _cams.size(); i++ ) {
 		_cams[i]->stop_cam() ;
 		delete ( _cams[i] ) ;
 	}

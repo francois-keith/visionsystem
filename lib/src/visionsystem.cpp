@@ -12,13 +12,18 @@ VisionSystem::VisionSystem() {
 
 
 VisionSystem::~VisionSystem() {
-
+    for( std::map< std::string, boost::mutex*>::iterator it = whiteboard_mutex.begin();
+            it != whiteboard_mutex.end();
+            ++it )
+    {
+        delete (*it).second;
+    }
 }
 
 vector<Camera*> VisionSystem::get_all_cameras() {
 	_cameras_mutex.lock() ;
 	vector<Camera*> tmp ;
-	for ( int i=0; i<_cameras.size(); i++ )
+	for ( size_t i=0; i<_cameras.size(); i++ )
 		tmp.push_back( (Camera*) _cameras[i] ) ;
 	_cameras_mutex.unlock() ;
 	return tmp ;
@@ -27,7 +32,7 @@ vector<Camera*> VisionSystem::get_all_cameras() {
 Camera* VisionSystem::get_camera ( string name ) {
 	_cameras_mutex.lock() ;
 	Camera* tmp = NULL ;
-	for ( int i=0; i<_cameras.size(); i++ )
+	for ( size_t i=0; i<_cameras.size(); i++ )
 		if ( _cameras[i]->get_name() == name )
 			tmp = (Camera*) _cameras[i] ; 			
 	_cameras_mutex.unlock() ;
@@ -55,7 +60,7 @@ void VisionSystem::register_to_cam ( Plugin* plugin, Camera* cam ) {
 
 void VisionSystem::unregister_to_cam ( Plugin* plugin, Camera* cam ) {
 	_subscriptions_mutex.lock() ;
-	for (int i=0; i<_subscriptions[cam].size(); i++ )	
+	for (size_t i=0; i<_subscriptions[cam].size(); i++ )	
 		if ( _subscriptions[cam][i] == plugin )
 			_subscriptions[cam].erase( _subscriptions[cam].begin() + i ) ;
 	_subscriptions_mutex.unlock() ;
@@ -65,7 +70,7 @@ void VisionSystem::unregister_to_cam ( Plugin* plugin, Camera* cam ) {
 void VisionSystem::add_camera( GenericCamera* cam ) {
 	string name = cam->get_name() ;
 	_cameras_mutex.lock() ;
-	for ( int i=0; i< _cameras.size(); i++ )
+	for ( size_t i=0; i< _cameras.size(); i++ )
 		if ( _cameras[i]->get_name() == name )
 			throw ( string("Cannot add camera - A camera name must be unique" ) ) ;
 	_cameras.push_back( cam ) ;

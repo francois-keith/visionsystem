@@ -28,7 +28,7 @@ void Camera1394::save_capa ( string filename ) {
 
     ofstream capafile ( filename.c_str() , ios::out ) ;
 
-    for ( int i=0; i<modes.num; i++) {
+    for ( unsigned int i=0; i<modes.num; i++) {
 
 	framerates = true ;
 
@@ -57,7 +57,7 @@ void Camera1394::save_capa ( string filename ) {
 			exit(0) ;
 		}
 			
-		for ( int j = 0; j < framerates.num; j++) {
+		for ( unsigned int j = 0; j < framerates.num; j++) {
 			dc1394framerate_t rate = framerates.framerates[j];
 			switch (rate) {
 				case DC1394_FRAMERATE_1_875 :
@@ -109,7 +109,7 @@ void Camera1394::save_capa ( string filename ) {
 
 				capafile << std::endl << "[Feature] " << feature_2_string ( features.feature[i].id ) << std::endl ;
 
-				for (int j=0; j<features.feature[i].modes.num; j++ ) {
+				for (unsigned int j=0; j<features.feature[i].modes.num; j++ ) {
 					
 					capafile << "  Mode : " << featuremode_2_string ( features.feature[i].modes.modes[j] ) << std::endl ;
 
