@@ -59,15 +59,16 @@ bool Dump2Disk::post_fct() {
 	unregister_to_cam< Image<unsigned char, MONO> >( _cam ) ;
 	
 	int i=0 ;
-	char buffer[255] ;
 	Image< unsigned char, MONO > *img ;
 
 	while ( _buffer.size() != 0 ) {
-		sprintf( buffer, "%d.png", i )	;
+        std::stringstream ss;
+        ss << i << ".bin";
+        std::string to_file = ss.str();
 		img = _buffer.nbl_dequeue() ;
-		save_mono< unsigned char, MONO > ( buffer, img ) ;
+		vision::serialize ( to_file, *img ) ;
 		delete ( img ) ;
-		i++ ;
+		++i ;
 	}
 	
 	return true ;
