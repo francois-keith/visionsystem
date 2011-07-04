@@ -33,8 +33,10 @@ class GLView: public Viewer, public WithConfigFile
 
 	private:
 
-		GLWindow *_win ;
-		Camera   *_cam ;
+		GLWindow*	   win ;
+		vector<Camera*> cameras ;
+		int		active_cam ;
+		int 		next_cam ;
 } ;
 
 PLUGIN( GLView ) 

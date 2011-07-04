@@ -290,6 +290,7 @@ void VsCore::run()
 	cout << "[vs_core] Waiting for controller threads to stop ..." << endl ;
 
 	for ( size_t i=0 ; i<_controller_threads.size(); i++ ) {
+		cout << "[vs_core] Waiting for " << _controller_threads[i]->pointer->get_name() << endl ;
 		_controller_threads[i]->join() ;
 	}
 
@@ -307,6 +308,7 @@ void VsCore::run()
 	cout << "[vs_core] Waiting for plugin threads to stop ..." << endl ;
 
 	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) {
+		cout << "[vs_core] Waiting for " << _plugin_threads[i]->pointer->get_name() << endl ;
 		_plugin_threads[i]->join() ;
 	}
 	

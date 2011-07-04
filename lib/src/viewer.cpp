@@ -15,25 +15,25 @@ namespace visionsystem {
 		
 	}
 
-	void Viewer::register_glfunc   ( Camera* cam, void (*fct) ()  ) {
+	void Viewer::register_glfunc   ( WithViewer* vw  ) {
 		glfuncs_mutex.lock() ;
-		glfuncs[cam].push_back( fct ) ;	
+		glfuncs.push_back( vw ) ;	
 		glfuncs_mutex.unlock() ;
 	}
 
-	void Viewer::register_callback ( Camera* cam, void (*fct) ( XEvent event ) ) {
+	void Viewer::register_callback ( WithViewer* vw ) {
 		callbacks_mutex.lock() ;
-		callbacks[cam].push_back( fct ) ;
+		callbacks.push_back( vw )  ;
 		callbacks_mutex.unlock() ;
 	} 
 
-	void Viewer::unregister_glfunc   ( Camera*, void (*fct) ()  ) {
+	void Viewer::unregister_glfunc   ( WithViewer* vw ) {
 
 		// FIXME
 
 	}
 
-	void Viewer::unregister_callback ( Camera*, void (*fct) ( XEvent event ) ) {
+	void Viewer::unregister_callback ( WithViewer* vw ) {
 
 		// FIXME
 

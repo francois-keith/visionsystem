@@ -56,8 +56,7 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 	dpy_ = XOpenDisplay(0);
 	screen_ = DefaultScreen(dpy_);
 	XF86VidModeQueryVersion(dpy_, &vidModeMajorVersion, &vidModeMinorVersion);
-	printf("XF86VidModeExtension-Version %d.%d\n", vidModeMajorVersion,
-			vidModeMinorVersion);
+	cout<< "[glview] XF86VidModeExtension-Version " << vidModeMajorVersion << "." <<	vidModeMinorVersion << endl ;
 	XF86VidModeGetAllModeLines(dpy_, screen_, &modeNum, &modes);
 
 	/* save desktop-resolution before switching modes */
@@ -75,13 +74,13 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 	if (vi == NULL) {
 		vi = glXChooseVisual(dpy_, screen_, attrListSgl);
 		doubleBuffered_ = False;
-		printf("Only Singlebuffered Visual!\n");
+		cout << "[glview] Only Singlebuffered Visual!" << endl ;
 	} else {
 		doubleBuffered_ = True;
-		printf("Got doubleBuffered_ Visual!\n");
+		cout << "[glview] Got doubleBuffered_ Visual!" << endl ;
 	}
 	glXQueryVersion(dpy_, &glxMajorVersion, &glxMinorVersion);
-	printf("glX-Version %d.%d\n", glxMajorVersion, glxMinorVersion);
+	cout << "[glview] glX-Version " << glxMajorVersion << "." << glxMinorVersion << endl ;
 
 	/* create a GLX context */
 	ctx_ = glXCreateContext(dpy_, vi, 0, GL_TRUE);
@@ -96,7 +95,7 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 		XF86VidModeSetViewPort(dpy_, screen_, 0, 0);
 		dpyWidth = modes[bestMode]->hdisplay;
 		dpyHeight = modes[bestMode]->vdisplay;
-		printf("Resolution %dx%d\n", dpyWidth, dpyHeight);
+		cout << "[glview] Resolution " << dpyWidth << "x" << dpyHeight ;
 		XFree(modes);
 
 		/* create a fullscreen window */
@@ -142,12 +141,12 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 	XGetGeometry(dpy_, win_, &winDummy, &x, &y, (unsigned int *) &width,
 			(unsigned int *) &height, &borderDummy, &depth_);
 
-	printf("Depth %d\n", depth_);
+	cout << "[glview] Depth " << depth_ << endl ;
 
 	if (glXIsDirect(dpy_, ctx_))
-		printf("Congrats, you have Direct Rendering!\n");
+		cout << "[glview] Congrats, you have Direct Rendering!" << endl ;
 	else
-		printf("Sorry, no Direct Rendering possible!\n");
+		cout << "[glview] Sorry, no Direct Rendering possible!" << endl ;
 
 	/* Init fonts */
 
@@ -156,7 +155,7 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 	fontBase_ = glGenLists(256);
 
 	if (!glIsList(fontBase_)) {
-		fprintf(stderr, "Out of display lists. - Exiting.\n");
+		cerr << "[glview] ERROR : Out of display lists. - Exiting." << endl ;
 		exit(0);
 	}
 
@@ -166,7 +165,7 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 	font_info = XLoadQueryFont(dpy_, font_);
 
 	if (!font_info) {
-		fprintf(stderr, "XLoadQueryFont() failed - Exiting.\n");
+		cerr << "[glview] ERROR: XLoadQueryFont() failed - Exiting." << endl ;
 		exit(0);
 	}
 
@@ -180,7 +179,7 @@ GLWindow::GLWindow(string title, int width, int height,	Bool fullscreen) {
 GLWindow::~GLWindow() {
 	if (ctx_) {
 		if (!glXMakeCurrent(dpy_, None, NULL)) {
-			printf("Could not release drawing context.\n");
+			cerr << "[glview] ERROR: Could not release drawing context." << endl ;
 		}
 		glXDestroyContext(dpy_, ctx_);
 		ctx_ = NULL;
@@ -224,7 +223,7 @@ XEvent GLWindow::processEvents() {
 		case ClientMessage:
 			if (*XGetAtomName(dpy_, event.xclient.message_type)
 					== *"WM_PROTOCOLS") {
-				printf("Exiting sanely...\n");
+				cout << "[glview] Exiting sanely..." << endl ;
 			}
 			break;
 
@@ -278,7 +277,7 @@ void GLWindow::draw( Image<uint32_t,RGB> *img) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, imWidth * sizeof(unsigned char ));
 
-	glDrawPixels( imWidth, imHeight, GL_RGBA, GL_UNSIGNED_BYTE, img->raw_data );		// FIXME
+	glDrawPixels( imWidth, imHeight, GL_RGBA, GL_UNSIGNED_BYTE, img->raw_data );		
 
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
@@ -289,7 +288,7 @@ void GLWindow::draw( Image<uint32_t,RGB> *img) {
 
 void GLWindow::print(const char* s) {
 	if (!glIsList(fontBase_)) {
-		fprintf(stderr, "Bad display list. - Exiting.\n");
+		cerr << "[glview] Bad display list. - Exiting." << endl ;
 		exit(-1);
 	} else if (s && strlen(s)) {
 		glPushAttrib(GL_LIST_BIT);

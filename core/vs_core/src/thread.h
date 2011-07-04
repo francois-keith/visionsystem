@@ -147,6 +147,7 @@ void Thread<Data>::start_thread() {
 template<typename Data>
 void Thread<Data>::request_stop() {
 	_done = true ;
+	_thread.interrupt() ;	
 }
 
 template<typename Data>
