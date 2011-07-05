@@ -104,7 +104,8 @@ void GLView::callback( XEvent event ) {
 		switch ( XLookupKeysym(&event.xkey, 0) ) {
 
 		case XK_F1:
-			next_cam = 0 ;
+			if ( cameras[1]->is_active() )
+				next_cam = 0 ;
 			break;
 	
 		case XK_F2:
