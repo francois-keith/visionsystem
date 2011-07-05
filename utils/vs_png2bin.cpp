@@ -63,8 +63,8 @@ int main(int argc, char * argv[])
             {
                 if( is_regular_file(*it) && extension(*it) == ".png" )
                 {
-                    bin_files.push_back((*it).string());
-                    png_files.push_back(change_extension(*it, ".bin").string());
+                    png_files.push_back((*it).string());
+                    bin_files.push_back(change_extension(*it, ".bin").string());
                 }
             }
         }
