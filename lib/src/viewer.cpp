@@ -28,15 +28,19 @@ namespace visionsystem {
 	} 
 
 	void Viewer::unregister_glfunc   ( WithViewer* vw ) {
-
-		// FIXME
-
+		glfuncs_mutex.lock() ;
+		for ( int i=0; i<glfuncs.size(); i++ )
+			if ( glfuncs[i] == vw )
+				glfuncs.erase (glfuncs.begin()+i);
+		glfuncs_mutex.unlock() ;
 	}
 
 	void Viewer::unregister_callback ( WithViewer* vw ) {
-
-		// FIXME
-
+		callbacks_mutex.lock() ;
+		for ( int i=0; i<callbacks.size(); i++ )
+			if ( callbacks[i] == vw )
+				callbacks.erase (callbacks.begin()+i);
+		callbacks_mutex.unlock() ;
 	} 
 
 

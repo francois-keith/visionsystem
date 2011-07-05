@@ -10,10 +10,10 @@
 ###############################################################################
 
 
-set(EXEC_NAME "bin2png")
+set(EXEC_NAME "vs_bin2png")
 
 set(${EXEC_NAME}_SRC
-    bin2png.cpp)
+    vs_bin2png.cpp)
 
 add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 
@@ -29,7 +29,7 @@ target_link_libraries ( ${EXEC_NAME}
 
 ### Install
 
-install( TARGETS "bin2png"
+install( TARGETS "vs_bin2png"
 	    RUNTIME DESTINATION bin COMPONENT main
 	    LIBRARY DESTINATION lib COMPONENT main
 	    ARCHIVE DESTINATION lib COMPONENT main )
