@@ -196,4 +196,6 @@ void GLView::parse_config_line( vector<string> &line ) {
 
 void GLView::gl_print ( ImageRef position, string text ) {
 
+	// FIXME 
+
 }
