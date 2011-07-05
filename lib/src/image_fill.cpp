@@ -57,6 +57,12 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 							    ( (uint32_t) frm->_data[3*i+1] ) << 8 | 
 							    ( (uint32_t) frm->_data[3*i] ) ;  
 				break ;
+		case VS_RGBA:
+				for (i=0; i<img->pixels; i++ )
+					img->raw_data[i] =  ( (uint32_t) frm->_data[4*i+2] ) << 16  |
+							    ( (uint32_t) frm->_data[4*i+1] ) << 8 | 
+							    ( (uint32_t) frm->_data[4*i] ) ;  
+				break ;
 		default:
 				throw( string( "Image<uint32_t,RGB> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
