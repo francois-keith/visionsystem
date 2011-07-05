@@ -30,6 +30,7 @@ class GLView: public Viewer, public WithConfigFile
 	private:
 
 		void parse_config_line( vector<string> &line ) ;
+		void callback( XEvent event ) ;
 
 	private:
 
@@ -37,6 +38,8 @@ class GLView: public Viewer, public WithConfigFile
 		vector<Camera*> cameras ;
 		int		active_cam ;
 		int 		next_cam ;
+
+		bool		callback_active ;
 } ;
 
 PLUGIN( GLView ) 
