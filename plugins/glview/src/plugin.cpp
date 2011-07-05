@@ -29,6 +29,19 @@ bool  GLView::pre_fct() {
 		
 
 	cameras = get_all_cameras() ;
+
+	active_cam = -1 ;
+	for ( int i=0; i<cameras.size(); i++ )
+		if ( cameras[i]->is_active() )
+			active_cam = i ;
+
+	next_cam = active_cam ;
+	
+	if ( active_cam == -1 )	{
+		cerr << "[glview] ERROR : No cam is active. " << endl ;
+		return false ;
+	}
+
 	register_to_cam< Image<uint32_t, RGB> >( cameras[active_cam], 10 ) ;
 
 	return true ;
