@@ -51,7 +51,7 @@ void ControllerFilestream::loop_fct()
 {
     for(size_t i = 0; i < _cams.size(); ++i)
     {
-        if(_cams[i]->is_active())
+        if(_cams[i]->is_active() && _cams[i]->has_data())
         {
             Frame * vsframe = _cams[i]->_buffer.pull();
             std::memcpy( vsframe->_data, _cams[i]->get_data(), vsframe->_data_size );

@@ -14,7 +14,10 @@ CameraFilestream::CameraFilestream()
 :   _img_size(0,0), _active(false), _img_coding(VS_MONO8), _fps(30), _name("filestream-unconfigured"), 
     _bin_files(0), _current_frame(0), _img_mono(0), _img_rgb(0),
     _buffersize(100)
-{}
+{
+    _previous_frame_t.tv_sec = 0;
+    _previous_frame_t.tv_usec = 0;
+}
 
 CameraFilestream::~CameraFilestream()
 {
@@ -38,6 +41,27 @@ bool CameraFilestream::init_camera()
         _img_rgb = new vision::Image<uint32_t, RGB>(get_size());
     }
     return true;
+}
+
+bool CameraFilestream::has_data()
+{
+    timeval now;
+    gettimeofday(&now, 0);
+    unsigned int elapsed_time = 0;
+    if(now.tv_usec < _previous_frame_t.tv_usec)
+    {
+        elapsed_time = 1000000*(now.tv_sec - _previous_frame_t.tv_sec) - (_previous_frame_t.tv_usec - now.tv_usec);
+    }
+    else
+    {
+        elapsed_time = 1000000*(now.tv_sec - _previous_frame_t.tv_sec) + (now.tv_usec - _previous_frame_t.tv_usec);
+    }
+    if(elapsed_time > _fps)
+    {
+        _previous_frame_t = now;
+        return true;
+    }
+    return false;
 }
 
 unsigned char * CameraFilestream::get_data()
@@ -65,7 +89,10 @@ void CameraFilestream::parse_config_line( std::vector<std::string> & line )
         return;
 
     if( fill_member( line, "FPS", _fps ) )
+    {
+        _fps = 1000000/_fps;
         return;
+    }
 
     std::vector<int> resolution(0);
     if( fill_member( line, "Resolution", resolution) )

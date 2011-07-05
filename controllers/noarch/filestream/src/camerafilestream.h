@@ -4,6 +4,7 @@
 #include <configparser/configparser.h>
 #include <visionsystem/genericcamera.h>
 #include <vision/image/image.h>
+#include <ctime>
 
 namespace visionsystem
 {
@@ -20,6 +21,9 @@ public:
 
     /* Create the buffer once the camera has been configured */
     bool init_camera();
+
+    /* Should send new frame */
+    bool has_data();
 
     /* Get current image as an unsigned char * buffer */
     unsigned char * get_data();
@@ -46,7 +50,8 @@ public:
     vision::ImageRef _img_size;
     bool _active;
     visionsystem::FrameCoding _img_coding;
-    float _fps;
+    unsigned int _fps; /* read as FPS but stored as time intervall between each frame */
+    timeval _previous_frame_t;
     std::string _name;
 
     /* Filestream specific */
