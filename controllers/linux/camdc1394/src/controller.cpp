@@ -98,41 +98,43 @@ void Controller1394::loop_fct() {
 		Frame* vsframe = NULL ;	
 		for ( size_t i=0; i < _cams.size(); i++ ) {
 
-			err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_POLL, &frame ) ;
+			if ( _cams[i]->is_active() ) {
+
+				err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_POLL, &frame ) ;
 		
-			if ( err != DC1394_SUCCESS ) {
-				std::cerr << "[camdc1394] Could not dequeue frame" <<std::endl ;
-				exit(0) ;
-			}
-
-			if ( frame ) {
-
-				vsframe = _cams[i]->_buffer.pull() ;						
-
-				if ( _cams[i]->get_bayer() == 0 )
-						
-						std::memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
-				
-				else {
-					
-					dc1394_bayer_decoding_8bit( frame->image,
-		                        			    vsframe->_data,
-					                            frame->size[0],
-		        			                    frame->size[1],
-					                            _cams[i]->get_bayer_coding(),
-					                            _cams[i]->get_bayer_method() );
-				}
-
-				_cams[i]->_buffer.push( vsframe ) ;
-
-				err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
-			
 				if ( err != DC1394_SUCCESS ) {
-					std::cerr << "[camdc1394] Could not enqueue frame" <<std::endl ;
+					std::cerr << "[camdc1394] Could not dequeue frame" <<std::endl ;
 					exit(0) ;
 				}
-			}
 
+				if ( frame ) {
+
+					vsframe = _cams[i]->_buffer.pull() ;						
+
+					if ( _cams[i]->get_bayer() == 0 )
+							
+							std::memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
+				
+					else {
+					
+						dc1394_bayer_decoding_8bit( frame->image,
+									    vsframe->_data,
+									    frame->size[0],
+									    frame->size[1],
+									    _cams[i]->get_bayer_coding(),
+									    _cams[i]->get_bayer_method() );
+					}
+
+					_cams[i]->_buffer.push( vsframe ) ;
+
+					err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
+			
+					if ( err != DC1394_SUCCESS ) {
+						std::cerr << "[camdc1394] Could not enqueue frame" <<std::endl ;
+						exit(0) ;
+					}
+				}
+			}
 		}
 }
 
