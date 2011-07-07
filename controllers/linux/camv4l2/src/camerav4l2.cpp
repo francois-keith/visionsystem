@@ -478,6 +478,39 @@ bool CameraV4L2::init_userp()
 
 int CameraV4L2::read_frame () {
 
+// --------------------------
+
+	fd_set fds;
+        struct timeval tv;
+        int r;
+
+        FD_ZERO (&fds);
+        FD_SET ( _fd, &fds);
+
+        /* Timeout. */
+        
+	tv.tv_sec = 2;
+        tv.tv_usec = 0;
+
+        r = select ( _fd + 1, &fds, NULL, NULL, &tv);
+
+        if (-1 == r) {
+		
+		if (EINTR == errno)
+                	return 0 ;
+
+                cerr << "[camv4l] ERROR in select" << endl ;
+		return -1 ;
+        }
+
+        if (0 == r) {
+                 
+		cerr << "[camv4l] ERROR: select timeout" << endl ;
+                return -1 ;
+        }
+
+// --------------------------
+
 	struct v4l2_buffer buf;
 	unsigned int i;
 
