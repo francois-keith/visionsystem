@@ -14,6 +14,10 @@ ControllerFilestream::ControllerFilestream( visionsystem::VisionSystem * vs, std
 
 ControllerFilestream::~ControllerFilestream()
 {
+    for(size_t i = 0; i < _cams.size(); ++i)
+    {
+        delete _cams[i];
+    }
 }
 
 bool ControllerFilestream::pre_fct( std::vector< GenericCamera *> & cams)
