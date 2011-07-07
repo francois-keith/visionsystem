@@ -15,29 +15,34 @@ Frame::Frame( FrameCoding coding, ImageRef size )
 	switch (coding) {
 
 		case VS_MONO8 :	
+			
 			_data_size = size.area() ;
 			break ;
+	
 		case VS_MONO16 :
+		case VS_YUV422_YYUV :
+		case VS_YUV422_YUYV :
+		case VS_YUV422_YVYU :
+		case VS_YUV422_UYVY :
+		case VS_YUV422_VYUY :
+
 			_data_size = 2 * size.area() ;
 			break ;
-		case VS_RGB8 :
+		
+		case VS_RGB24  :
+		case VS_YUV444 :
+			
 			_data_size = 3 * size.area() ;
 			break ;
-		case VS_RGBA :
+		
+		case VS_RGB32 :
 			_data_size = 4 * size.area() ;
 			break ;
-		case VS_YUV411:
-			_data_size = 6 * size.area() / 4 ;
-			break ;
-		case VS_YUV422 :
-			_data_size = 2 * size.area() ;
-			break ;
-		case VS_YUV444 :
-			_data_size = 3 * size.area() ;
-			break ;
-		default:
-			throw ( string( "Unknown Frame Format" )  );
 
+
+		default:
+			throw ( string( "Frame.cpp : Unknown Frame Format" )  );
+			break ;
 	}
 
 	_data = new unsigned char[ _data_size]  ;

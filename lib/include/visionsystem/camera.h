@@ -21,6 +21,12 @@ namespace visionsystem {
 			virtual float get_fps() = 0 ;
 			virtual std::string get_name() = 0 ;
 	
+		
+		//	virtual bool set_active( bool ) = 0 ;				// TODO
+		//	virtual bool set_fps ( float )  = 0 ;	
+		//	virtual bool set_size( vision::ImageRef ) = 0 ;
+		//	virtual bool set_coding ( FrameCoding ) = 0 ;
+
 	} ;
 
 
