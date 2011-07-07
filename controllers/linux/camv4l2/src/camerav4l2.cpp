@@ -12,6 +12,7 @@
 
 #include <asm/types.h>          /* for videodev2.h */
 
+#include <cstring>
 
 // -------------------
 // ---
@@ -20,7 +21,11 @@
 // -------------------
 
 
-#define CLEAR(x) memset (&(x), 0, sizeof (x))
+template<typename T>
+inline void CLEAR(T x)
+{
+    memset((void*)&x, 0, sizeof(x));
+}
 
 static int xioctl ( int fd, int request, void * arg ) {
         
@@ -85,6 +90,10 @@ FrameCoding CameraV4L2::get_coding() {
 
 			return VS_YUV422_YUYV ;
 			break ;
+
+        default:
+            return VS_YUV422_YUYV;
+            break;
 	}
 }
 
@@ -649,5 +658,5 @@ bool CameraV4L2::stop_camera() {
 
 	_fd = -1;
 
-
+    return true;
 }

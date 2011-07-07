@@ -1,5 +1,6 @@
 #include "controller.h"
 
+#include <iostream>
 
 ControllerV4L2::ControllerV4L2( VisionSystem *vs, std::string sandbox )
 :Controller( vs, "camv4l2", sandbox), _cams(0) {
@@ -22,7 +23,7 @@ bool ControllerV4L2::pre_fct( vector< GenericCamera* > &cams ) {
 
 		if ( boost::filesystem::exists( dev_path.str() ) ) {
 			
-			cout << "[camv4l2] Found " << dev_path.str() << endl ;
+			std::cout << "[camv4l2] Found " << dev_path.str() << std::endl ;
 			
 			CameraV4L2* camera = new CameraV4L2( dev_path.str() ) ;
 
@@ -32,8 +33,8 @@ bool ControllerV4L2::pre_fct( vector< GenericCamera* > &cams ) {
                 
 			} catch ( string msg ) {
 
-				cout << "[camv4l2] Could not open config file for " << dev_path.str() << endl ;
-				cout << "[camv4l2] Using default config " << endl ;
+				std::cout << "[camv4l2] Could not open config file for " << dev_path.str() << endl ;
+				std::cout << "[camv4l2] Using default config " << endl ;
 
 			}
 
@@ -41,7 +42,7 @@ bool ControllerV4L2::pre_fct( vector< GenericCamera* > &cams ) {
 
 				if ( !camera->init_camera() ) {
 					
-					cerr << "[camv4l2] ERROR : could not initialize " << dev_path.str() << endl ;
+					std::cerr << "[camv4l2] ERROR : could not initialize " << dev_path.str() << std::endl ;
 					return false ;
 				
 				}
