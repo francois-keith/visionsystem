@@ -10,7 +10,8 @@ namespace visionsystem
 {
 
 ControllerSocket::ControllerSocket( VisionSystem * vs, std::string sandbox )
-: Controller(vs, "controllersocket", sandbox), io_service_(), cams_(0)
+: Controller(vs, "controllersocket", sandbox), 
+  io_service_(), io_service_th_(0), cams_(0)
 {
 }
 
@@ -49,7 +50,7 @@ bool ControllerSocket::pre_fct( std::vector<GenericCamera *> & cams )
 
 void ControllerSocket::preloop_fct()
 {
-    io_service_.run();
+    io_service_th_ = new boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
 }
 
 void ControllerSocket::loop_fct()
@@ -72,6 +73,9 @@ bool ControllerSocket::post_fct()
         cams_[i]->stop_cam();
     }
     io_service_.stop();
+    io_service_th_->join();
+    delete io_service_th_;
+    io_service_th_ = 0;
     return true;
 }
 
