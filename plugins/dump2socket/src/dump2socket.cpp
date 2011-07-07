@@ -21,6 +21,17 @@ Dump2Socket::~Dump2Socket()
 
 bool Dump2Socket::pre_fct()
 {
+    std::string filename = get_sandbox() + std::string("/dump2socket.conf");
+
+    try
+    {
+        read_config_file(filename.c_str());
+    }
+    catch(std::string msg)
+    {
+        throw(std::string("dump2socket will not work without a correct dump2socket.conf config file"));
+    }
+
     cam_ = get_default_camera() ;
     register_to_cam< vision::Image<unsigned char, MONO> >( cam_, 10 ) ;
 
