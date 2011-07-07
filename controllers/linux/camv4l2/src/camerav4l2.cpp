@@ -99,8 +99,16 @@ string CameraV4L2::get_name() {
 }
 
 void CameraV4L2::parse_config_line ( vector<string> &line ) {
+
 	fill_member<string>( line, "Name" ,  _name ) ;
 	fill_member<bool>( line, "Active", _active ) ;
+
+	//FIXME not yet implemented
+
+	// IO_METHOD
+	// SIZE
+	// PIXELFORMAT
+
 }
 
 bool CameraV4L2::init_camera() {
