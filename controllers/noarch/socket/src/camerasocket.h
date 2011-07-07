@@ -71,7 +71,7 @@ private:
     udp::endpoint receiver_endpoint_;
     udp::endpoint sender_endpoint_;
     std::string request_;
-    enum { chunk_size_ = 2049 };
+    enum { chunk_size_ = 8193 };
     unsigned char chunk_buffer_[chunk_size_];
     uint8_t chunkID_;    
 
