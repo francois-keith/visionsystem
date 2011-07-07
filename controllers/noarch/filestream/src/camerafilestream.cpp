@@ -36,7 +36,7 @@ bool CameraFilestream::init_camera()
     {
         _img_mono = new vision::Image<unsigned char, MONO>(get_size());
     }
-    if( _img_coding == VS_RGBA  )
+    if( _img_coding == VS_RGB32  )
     {
         _img_rgb = new vision::Image<uint32_t, RGB>(get_size());
     }
@@ -117,7 +117,7 @@ void CameraFilestream::parse_config_line( std::vector<std::string> & line )
         }
         else if( coding == "RGB" )
         {
-            _img_coding = VS_RGBA;
+            _img_coding = VS_RGB32;
         }
         else
         {

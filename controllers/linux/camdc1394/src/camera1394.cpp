@@ -118,7 +118,7 @@ if ( bayer == 0 ) {
 		case DC1394_VIDEO_MODE_1024x768_YUV422:
 		case DC1394_VIDEO_MODE_1280x960_YUV422:
 		case DC1394_VIDEO_MODE_1600x1200_YUV422:
-			return VS_YUV422 ;
+			return VS_YUV422_UYVY ;				// FIXME verifier l'ordre des bytes
 			break ;
 
 		case DC1394_VIDEO_MODE_640x480_YUV411:
@@ -148,7 +148,7 @@ if ( bayer == 0 ) {
 		case DC1394_VIDEO_MODE_1024x768_RGB8:
 		case DC1394_VIDEO_MODE_1280x960_RGB8:
 		case DC1394_VIDEO_MODE_1600x1200_RGB8:
-			return VS_RGB8 ;
+			return VS_RGB24 ;
 			break ;
         default:
             break;
@@ -156,7 +156,7 @@ if ( bayer == 0 ) {
 	
 } else {
 
-// else ... less it's less easy :)
+// else ... it's less easy :)
 
 	switch ( mode ) 
 	{
@@ -165,7 +165,7 @@ if ( bayer == 0 ) {
 		case DC1394_VIDEO_MODE_1024x768_MONO8:
 		case DC1394_VIDEO_MODE_1280x960_MONO8:
 		case DC1394_VIDEO_MODE_1600x1200_MONO8:
-			return VS_RGB8 ;
+			return VS_RGB24 ;
 			break ;
         default:
             break;
