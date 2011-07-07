@@ -5,6 +5,8 @@
 
 #include "camerasocket.h"
 
+#include <boost/thread.hpp>
+
 namespace visionsystem
 {
 
@@ -22,6 +24,7 @@ public:
 
 private:
     boost::asio::io_service io_service_;
+    boost::thread * io_service_th_;
     std::vector<visionsystem::CameraSocket *> cams_;
 };
 

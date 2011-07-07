@@ -75,6 +75,9 @@ void CameraSocket::stop_cam()
 
 void CameraSocket::parse_config_line( std::vector<std::string> & line )
 {
+    if( fill_member(line, "Active", active_) )
+        return;
+
     if( fill_member(line, "Name", name_) )
         return;
 

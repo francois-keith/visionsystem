@@ -10,12 +10,11 @@ Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
   io_service_(), io_service_th_(0), 
   socket_(io_service_), 
   port_(4242), chunkID_(0),
-  cam_(0), current_img_(0), send_img_(0), img_lock_(false)
+  cam_(0), send_img_(0), img_lock_(false)
 {}
 
 Dump2Socket::~Dump2Socket()
 {
-    delete current_img_;
     delete send_img_;
 }
 
@@ -35,7 +34,6 @@ bool Dump2Socket::pre_fct()
     cam_ = get_default_camera() ;
     register_to_cam< vision::Image<unsigned char, MONO> >( cam_, 10 ) ;
 
-    current_img_ = new vision::Image<unsigned char, MONO>(cam_->get_size());
     send_img_ = new vision::Image<unsigned char, MONO>(cam_->get_size());
 
     socket_.open(udp::v4());
@@ -59,10 +57,11 @@ void Dump2Socket::loop_fct()
 {
     vision::Image<unsigned char, MONO> * img = dequeue_image< vision::Image<unsigned char, MONO> > (cam_);
     
-    while(img_lock_);
-    img_lock_ = true;
-    current_img_->copy(img);
-    img_lock_ = false;
+    if(img_lock_)
+    {
+        send_img_->copy(img);
+        img_lock_ = false;
+    }
 
     enqueue_image< vision::Image<unsigned char, MONO> >(cam_, img);
 }
@@ -90,10 +89,8 @@ void Dump2Socket::handle_receive_from(const boost::system::error_code & error,
         {
             /* Client request: reset sending vision::Image */
             chunkID_ = 0;
-            while(img_lock_);
             img_lock_ = true;
-            send_img_->copy(current_img_);
-            img_lock_ = false;
+            while(img_lock_) { usleep(100); }
         }
         if(client_message == "more")
         {
@@ -130,6 +127,7 @@ void Dump2Socket::handle_receive_from(const boost::system::error_code & error,
 void Dump2Socket::handle_send_to(const boost::system::error_code & error,
                             size_t bytes_send)
 {
+    if(error) { std::cerr << error.message() << std::endl; }
     socket_.async_receive_from(
         boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
         boost::bind(&Dump2Socket::handle_receive_from, this,
