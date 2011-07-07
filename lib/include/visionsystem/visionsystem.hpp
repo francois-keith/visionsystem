@@ -2,11 +2,14 @@
 template< typename Obj >
 void VisionSystem::whiteboard_write ( std::string key, Obj value ) {
 	if ( whiteboard_data.count( key ) ) {
+	
 		whiteboard_mutex[key]->lock() ;
 		boost::any tmp = value ;
 		whiteboard_data[key] = tmp ;
 		whiteboard_mutex[key]->unlock() ;
+	
 	} else {
+
 		boost::mutex *tmp = new boost::mutex();
 		whiteboard_mutex[key] = tmp ;
 		boost::any tmp2 = value ;
