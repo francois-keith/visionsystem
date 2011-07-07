@@ -10,7 +10,7 @@ Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
   io_service_(), 
   socket_(io_service_), 
   port_(4242), chunkID_(0),
-  cam_(0), is_sending_data_(false), current_img_(0), send_img_(0), img_lock_(false)
+  cam_(0), current_img_(0), send_img_(0), img_lock_(false)
 {}
 
 Dump2Socket::~Dump2Socket()

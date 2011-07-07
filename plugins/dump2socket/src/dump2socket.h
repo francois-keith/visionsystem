@@ -53,7 +53,6 @@ private:
 
     /* Plugin related */
     Camera * cam_;
-    bool is_sending_data_;
     vision::Image<unsigned char, MONO> * current_img_;
     vision::Image<unsigned char, MONO> * send_img_;
     bool img_lock_;
