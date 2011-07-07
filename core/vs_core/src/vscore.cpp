@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include <visionsystem/plugin.h>
+#include <visionsystem/viewer.h>
 
 #include "vscore.h"
 
@@ -194,6 +195,7 @@ void VsCore::run()
 	// WhiteBoard init
 
 	whiteboard_write< bool >( string("core_stop") , false ) ;
+    whiteboard_write< Viewer* >( string("viewer"), (Viewer*)0 );
 
 	// Controllers pre_fct() 
 
