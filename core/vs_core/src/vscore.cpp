@@ -163,6 +163,12 @@ void VsCore::run()
 		return ;
 	}
 
+	// WhiteBoard init
+
+	whiteboard_write< bool >( string("core_stop") , false ) ;
+	whiteboard_write< Viewer* >( string("viewer"), (Viewer*)0 );
+
+
 	// Parse config file
 
 	try {
@@ -190,12 +196,6 @@ void VsCore::run()
 		cout << "[vs_core] WARNING: no plugin loaded" << endl ;
 	else
 		cout << "[vs_core] " << _plugins.size() << " plugins loaded" << endl ;
-
-
-	// WhiteBoard init
-
-	whiteboard_write< bool >( string("core_stop") , false ) ;
-    whiteboard_write< Viewer* >( string("viewer"), (Viewer*)0 );
 
 	// Controllers pre_fct() 
 
