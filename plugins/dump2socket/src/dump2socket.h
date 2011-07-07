@@ -48,7 +48,7 @@ private:
     enum { max_request_ = 256 };
     char client_data_[max_request_];
     /* send buffer: chunk id + 50k (max) chunk of data */
-    enum { send_size_ = 2049 };
+    enum { send_size_ = 8193 };
     unsigned char send_buffer_[send_size_];
     /* Protocol related */
     uint8_t chunkID_;
