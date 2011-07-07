@@ -7,7 +7,7 @@ namespace visionsystem
 
 Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
 : Plugin( vs, "dump2socket", sandbox ),
-  io_service_(), 
+  io_service_(), io_service_th_(0), 
   socket_(io_service_), 
   port_(4242), chunkID_(0),
   cam_(0), current_img_(0), send_img_(0), img_lock_(false)
@@ -52,7 +52,7 @@ bool Dump2Socket::pre_fct()
 
 void Dump2Socket::preloop_fct()
 {
-    io_service_.run();
+    io_service_th_ = new boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_));
 }
 
 void Dump2Socket::loop_fct()
@@ -73,6 +73,9 @@ bool Dump2Socket::post_fct()
 
     socket_.close();
     io_service_.stop();
+    io_service_th_->join();
+    delete io_service_th_;
+    io_service_th_ = 0;
 
     return true;
 }

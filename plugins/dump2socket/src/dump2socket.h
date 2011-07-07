@@ -7,6 +7,7 @@
 #include <visionsystem/buffer.h>
 
 #include <boost/bind.hpp>
+#include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
 using boost::asio::ip::udp;
@@ -39,6 +40,7 @@ private:
 private:
     /* Socket related members */
     boost::asio::io_service io_service_;
+    boost::thread * io_service_th_;
     udp::socket socket_;
     short port_;
     udp::endpoint sender_endpoint_;
