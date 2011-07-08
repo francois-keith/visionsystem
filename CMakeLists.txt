@@ -50,9 +50,6 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 
-
-
-
 ### Set include directories 
         
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/lib/include"
