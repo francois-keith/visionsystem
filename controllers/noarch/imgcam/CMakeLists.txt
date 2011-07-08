@@ -1,15 +1,24 @@
-### File Lists
+option ( CONTROLLER_IMGCAM "Include imgcam ?" OFF )
 
-file( GLOB imgcam_src "src/*.cpp" )
-file( GLOB imgcam_hdr "src/*.h*")
+if ( CONTROLLER_IMGCAM )
 
-### Targets
+	### File Lists
 
-add_library( "imgcam" SHARED ${imgcam_src} ${imgcam_hdr} )
+	file( GLOB imgcam_src "src/*.cpp" )
+	file( GLOB imgcam_hdr "src/*.h*")
 
-### INSTAll
+	### Targets
 
-install( TARGETS "imgcam" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
+	add_library( "imgcam" SHARED ${imgcam_src} ${imgcam_hdr} )
 
+	### INSTAll
+
+	install( TARGETS "imgcam" LIBRARY DESTINATION
+			 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
+
+else ( CONTROLLER_IMGCAM )
+
+	message ( WARNING "Controller imgcam will not be included" ) 
+
+endif ( CONTROLLER_IMGCAM) 
 

@@ -1,16 +1,24 @@
-### File Lists
+option ( PLUGIN_DUMP2DISK "Include plugin dump2disk ?" ON )
 
-file( GLOB dump2disk_src "src/*.cpp" )
-file( GLOB dump2disk_hdr "src/*.h*")
+if ( PLUGIN_DUMP2DISK )
 
-### Targets
+	### File Lists
 
-add_library( "dump2disk" SHARED ${dump2disk_src} ${dump2disk_hdr} )
+	file( GLOB dump2disk_src "src/*.cpp" )
+	file( GLOB dump2disk_hdr "src/*.h*")
 
+	### Targets
 
-### INSTAll
-
-install( TARGETS "dump2disk" LIBRARY DESTINATION
-	 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	add_library( "dump2disk" SHARED ${dump2disk_src} ${dump2disk_hdr} )
 
 
+	### INSTAll
+
+	install( TARGETS "dump2disk" LIBRARY DESTINATION
+		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+
+else ( PLUGIN_DUMP2DISK )
+
+	message ( WARNING "Plugin Dump2Disk will not be included" ) 
+
+endif ( PLUGIN_DUMP2DISK )

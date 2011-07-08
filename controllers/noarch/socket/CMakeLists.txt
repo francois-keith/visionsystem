@@ -1,19 +1,28 @@
-include_directories ( "${Boost_INCLUDE_DIRS}" )
+option ( CONTROLLER_SOCKET "Include controller socket ?" ON )
 
-### File Lists
+if ( CONTROLLER_SOCKET )
 
-file( GLOB socket_src "src/*.cpp" )
-file( GLOB socket_hdr "src/*.h")
-file( GLOB socket_hdr "src/*.hpp")
+	include_directories ( "${Boost_INCLUDE_DIRS}" )
 
-### Targets
+	### File Lists
 
-add_library( "socket" SHARED ${socket_src} ${socket_hdr} )
+	file( GLOB socket_src "src/*.cpp" )
+	file( GLOB socket_hdr "src/*.h")
+	file( GLOB socket_hdr "src/*.hpp")
 
-target_link_libraries ("socket" ${VISION_LIBRARIES}  ${Boost_SYSTEM_LIBRARY} )
+	### Targets
 
-### INSTAll
+	add_library( "socket" SHARED ${socket_src} ${socket_hdr} )
 
-install( TARGETS "socket" LIBRARY DESTINATION
-	 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
+	target_link_libraries ("socket" ${VISION_LIBRARIES}  ${Boost_SYSTEM_LIBRARY} )
 
+	### INSTAll
+
+	install( TARGETS "socket" LIBRARY DESTINATION
+		 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
+
+else ( CONTROLLER_SOCKET )
+
+	message ( WARNING "Controller socket will not be included" ) 
+
+endif ( CONTROLLER_SOCKET )
