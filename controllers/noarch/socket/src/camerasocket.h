@@ -76,8 +76,11 @@ private:
     uint8_t chunkID_;    
 
     /* Camera related */
-    vision::Image<unsigned char, MONO> * shw_img_;
-    vision::Image<unsigned char, MONO> * rcv_img_;
+    vision::Image<unsigned char, MONO> * shw_img_mono_;
+    vision::Image<unsigned char, MONO> * rcv_img_mono_;
+    vision::Image<unsigned char, RGB> * shw_img_rgb_;
+    vision::Image<unsigned char, RGB> * rcv_img_rgb_;
+
     unsigned int buffersize_;
 };
 
