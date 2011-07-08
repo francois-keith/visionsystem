@@ -10,12 +10,13 @@ Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
   io_service_(), io_service_th_(0), 
   socket_(io_service_), 
   port_(4242), chunkID_(0),
-  cam_(0), send_img_(0), img_lock_(false)
+  cam_(0), is_mono_(true), send_img_mono_(0), send_img_rgb_(0), img_lock_(false)
 {}
 
 Dump2Socket::~Dump2Socket()
 {
-    delete send_img_;
+    delete send_img_mono_;
+    delete send_img_rgb_;
 }
 
 bool Dump2Socket::pre_fct()
@@ -32,9 +33,20 @@ bool Dump2Socket::pre_fct()
     }
 
     cam_ = get_default_camera() ;
-    register_to_cam< vision::Image<unsigned char, MONO> >( cam_, 10 ) ;
-
-    send_img_ = new vision::Image<unsigned char, MONO>(cam_->get_size());
+    if(is_mono_)
+    {
+        register_to_cam< vision::Image<unsigned char, MONO> >( cam_, 10 ) ;
+        send_img_mono_ = new vision::Image<unsigned char, MONO>(cam_->get_size());
+        send_img_data_size_ = send_img_mono_->data_size;
+        send_img_raw_data_ = send_img_mono_->raw_data;
+    }
+    else
+    {
+        register_to_cam< vision::Image<uint32_t, RGB> >(cam_, 10);
+        send_img_rgb_ = new vision::Image<uint32_t, RGB>(cam_->get_size());
+        send_img_data_size_ = send_img_rgb_->data_size;
+        send_img_raw_data_ = (unsigned char*)(send_img_rgb_->raw_data);
+    }
 
     socket_.open(udp::v4());
     socket_.bind(udp::endpoint(udp::v4(), port_));
@@ -55,20 +67,42 @@ void Dump2Socket::preloop_fct()
 
 void Dump2Socket::loop_fct()
 {
-    vision::Image<unsigned char, MONO> * img = dequeue_image< vision::Image<unsigned char, MONO> > (cam_);
-    
-    if(img_lock_)
+    if(is_mono_)
     {
-        send_img_->copy(img);
-        img_lock_ = false;
-    }
+        vision::Image<unsigned char, MONO> * img = dequeue_image< vision::Image<unsigned char, MONO> > (cam_);
+        
+        if(img_lock_)
+        {
+            send_img_mono_->copy(img);
+            img_lock_ = false;
+        }
 
-    enqueue_image< vision::Image<unsigned char, MONO> >(cam_, img);
+        enqueue_image< vision::Image<unsigned char, MONO> >(cam_, img);
+    }
+    else
+    {
+        vision::Image<uint32_t, RGB> * img = dequeue_image< vision::Image<uint32_t, RGB> > (cam_);
+        
+        if(img_lock_)
+        {
+            send_img_rgb_->copy(img);
+            img_lock_ = false;
+        }
+
+        enqueue_image< vision::Image<uint32_t, RGB> >(cam_, img);
+    }
 }
 
 bool Dump2Socket::post_fct()
 {
-    unregister_to_cam< vision::Image<unsigned char, MONO> >(cam_);
+    if(is_mono_)
+    {
+        unregister_to_cam< vision::Image<unsigned char, MONO> >(cam_);
+    }
+    else
+    {
+        unregister_to_cam< vision::Image<uint32_t, RGB> >(cam_);
+    }
 
     socket_.close();
     io_service_.stop();
@@ -98,16 +132,15 @@ void Dump2Socket::handle_receive_from(const boost::system::error_code & error,
         }
         send_buffer_[0] = chunkID_;
         size_t send_size = 0;
-        if( (chunkID_ + 1)*(send_size_ - 1) > send_img_->data_size )
+        if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
         {
-            send_size = send_img_->data_size - chunkID_*(send_size_ - 1) + 1;
-            std::memcpy(&(send_buffer_[1]), &(send_img_->raw_data[chunkID_*(send_size_ - 1)]), send_size - 1);
+            send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
         }
         else
         {
             send_size = send_size_;
-            std::memcpy(&(send_buffer_[1]), &(send_img_->raw_data[chunkID_*(send_size_ - 1)]), (send_size_ - 1));
         }
+        std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
         socket_.async_send_to(
             boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
             boost::bind(&Dump2Socket::handle_send_to, this,
@@ -139,6 +172,13 @@ void Dump2Socket::parse_config_line( std::vector<std::string> & line )
 {
     if( fill_member(line, "Port", port_) )
         return;
+
+    std::string mode;
+    if( fill_member(line, "ColorMode", mode) )
+    {
+        is_mono_ = (mode == "MONO");
+        return;
+    }
 }
 
 } // namespace visionsystem

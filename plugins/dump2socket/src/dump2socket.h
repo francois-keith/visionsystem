@@ -48,14 +48,18 @@ private:
     enum { max_request_ = 256 };
     char client_data_[max_request_];
     /* send buffer: chunk id + 50k (max) chunk of data */
-    enum { send_size_ = 8193 };
+    enum { send_size_ = 16385 };
     unsigned char send_buffer_[send_size_];
     /* Protocol related */
     uint8_t chunkID_;
 
     /* Plugin related */
     Camera * cam_;
-    vision::Image<unsigned char, MONO> * send_img_;
+    bool is_mono_;
+    vision::Image<unsigned char, MONO> * send_img_mono_;
+    vision::Image<uint32_t, RGB> * send_img_rgb_;
+    unsigned char * send_img_raw_data_;
+    unsigned int send_img_data_size_;
     bool img_lock_;
 };
 

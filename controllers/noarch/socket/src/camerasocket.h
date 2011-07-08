@@ -71,13 +71,18 @@ private:
     udp::endpoint receiver_endpoint_;
     udp::endpoint sender_endpoint_;
     std::string request_;
-    enum { chunk_size_ = 8193 };
+    enum { chunk_size_ = 16385 };
     unsigned char chunk_buffer_[chunk_size_];
     uint8_t chunkID_;    
 
     /* Camera related */
-    vision::Image<unsigned char, MONO> * shw_img_;
-    vision::Image<unsigned char, MONO> * rcv_img_;
+    vision::Image<unsigned char, MONO> * shw_img_mono_;
+    vision::Image<unsigned char, MONO> * rcv_img_mono_;
+    vision::Image<uint32_t, RGB> * shw_img_rgb_;
+    vision::Image<uint32_t, RGB> * rcv_img_rgb_;
+    unsigned char * shw_img_raw_data_;
+    unsigned char * rcv_img_raw_data_;
+
     unsigned int buffersize_;
 };
 
