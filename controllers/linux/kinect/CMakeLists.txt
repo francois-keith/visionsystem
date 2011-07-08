@@ -1,25 +1,36 @@
-find_package( Dc1394 ) 
+option ( CONTROLLER_KINECT "Include kinect controller ?" ON )
+
+if ( CONTROLLER_KINECT )
 
 
-if ( DC1394_FOUND )
+	FIND_PACKAGE( Freenect REQUIRED )
 
-	include_directories ( "${DC1394_INCLUDE_DIR}" )
-	
-	### File Lists
+	if ( FREENECT_FOUND )
 
-	file( GLOB kinect_src "src/*.cpp" )
-	file( GLOB kinect_hdr "src/*.h*")
+		include_directories ( "${FREENECT_INCLUDE_DIR}" )
+		
+		### File Lists
 
-	### Targets
+		file( GLOB kinect_src "src/*.cpp" )
+		file( GLOB kinect_hdr "src/*.h*")
 
-	add_library( "kinect" SHARED ${kinect_src} ${cam1394_hdr} )
+		### Targets
 
-	target_link_libraries ("kinect" ${VISION_LIBRARIES}  ${DC1394_LIBRARIES} )
+		add_library( "kinect" SHARED ${kinect_src} ${cam1394_hdr} )
 
-	### INSTAll
+		target_link_libraries ( "kinect" 
+					${VISION_LIBRARIES}
+					${FREENECT_LIBRARY} )
 
-	install( TARGETS "kinect" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
+		### INSTAll
 
-endif ( DC1394_FOUND )
+		install( TARGETS "kinect" LIBRARY DESTINATION
+			 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
 
+	endif ( FREENECT_FOUND )
+
+else ( CONTROLLER_KINECT )
+
+	message ( WARNING "Controller kinect will not be included" ) 
+
+endif ( CONTROLLER_KINECT )
