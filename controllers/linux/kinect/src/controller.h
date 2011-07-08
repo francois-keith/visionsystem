@@ -5,6 +5,7 @@
 
 #include <configparser/configparser.h>
 #include <visionsystem/controller.h>
+#include <libfreenect/libfreenect.h>
 
 #include "kinectcamera.h"
 
@@ -31,6 +32,9 @@ class KinectController : public Controller
 
 	private:
 
+		freenect_context* f_ctx;
+
+		int nr_devices ;
 } ;
 
 

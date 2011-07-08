@@ -10,14 +10,27 @@ using namespace visionsystem ;
 using namespace configparser ;
 
 
-class KinectCamera : public Camera 
+class KinectCamera : public GenericCamera 
 {
 
 	public:
-		KinectCamera( string name ) ;
+		KinectCamera( freenect_context ctx, int device_num ) ;
 		~KinectCamera() ;
 
+	public:
+		vision::ImageRef get_size()  ;			 
+		bool is_active()   ;
+		FrameCoding get_coding()  ;
+		float get_fps()  ;
+		std::string get_name()  ;
+
+	private:
+	
 		
+		freenect_context *f_ctx;
+		int device_nb ;
+
+
 } ; 
 
 
