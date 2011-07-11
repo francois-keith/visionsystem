@@ -3,18 +3,20 @@
 
 #include <string>
 #include <configparser/configparser.h>
-#include <visionsystem/camera.h>
+#include <visionsystem/genericcamera.h>
+#include <libfreenect/libfreenect.h>
 
 using namespace std ;
+using namespace vision ;
 using namespace visionsystem ;
 using namespace configparser ;
 
 
-class KinectCamera : public GenericCamera 
+class KinectCamera : public GenericCamera, public WithConfigFile
 {
 
 	public:
-		KinectCamera( freenect_context ctx, int device_num ) ;
+		KinectCamera( freenect_context * ctx, int device_num ) ;
 		~KinectCamera() ;
 
 	public:
@@ -24,11 +26,21 @@ class KinectCamera : public GenericCamera
 		float get_fps()  ;
 		std::string get_name()  ;
 
+	public:
+
+		void save_capa( string filename ) ;
+		bool apply_settings() ;	
+		void stop_cam() ;
+
+	private:
+
+		void parse_config_line ( vector<string> &line ) ;
+
 	private:
 	
 		
-		freenect_context *f_ctx;
 		int device_nb ;
+		freenect_context *f_ctx;
 
 
 } ; 

@@ -48,19 +48,33 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 
 		KinectCamera* cam = new KinectCamera( f_ctx, i ) ;
 		
+		std::ostringstream capa_filename;
+		capa_filename << get_sandbox() << "/" << i << ".capa" ;  
+		cam->save_capa( capa_filename.str() )  ;
+				
+		std::ostringstream conf_filename;
+		conf_filename << get_sandbox() << "/" << i << ".conf" ;  
 
-		
+		try {
+			cam->read_config_file ( conf_filename.str().c_str() ) ;
+
+		} catch ( string msg ) {
+			std::cerr << "[kinect] WARNING : Unable to open config file : " << conf_filename.str() <<std::endl ;
+			std::cerr << "[kinect] Error message : " << msg << std::endl ;
+			std::cerr << "[kinect] trying with default parameters ... " <<std::endl ;
+		}
+
+		if ( cam->is_active() )
+		if ( !cam->apply_settings() ) {
+			std::cerr << "[kinect] ERROR : Could not apply settings to device " << i <<std::endl ;
+			return false ;
+		}
+
+		cams.push_back( (GenericCamera*) cam ) ;
+		_devices.push_back(cam) ;
 
 	}
 
-/*
-	iif (freenect_open_device(f_ctx, &f_dev, user_device_number) < 0) {
-		printf("Could not open device\n");
-		return 1;
-	}
-
-	res = pthread_create(&freenect_thread, NULL, freenect_threadfunc, NULL);
-*/
 	return 1 ;
 
 }
@@ -80,6 +94,10 @@ void KinectController::loop_fct()
 
 bool KinectController::post_fct()
 {
+
+	for ( int i=0; i< nr_devices; i++ )
+		_devices[i]->stop_cam() ;
+
 	for ( int i=0; i< nr_devices; i++ ) {
 		delete _devices[i] ;
 		_devices[i] = NULL ;
