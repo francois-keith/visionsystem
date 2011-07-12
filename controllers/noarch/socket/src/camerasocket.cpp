@@ -1,5 +1,7 @@
 #include "camerasocket.h"
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -9,6 +11,7 @@ CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   cam_ready_(false), server_name_(""), server_port_(0),
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
+  timeout_timer_(io_service, boost::posix_time::seconds(1)),
   shw_img_mono_(0), rcv_img_mono_(0), shw_img_rgb_(0), rcv_img_rgb_(0), shw_img_raw_data_(0), rcv_img_raw_data_(0), 
   buffersize_(100)
 {
@@ -144,6 +147,7 @@ void CameraSocket::parse_config_line( std::vector<std::string> & line )
 void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                                         size_t bytes_recvd)
 {
+    timeout_timer_.cancel();
     if(!error && bytes_recvd)
     {
         if(chunkID_ != chunk_buffer_[0])
@@ -200,6 +204,23 @@ void CameraSocket::handle_send_to(const boost::system::error_code & error,
           boost::bind(&CameraSocket::handle_receive_from, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
+    timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
+    timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
+            boost::asio::placeholders::error));
+}
+
+void CameraSocket::handle_timeout(const boost::system::error_code & error)
+{
+    if(error != boost::asio::error::operation_aborted)
+    {
+        request_ = "get";
+        chunkID_ = 0;
+        socket_.async_send_to(
+            boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+            boost::bind(&CameraSocket::handle_send_to, this,
+              boost::asio::placeholders::error,
+              boost::asio::placeholders::bytes_transferred));
+    }
 }
 
 } // namespace visionsystem

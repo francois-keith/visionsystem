@@ -51,6 +51,8 @@ private:
     void handle_send_to(const boost::system::error_code & error,
                                 size_t bytes_send);
 
+    void handle_timeout(const boost::system::error_code & error);
+
 public:
     /* Camera related parameters */
     vision::ImageRef img_size_;
@@ -74,6 +76,7 @@ private:
     enum { chunk_size_ = 16385 };
     unsigned char chunk_buffer_[chunk_size_];
     uint8_t chunkID_;    
+    boost::asio::deadline_timer timeout_timer_;
 
     /* Camera related */
     vision::Image<unsigned char, MONO> * shw_img_mono_;
