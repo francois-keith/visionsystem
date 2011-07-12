@@ -29,6 +29,8 @@ bool Grab::pre_fct() {
 		return false ;
 	}
 	
+	register_callback() ;
+	
 	return true ;
 }
 
@@ -48,6 +50,7 @@ bool Grab::post_fct() {
 
 void Grab::parse_config_line( vector<string> &line ) {
 
+	// FIXME
 }
 
 
@@ -57,10 +60,12 @@ void Grab::callback(Camera* cam, XEvent event) {
 
 		switch (XLookupKeysym(&event.xkey, 0)) {
 
-			case XK_Escape:
-				cout << "[grab] Esc key detected : Killing ... " << endl ;
-				whiteboard_write< bool >( string("core_stop"), true ) ;
+			case XK_g:
+				cout << "[grab] Grabing ... " << endl ;
 				break;
+			
+			default:
+				break ;
 		}
 
 	}

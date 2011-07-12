@@ -34,7 +34,8 @@ class GLWindow
 		void draw( Image<uint32_t, RGB>* img ) ;
 		void draw_caption(int captionPos, vector<string> s);
 		void swap_buffers() ;
-		XEvent processEvents() ;
+		int  next_event ( XEvent *event ) ;
+		void processEvents( XEvent event ) ;
 
 		void print ( const char* s ) ;		// OpenGL stuff to draw a text  
 

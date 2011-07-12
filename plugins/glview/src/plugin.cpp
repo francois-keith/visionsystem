@@ -74,18 +74,27 @@ void  GLView::loop_fct() {
 	
 	// Process events
 
-	XEvent event = win->processEvents();
+	XEvent event;
+
+	while ( win->next_event( &event ) ) {
 	
-	// Call all registered callbacks
 
-	if ( callback_active )
-		callback( event ) ;
+		win->processEvents( event );
+	
+		// Call all registered callbacks
 
-	callbacks_mutex.lock() ;	
-	for ( int i=0; i<callbacks.size(); i++ )
-		callbacks[i]->callback( cameras[active_cam], event ) ;
+		if ( callback_active )
+			callback( event ) ;
 
-	callbacks_mutex.unlock() ;	
+
+		callbacks_mutex.lock() ;	
+
+		for ( int i=0; i<callbacks.size(); i++ )
+			callbacks[i]->callback( cameras[active_cam], event ) ;
+
+		callbacks_mutex.unlock() ;	
+
+	}
 
 	enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
 

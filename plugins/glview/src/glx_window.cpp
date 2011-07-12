@@ -193,14 +193,9 @@ GLWindow::~GLWindow() {
 
 }
 
-XEvent GLWindow::processEvents() {
+void GLWindow::processEvents( XEvent event ) {
 
-	XEvent event;
-
-	/* handle the events in the queue */
-	while (XPending(dpy_) > 0) {
-		XNextEvent(dpy_, &event);
-		switch (event.type) {
+	switch (event.type) {
 
 		case Expose:
 			if (event.xexpose.count != 0)
@@ -229,12 +224,20 @@ XEvent GLWindow::processEvents() {
 
 		default:
 			break;
-		}
-
 	}
 
-	return event ;
 }
+
+int GLWindow::next_event( XEvent *event ) {
+
+	if ( XPending( dpy_ ) == 0 ) 
+		return 0 ;
+		
+	XNextEvent( dpy_, event);
+		return 1 ;
+	
+}
+
 
 void GLWindow::draw( Image<uint32_t,RGB> *img) {
 
