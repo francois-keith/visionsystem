@@ -29,7 +29,8 @@ RgbCamera::RgbCamera( freenect_context *ctx, int dev_num ) {
 
 RgbCamera::~RgbCamera() {
 	
-	// FIXME
+	device = NULL ;
+	active = false ;
 	
 }
 
@@ -131,7 +132,8 @@ DepthCamera::DepthCamera( freenect_context *ctx, int dev_num ) {
 
 DepthCamera::~DepthCamera() {
 	
-	// FIXME
+	device = NULL ;
+	active = false ;
 	
 }
 
@@ -278,6 +280,8 @@ void KinectCamera::start_cam() {
 
 void KinectCamera::stop_cam() {
 
+	freenect_set_led( f_dev, LED_BLINK_GREEN );
+	
 	cerr << "[kinect] Shutting down streams..." << endl  ;
 
 	freenect_stop_depth ( f_dev ) ;

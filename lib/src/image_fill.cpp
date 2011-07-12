@@ -127,7 +127,24 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 							    ( (uint32_t) frm->_data[4*i+1] ) << 8 | 
 							    ( (uint32_t) frm->_data[4*i] ) ;  
 				break ;
+
 		
+		case VS_DEPTH16:
+
+				for ( int i=0; i<img->pixels; i++ ) {
+
+					uint16_t *depth = (uint16_t*) frm->_data ;
+					uint8_t R,G,B ;
+					R = G = B = (uint8_t) ( ((float) depth[i]) / 2048.0 * 255.0) ;
+
+					img->raw_data[i] =  ( (uint32_t) B ) << 16  |
+							    ( (uint32_t) G ) << 8 | 
+							    ( (uint32_t) R ) ;  
+				}	
+
+
+				break ;
+
 		default:
 				throw( string( "Image<uint32_t,RGB> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
