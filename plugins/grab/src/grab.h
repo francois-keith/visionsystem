@@ -4,8 +4,6 @@
 #include <configparser/configparser.h>
 
 #include <vision/image/image.h>
-#include <vision/io/imageio.h>
-
 #include <visionsystem/plugin.h>
 #include <visionsystem/viewer.h>
 

@@ -1,5 +1,6 @@
 #include "grab.h"
 
+#include <vision/io/imageio.h>
 #include <iostream>
 
 Grab::Grab( VisionSystem *vs, string sandbox )
@@ -85,7 +86,7 @@ bool Grab::post_fct() {
 
 		std::ostringstream filename;
 		filename << get_sandbox() << "/" << grabbed[i]->camera->get_name() << "-" << j << ".png" ;  
-		save_color < uint32_t, RGB > ( filename.str() , grabbed[i]->current_frame ) ;
+		save_color( filename.str() , grabbed[i]->current_frame ) ;
 	}
 
 	return true ;
