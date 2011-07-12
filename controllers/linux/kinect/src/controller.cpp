@@ -26,7 +26,7 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 	
 	}
 
-	freenect_set_log_level( f_ctx, FREENECT_LOG_DEBUG );
+	freenect_set_log_level( f_ctx, FREENECT_LOG_NOTICE );
 
 	nr_devices = freenect_num_devices (f_ctx);
 	
@@ -48,9 +48,9 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 
 		KinectCamera* cam = new KinectCamera( f_ctx, i ) ;
 		
-		std::ostringstream capa_filename;
-		capa_filename << get_sandbox() << "/" << i << ".capa" ;  
-		cam->save_capa( capa_filename.str() )  ;
+		// std::ostringstream capa_filename;
+		// capa_filename << get_sandbox() << "/" << i << ".capa" ;  
+		// cam->save_capa( capa_filename.str() )  ;
 				
 		std::ostringstream conf_filename;
 		conf_filename << get_sandbox() << "/" << i << ".conf" ;  
@@ -64,13 +64,14 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 			std::cerr << "[kinect] trying with default parameters ... " <<std::endl ;
 		}
 
-		if ( cam->is_active() )
 		if ( !cam->apply_settings() ) {
 			std::cerr << "[kinect] ERROR : Could not apply settings to device " << i <<std::endl ;
 			return false ;
 		}
 
-		cams.push_back( (GenericCamera*) cam ) ;
+		cams.push_back( (GenericCamera*) cam->depth_cam ) ;
+		cams.push_back( (GenericCamera*) cam->rgb_cam ) ;
+
 		_devices.push_back(cam) ;
 
 	}
@@ -82,13 +83,14 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 
 void KinectController::preloop_fct()
 {
-
+		for ( int i=0; i< nr_devices; i++ )
+			_devices[i]->start_cam() ;
 }
 
 
 void KinectController::loop_fct()
 {
-
+	freenect_process_events(f_ctx) ;
 }
 
 
@@ -110,6 +112,7 @@ bool KinectController::post_fct()
 	f_ctx = NULL ;
 	nr_devices = 0 ;
 
+	return 1 ;
 }
 
 

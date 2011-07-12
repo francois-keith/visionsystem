@@ -12,7 +12,8 @@ namespace visionsystem {
 
 typedef enum {
 
-	VS_MONO8 =0 ,
+	VS_INVALID,
+	VS_MONO8,
 	VS_MONO16,
 	VS_RGB24,
 	VS_RGB32,
@@ -22,7 +23,15 @@ typedef enum {
 	VS_YUV422_YVYU,
 	VS_YUV422_UYVY,
 	VS_YUV422_VYUY,
-	VS_YUV444
+	VS_YUV444,
+	VS_DEPTH8,
+	VS_DEPTH16,
+	VS_DEPTH24,
+	VS_DEPTH32,
+	VS_IR8,
+	VS_IR16,
+	VS_IR24,
+	VS_IR32,
 
 } FrameCoding ;
 

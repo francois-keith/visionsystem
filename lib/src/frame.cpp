@@ -15,7 +15,9 @@ Frame::Frame( FrameCoding coding, ImageRef size )
 	switch (coding) {
 
 		case VS_MONO8 :	
-			
+		case VS_DEPTH8:
+		case VS_IR8:
+
 			_data_size = size.area() ;
 			break ;
 	
@@ -25,17 +27,24 @@ Frame::Frame( FrameCoding coding, ImageRef size )
 		case VS_YUV422_YVYU :
 		case VS_YUV422_UYVY :
 		case VS_YUV422_VYUY :
+		case VS_IR16 :
+		case VS_DEPTH16 :
 
 			_data_size = 2 * size.area() ;
 			break ;
 		
 		case VS_RGB24  :
 		case VS_YUV444 :
+		case VS_IR24:
+		case VS_DEPTH24:
 			
 			_data_size = 3 * size.area() ;
 			break ;
 		
 		case VS_RGB32 :
+		case VS_IR32 :
+		case VS_DEPTH32 :
+
 			_data_size = 4 * size.area() ;
 			break ;
 
