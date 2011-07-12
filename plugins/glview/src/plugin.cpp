@@ -174,6 +174,27 @@ void GLView::callback( XEvent event ) {
 					next_cam = 11 ;
 			break;
 
+        case XK_Page_Up:
+            for(int i = active_cam + 1; i < cameras.size(); ++i)
+            {
+                if ( cameras[i]->is_active() )
+                {
+                    next_cam = i;
+                    i = cameras.size();
+                }
+            }
+            break;
+
+        case XK_Page_Down:
+            for(int i = active_cam - 1; i >= 0; --i)
+            {
+                if ( cameras[i]->is_active() )
+                {
+                    next_cam = i;
+                    i = -1;
+                }
+            }
+            break;
 
 		default:
 			break;
