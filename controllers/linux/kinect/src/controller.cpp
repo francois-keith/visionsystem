@@ -90,7 +90,8 @@ void KinectController::preloop_fct()
 
 void KinectController::loop_fct()
 {
-	freenect_process_events(f_ctx) ;
+	if ( nr_devices > 0 )
+		freenect_process_events(f_ctx) ;
 }
 
 

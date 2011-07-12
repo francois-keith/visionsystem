@@ -1,4 +1,4 @@
-option ( CONTROLLER_KINECT "Include kinect controller ?" OFF )
+option ( CONTROLLER_KINECT "Include kinect controller ?" ON )
 
 if ( CONTROLLER_KINECT )
 
