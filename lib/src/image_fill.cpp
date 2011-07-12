@@ -141,23 +141,23 @@ void image_fill < Image< uint32_t, HSV > > ( Image<uint32_t,HSV> *img, visionsys
 {
 	
 	register unsigned int i ;
-    unsigned char r = 0;
-    unsigned char g = 0;
-    unsigned char b = 0;
-    unsigned char h = 0;
-    unsigned char s = 0;
-    unsigned char v = 0;
-    unsigned char rgb_min = 0;
-    unsigned char rgb_max = 255;
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    uint16_t h = 0;
+    uint8_t s = 0;
+    uint8_t v = 0;
+    uint8_t rgb_min = 0;
+    uint8_t rgb_max = 255;
 	
 	switch ( frm->_coding ) {
 
 		case VS_RGB32:
 				for (i=0; i<img->pixels; i++ )
                 {
-                    r = frm->_data[4*i+2];
+                    r = frm->_data[4*i];
                     g = frm->_data[4*i+1];
-                    b = frm->_data[4*i];
+                    b = frm->_data[4*i+2];
                     h = 0;
                     s = 0;
                     rgb_min = min(min(r,g),b);
@@ -174,15 +174,15 @@ void image_fill < Image< uint32_t, HSV > > ( Image<uint32_t,HSV> *img, visionsys
                         {
                             if( rgb_max == r )
                             {
-                                h = 0 + 43*(g - b)/(rgb_max - rgb_min);
+                                h = 0 + 60*(g - b)/(rgb_max - rgb_min);
                             }
                             else if( rgb_max == g )
                             {
-                                h = 85 + 43*(b - r)/(rgb_max - rgb_min);
+                                h = 120 + 60*(b - r)/(rgb_max - rgb_min);
                             }
                             else
                             {
-                                h = 171 + 43*(r - g)/(rgb_max - rgb_min);
+                                h = 240 + 60*(r - g)/(rgb_max - rgb_min);
                             }
                         }
                     }
