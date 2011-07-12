@@ -7,6 +7,7 @@ include(CheckFunctionExists)
 
 find_path(DL_INCLUDE_DIR NAMES dlfcn.h)
 find_library(DL_LIBRARIES NAMES dl)
+
 if(DL_LIBRARIES)
   set(DL_FOUND)
 else(DL_LIBRARIES)

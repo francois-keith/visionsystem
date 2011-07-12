@@ -1,4 +1,4 @@
-option ( CONTROLLER_IMGCAM "Include imgcam ?" OFF )
+option ( CONTROLLER_IMGCAM "Include imgcam ?" ON )
 
 if ( CONTROLLER_IMGCAM )
 
