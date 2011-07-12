@@ -1,5 +1,5 @@
-#ifndef CAMERADC1394_H
-#define CAMERADC1394_H
+#ifndef CAMERAV4L2_H
+#define CAMERAV4L2_H
 
 #include <configparser/configparser.h>
 #include <vision/image/imageref.h>

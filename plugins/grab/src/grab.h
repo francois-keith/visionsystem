@@ -1,10 +1,13 @@
 #ifndef GRAB_H
 #define GRAB_H
 
+#include <configparser/configparser.h>
+
 #include <vision/image/image.h>
+#include <vision/io/imageio.h>
+
 #include <visionsystem/plugin.h>
 #include <visionsystem/viewer.h>
-#include <configparser/configparser.h>
 
 using namespace std ;
 using namespace vision ;

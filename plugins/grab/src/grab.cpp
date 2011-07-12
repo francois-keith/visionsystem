@@ -1,6 +1,5 @@
 #include "grab.h"
 
-#include <vision/io/imageio.h>
 #include <iostream>
 
 Grab::Grab( VisionSystem *vs, string sandbox )
