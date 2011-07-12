@@ -136,4 +136,71 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 }
 
 
+template<>
+void image_fill < Image< uint32_t, HSV > > ( Image<uint32_t,HSV> *img, visionsystem::Frame* frm ) 
+{
+	
+	register unsigned int i ;
+    unsigned char r = 0;
+    unsigned char g = 0;
+    unsigned char b = 0;
+    unsigned char h = 0;
+    unsigned char s = 0;
+    unsigned char v = 0;
+    unsigned char rgb_min = 0;
+    unsigned char rgb_max = 255;
+	
+	switch ( frm->_coding ) {
+
+		case VS_RGB32:
+				for (i=0; i<img->pixels; i++ )
+                {
+                    r = frm->_data[4*i+2];
+                    g = frm->_data[4*i+1];
+                    b = frm->_data[4*i];
+                    h = 0;
+                    s = 0;
+                    rgb_min = min(min(r,g),b);
+                    rgb_max = max(max(r,g),b);
+                    v = rgb_max;
+                    if( v != 0 )
+                    {
+                        s = 255*( rgb_max - rgb_min )/v;
+                        if( s == 0 )
+                        {
+                            h = 0;
+                        }
+                        else
+                        {
+                            if( rgb_max == r )
+                            {
+                                h = 0 + 43*(g - b)/(rgb_max - rgb_min);
+                            }
+                            else if( rgb_max == g )
+                            {
+                                h = 85 + 43*(b - r)/(rgb_max - rgb_min);
+                            }
+                            else
+                            {
+                                h = 171 + 43*(r - g)/(rgb_max - rgb_min);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        h = 0;
+                        s = 0;
+                    }
+					img->raw_data[i] =  ( (uint32_t) h ) << 16  |
+							    ( (uint32_t) s ) << 8 | 
+							    ( (uint32_t) v ) ;  
+                }
+				break ;
+		
+		default:
+				throw( string( "Image<uint32_t,HSV> : CONVERSION NOT IMPLEMENTED" ) ) ;
+				break ;
+	}
+
+}
 
