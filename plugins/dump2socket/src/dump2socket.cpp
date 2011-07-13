@@ -8,15 +8,33 @@ namespace visionsystem
 Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
 : Plugin( vs, "dump2socket", sandbox ),
   io_service_(), io_service_th_(0), 
-  socket_(io_service_), 
-  port_(4242), chunkID_(0),
-  cam_(0), is_mono_(true), send_img_mono_(0), send_img_rgb_(0), img_lock_(false)
+  sockets_(0), 
+  ports_(0), chunkIDs_(0),
+  cams_(0), is_mono_(true), send_imgs_mono_(0), send_imgs_rgb_(0), imgs_lock_(0)
 {}
 
 Dump2Socket::~Dump2Socket()
 {
-    delete send_img_mono_;
-    delete send_img_rgb_;
+    for(size_t i = 0; i < send_imgs_mono_.size(); ++i)
+    {
+        delete send_imgs_mono_[i];
+    }
+    for(size_t i = 0; i < send_imgs_rgb_.size(); ++i)
+    {
+        delete send_imgs_rgb_[i];
+    }
+    for(size_t i = 0; i < clients_data_.size(); ++i)
+    {
+        delete[] clients_data_[i];
+    }
+    for(size_t i = 0; i < send_buffers_.size(); ++i)
+    {
+        delete[] send_buffers_[i];
+    }
+    for(size_t i = 0; i < sockets_.size(); ++i)
+    {
+        delete sockets_[i];
+    }
 }
 
 bool Dump2Socket::pre_fct()
@@ -32,30 +50,66 @@ bool Dump2Socket::pre_fct()
         throw(std::string("dump2socket will not work without a correct dump2socket.conf config file"));
     }
 
-    cam_ = get_default_camera() ;
+    size_t nb_cams_to_stream = ports_.size();
+    cams_.resize(nb_cams_to_stream);
+    size_t next_camera = 0;
+    std::vector<Camera *> cameras = get_all_cameras();
+    for(size_t i = 0; i < cameras.size(); ++i)
+    {
+        if(cameras[i]->is_active())
+        {
+            cams_[next_camera] = cameras[i];
+            next_camera++;
+            if(next_camera == nb_cams_to_stream) { i = cameras.size(); }
+        }
+    }
+    if(next_camera != nb_cams_to_stream)
+    {
+        throw(std::string("[dump2socket] Not enough cameras streamable"));
+    }
+
     if(is_mono_)
     {
-        register_to_cam< vision::Image<unsigned char, MONO> >( cam_, 10 ) ;
-        send_img_mono_ = new vision::Image<unsigned char, MONO>(cam_->get_size());
-        send_img_data_size_ = send_img_mono_->data_size;
-        send_img_raw_data_ = send_img_mono_->raw_data;
+        for(size_t i = 0; i < cams_.size(); ++i)
+        {
+            register_to_cam< vision::Image<unsigned char, MONO> >( cams_[i], 10 ) ;
+            send_imgs_mono_.push_back(new vision::Image<unsigned char, MONO>(cams_[i]->get_size()));
+            send_imgs_data_size_.push_back(send_imgs_mono_[i]->data_size);
+            send_imgs_raw_data_.push_back(send_imgs_mono_[i]->raw_data);
+        }
     }
     else
     {
-        register_to_cam< vision::Image<uint32_t, RGB> >(cam_, 10);
-        send_img_rgb_ = new vision::Image<uint32_t, RGB>(cam_->get_size());
-        send_img_data_size_ = send_img_rgb_->data_size;
-        send_img_raw_data_ = (unsigned char*)(send_img_rgb_->raw_data);
+        for(size_t i = 0; i < cams_.size(); ++i)
+        {
+            register_to_cam< vision::Image<uint32_t, RGB> >( cams_[i], 10 ) ;
+            send_imgs_rgb_.push_back(new vision::Image<uint32_t, RGB>(cams_[i]->get_size()));
+            send_imgs_data_size_.push_back(send_imgs_rgb_[i]->data_size);
+            send_imgs_raw_data_.push_back((unsigned char*)(send_imgs_rgb_[i]->raw_data));
+        }
     }
 
-    socket_.open(udp::v4());
-    socket_.bind(udp::endpoint(udp::v4(), port_));
+    for(size_t i = 0; i < ports_.size(); ++i)
+    {
+        sockets_.push_back(new udp::socket(io_service_));
+        sockets_[i]->open(udp::v4());
+        sockets_[i]->bind(udp::endpoint(udp::v4(), ports_[i]));
+        clients_data_.push_back(new char[max_request_]);
+        send_buffers_.push_back(new unsigned char[send_size_]);
+    }
 
-    socket_.async_receive_from(
-        boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-        boost::bind(&Dump2Socket::handle_receive_from, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+    sender_endpoints_.resize(ports_.size());
+    imgs_lock_.resize(ports_.size());
+    chunkIDs_.resize(ports_.size());
+
+    for(size_t i = 0; i < sockets_.size(); ++i)
+    {
+        sockets_[i]->async_receive_from(
+            boost::asio::buffer(clients_data_[i], max_request_), sender_endpoints_[i],
+            boost::bind(&Dump2Socket::handle_receive_from, this, i,
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+    }
 
     return true ;
 }
@@ -69,27 +123,33 @@ void Dump2Socket::loop_fct()
 {
     if(is_mono_)
     {
-        vision::Image<unsigned char, MONO> * img = dequeue_image< vision::Image<unsigned char, MONO> > (cam_);
-        
-        if(img_lock_)
+        for(size_t i = 0; i < ports_.size(); ++i)
         {
-            send_img_mono_->copy(img);
-            img_lock_ = false;
-        }
+            vision::Image<unsigned char, MONO> * img = dequeue_image< vision::Image<unsigned char, MONO> > (cams_[i]);
+        
+            if(imgs_lock_[i])
+            {
+                send_imgs_mono_[i]->copy(img);
+                imgs_lock_[i] = false;
+            }
 
-        enqueue_image< vision::Image<unsigned char, MONO> >(cam_, img);
+            enqueue_image< vision::Image<unsigned char, MONO> >(cams_[i], img);
+        }
     }
     else
     {
-        vision::Image<uint32_t, RGB> * img = dequeue_image< vision::Image<uint32_t, RGB> > (cam_);
-        
-        if(img_lock_)
+        for(size_t i = 0; i < ports_.size(); ++i)
         {
-            send_img_rgb_->copy(img);
-            img_lock_ = false;
-        }
+            vision::Image<uint32_t, RGB> * img = dequeue_image< vision::Image<uint32_t, RGB> > (cams_[i]);
+            
+            if(imgs_lock_[i])
+            {
+                send_imgs_rgb_[i]->copy(img);
+                imgs_lock_[i] = false;
+            }
 
-        enqueue_image< vision::Image<uint32_t, RGB> >(cam_, img);
+            enqueue_image< vision::Image<uint32_t, RGB> >(cams_[i], img);
+        }
     }
 }
 
@@ -97,14 +157,23 @@ bool Dump2Socket::post_fct()
 {
     if(is_mono_)
     {
-        unregister_to_cam< vision::Image<unsigned char, MONO> >(cam_);
+        for(size_t i = 0; i < cams_.size(); ++i)
+        {
+            unregister_to_cam< vision::Image<unsigned char, MONO> >(cams_[i]);
+        }
     }
     else
     {
-        unregister_to_cam< vision::Image<uint32_t, RGB> >(cam_);
+        for(size_t i = 0; i < cams_.size(); ++i)
+        {
+            unregister_to_cam< vision::Image<uint32_t, RGB> >(cams_[i]);
+        }
     }
 
-    socket_.close();
+    for(size_t i = 0; i < sockets_.size(); ++i)
+    {
+        sockets_[i]->close();
+    }
     io_service_.stop();
     io_service_th_->join();
     delete io_service_th_;
@@ -113,64 +182,64 @@ bool Dump2Socket::post_fct()
     return true;
 }
 
-void Dump2Socket::handle_receive_from(const boost::system::error_code & error,
+void Dump2Socket::handle_receive_from(size_t i, const boost::system::error_code & error,
                                  size_t bytes_recvd)
 {
     if(!error && bytes_recvd > 0)
     {
-        std::string client_message(client_data_);
+        std::string client_message(clients_data_[i]);
         if(client_message == "get")
         {
             /* Client request: reset sending vision::Image */
-            chunkID_ = 0;
-            img_lock_ = true;
-            while(img_lock_) { usleep(100); }
+            chunkIDs_[i] = 0;
+            imgs_lock_[i] = true;
+            while(imgs_lock_[i]) { usleep(100); }
         }
         if(client_message == "more")
         {
-            chunkID_++;
+            (chunkIDs_[i])++;
         }
-        send_buffer_[0] = chunkID_;
+        send_buffers_[i][0] = chunkIDs_[i];
         size_t send_size = 0;
-        if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
+        if( (chunkIDs_[i] + 1)*(send_size_ - 1) > send_imgs_data_size_[i] )
         {
-            send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
+            send_size = send_imgs_data_size_[i] - chunkIDs_[i]*(send_size_ - 1) + 1;
         }
         else
         {
             send_size = send_size_;
         }
-        std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
-        socket_.async_send_to(
-            boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
-            boost::bind(&Dump2Socket::handle_send_to, this,
+        std::memcpy(&(send_buffers_[i][1]), &(send_imgs_raw_data_[i][chunkIDs_[i]*(send_size_ - 1)]), send_size - 1);
+        sockets_[i]->async_send_to(
+            boost::asio::buffer(send_buffers_[i], send_size), sender_endpoints_[i],
+            boost::bind(&Dump2Socket::handle_send_to, this, i,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
     }
     else
     {
-        socket_.async_receive_from(
-            boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-            boost::bind(&Dump2Socket::handle_receive_from, this,
+        sockets_[i]->async_receive_from(
+            boost::asio::buffer(clients_data_[i], max_request_), sender_endpoints_[i],
+            boost::bind(&Dump2Socket::handle_receive_from, this, i,
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred));
     }
 }
 
-void Dump2Socket::handle_send_to(const boost::system::error_code & error,
+void Dump2Socket::handle_send_to(size_t i, const boost::system::error_code & error,
                             size_t bytes_send)
 {
     if(error) { std::cerr << error.message() << std::endl; }
-    socket_.async_receive_from(
-        boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-        boost::bind(&Dump2Socket::handle_receive_from, this,
+    sockets_[i]->async_receive_from(
+        boost::asio::buffer(clients_data_[i], max_request_), sender_endpoints_[i],
+        boost::bind(&Dump2Socket::handle_receive_from, this, i,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
 }
 
 void Dump2Socket::parse_config_line( std::vector<std::string> & line )
 {
-    if( fill_member(line, "Port", port_) )
+    if( fill_member(line, "Port", ports_) )
         return;
 
     std::string mode;

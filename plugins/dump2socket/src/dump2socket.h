@@ -29,9 +29,9 @@ public:
 
 private:
     /* Socket callbacks */
-    void handle_receive_from(const boost::system::error_code & error,
+    void handle_receive_from(size_t index, const boost::system::error_code & error,
                                 size_t bytes_recvd);
-    void handle_send_to(const boost::system::error_code & error, 
+    void handle_send_to(size_t index, const boost::system::error_code & error, 
                                 size_t bytes_send);
 
     /* Configparser method */
@@ -41,26 +41,26 @@ private:
     /* Socket related members */
     boost::asio::io_service io_service_;
     boost::thread * io_service_th_;
-    udp::socket socket_;
-    short port_;
-    udp::endpoint sender_endpoint_;
+    std::vector<udp::socket *> sockets_;
+    std::vector<short> ports_;
+    std::vector<udp::endpoint> sender_endpoints_;
     /* client request */
     enum { max_request_ = 256 };
-    char client_data_[max_request_];
+    std::vector<char *> clients_data_;
     /* send buffer: chunk id + 50k (max) chunk of data */
     enum { send_size_ = 16385 };
-    unsigned char send_buffer_[send_size_];
+    std::vector<unsigned char *> send_buffers_;
     /* Protocol related */
-    uint8_t chunkID_;
+    std::vector<uint8_t> chunkIDs_;
 
     /* Plugin related */
-    Camera * cam_;
+    std::vector<Camera *> cams_;
     bool is_mono_;
-    vision::Image<unsigned char, MONO> * send_img_mono_;
-    vision::Image<uint32_t, RGB> * send_img_rgb_;
-    unsigned char * send_img_raw_data_;
-    unsigned int send_img_data_size_;
-    bool img_lock_;
+    std::vector<vision::Image<unsigned char, MONO> *> send_imgs_mono_;
+    std::vector<vision::Image<uint32_t, RGB> *> send_imgs_rgb_;
+    std::vector<unsigned char *> send_imgs_raw_data_;
+    std::vector<unsigned int> send_imgs_data_size_;
+    std::vector<bool> imgs_lock_;
 };
 
 } // namespace visionsystem
