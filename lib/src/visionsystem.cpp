@@ -40,14 +40,18 @@ Camera* VisionSystem::get_camera ( string name ) {
 }
 
 Camera* VisionSystem::get_default_camera() {
-	Camera* tmp ;
 	_cameras_mutex.lock() ;
-	if ( _cameras.size() == 0 )
-		tmp = NULL ;
-	else
-		tmp = (Camera*) _cameras[0] ;
+    for(size_t i = 0; i < _cameras.size(); ++i)
+    {
+        if(_cameras[i]->is_active())
+        {
+            Camera * res = _cameras[i];
+            _cameras_mutex.unlock();
+            return res;
+        }
+    }
 	_cameras_mutex.unlock() ;
-	return tmp ;
+	return 0 ;
 }
 
 
