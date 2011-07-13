@@ -1,7 +1,10 @@
 #include "grab.h"
 
 #include <vision/io/imageio.h>
+#include <boost/filesystem.hpp>
 #include <iostream>
+
+using namespace boost::filesystem ;
 
 Grab::Grab( VisionSystem *vs, string sandbox )
 :Plugin( vs, "grab", sandbox ), WithViewer( vs )  
@@ -81,14 +84,24 @@ void Grab::loop_fct() {
 
 bool Grab::post_fct() {
 
-	for ( int i=0; i<grabbed.size(); i++ )
-	for ( int j=0; j<grabbed[i]->grabbed_frames.size(); j++ ) {
+	for ( int i=0; i<grabbed.size(); i++ ) {
+	
+		
+		path camera_path = path( get_sandbox() ) / path( grabbed[i]->camera->get_name() )  ;
 
-		std::ostringstream filename;
-		filename << get_sandbox() << "/" << grabbed[i]->camera->get_name() << "-" << j << ".png" ;  
-		save_color < uint32_t, RGB > ( filename.str() , grabbed[i]->grabbed_frames[j] ) ;
+		if ( exists( camera_path ) )
+			remove_all( camera_path ) ;
+
+		create_directory ( camera_path ) ;	
+		
+		for ( int j=0; j<grabbed[i]->grabbed_frames.size(); j++ ) {
+
+			std::ostringstream filename;
+			filename << camera_path.string() << "/" << j << ".png" ;  
+			save_color < uint32_t, RGB > ( filename.str() , grabbed[i]->grabbed_frames[j] ) ;
+		}
+		
 	}
-
 	return true ;
 }
 
