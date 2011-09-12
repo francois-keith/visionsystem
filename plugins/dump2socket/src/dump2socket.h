@@ -54,6 +54,7 @@ private:
     std::vector<uint8_t> chunkIDs_;
 
     /* Plugin related */
+    std::vector<std::string> cam_names_;
     std::vector<Camera *> cams_;
     bool is_mono_;
     std::vector<vision::Image<unsigned char, MONO> *> send_imgs_mono_;

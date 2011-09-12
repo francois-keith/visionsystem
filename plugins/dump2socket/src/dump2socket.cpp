@@ -10,7 +10,7 @@ Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
   io_service_(), io_service_th_(0), 
   sockets_(0), 
   ports_(0), chunkIDs_(0),
-  cams_(0), is_mono_(true), send_imgs_mono_(0), send_imgs_rgb_(0), imgs_lock_(0)
+  cam_names_(0), cams_(0), is_mono_(true), send_imgs_mono_(0), send_imgs_rgb_(0), imgs_lock_(0)
 {}
 
 Dump2Socket::~Dump2Socket()
@@ -53,14 +53,34 @@ bool Dump2Socket::pre_fct()
     size_t nb_cams_to_stream = ports_.size();
     cams_.resize(nb_cams_to_stream);
     size_t next_camera = 0;
-    std::vector<Camera *> cameras = get_all_cameras();
-    for(size_t i = 0; i < cameras.size(); ++i)
+    /* First camera strategy: get camera from names */
+    if( cam_names_.size() != 0 )
     {
-        if(cameras[i]->is_active())
+        for(size_t i = 0; i < cam_names_.size() && next_camera < nb_cams_to_stream; ++i)
         {
-            cams_[next_camera] = cameras[i];
+            Camera * cam = get_camera(cam_names_[i]);
+            if(cam == 0) 
+            { 
+                std::stringstream err;
+                err << "Camera " << cam_names_[i] << " not registered with vs_core" << std::endl;
+                throw(err.str());
+            }
+            cams_[next_camera] = cam;
             next_camera++;
-            if(next_camera == nb_cams_to_stream) { i = cameras.size(); }
+        }
+    }
+    else
+    {
+        /* Second strategy: get any camera  */
+        std::vector<Camera *> cameras = get_all_cameras();
+        for(size_t i = 0; i < cameras.size(); ++i)
+        {
+            if(cameras[i]->is_active())
+            {
+                cams_[next_camera] = cameras[i];
+                next_camera++;
+                if(next_camera == nb_cams_to_stream) { i = cameras.size(); }
+            }
         }
     }
     if(next_camera != nb_cams_to_stream)
@@ -240,6 +260,9 @@ void Dump2Socket::handle_send_to(size_t i, const boost::system::error_code & err
 void Dump2Socket::parse_config_line( std::vector<std::string> & line )
 {
     if( fill_member(line, "Port", ports_) )
+        return;
+
+    if( fill_member(line, "Names", cam_names_) )
         return;
 
     std::string mode;
