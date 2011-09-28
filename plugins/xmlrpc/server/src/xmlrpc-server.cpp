@@ -5,12 +5,21 @@ namespace visionsystem
 
 XMLRPCServer::XMLRPCServer( VisionSystem * vs, std::string sandbox )
 : Plugin(vs, "xmlrpc-server", sandbox),
-  m_server_port(1234), m_server_th(0)
+  m_server_port(1234), m_close(false), m_server_th(0)
 {}
     
 XMLRPCServer::~XMLRPCServer()
 {
     delete m_server_th;
+}
+
+void XMLRPCServer::WorkThread()
+{
+    while(!m_close)
+    {
+        m_server.work(1);
+    }
+    m_server.shutdown();
 }
 
 bool XMLRPCServer::pre_fct()
@@ -27,7 +36,7 @@ bool XMLRPCServer::pre_fct()
     }
 
     m_server.bindAndListen(m_server_port);
-    m_server_th = new boost::thread(boost::bind(&XmlRpcServer::work, &m_server, -1.0));    
+    m_server_th = new boost::thread(boost::bind(&XMLRPCServer::WorkThread, this));    
 
     whiteboard_write<XMLRPCServer *> ( "plugin_xmlrpc-server", this );
 
@@ -42,7 +51,7 @@ void XMLRPCServer::loop_fct()
 
 bool XMLRPCServer::post_fct()
 {
-    m_server.shutdown();
+    m_close = true;
     m_server_th->join();
 
     return true;

@@ -34,9 +34,12 @@ private:
     /* Configparser method */
     void parse_config_line( std::vector<std::string> & line );
 
+    void WorkThread();
+
 private:
     XmlRpcServer m_server;
     short m_server_port;
+    bool m_close;
     boost::thread * m_server_th;
 };
 
