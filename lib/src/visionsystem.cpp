@@ -12,12 +12,6 @@ VisionSystem::VisionSystem() {
 
 
 VisionSystem::~VisionSystem() {
-    for( std::map< std::string, boost::mutex*>::iterator it = whiteboard_mutex.begin();
-            it != whiteboard_mutex.end();
-            ++it )
-    {
-        delete (*it).second;
-    }
 }
 
 vector<Camera*> VisionSystem::get_all_cameras() {
@@ -98,6 +92,17 @@ vector<Plugin*> VisionSystem::get_all_subscriptions( GenericCamera* cam ) {
 	return tmp ;
 }
 
+
+void VisionSystem::whiteboard_wipe()
+{
+    for( std::map< std::string, boost::mutex*>::iterator it = whiteboard_mutex.begin();
+            it != whiteboard_mutex.end();
+            ++it )
+    {
+        delete (*it).second;
+    }
+    whiteboard_data.clear();
+}
 
 }
 

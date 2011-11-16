@@ -134,6 +134,10 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
 template<typename Data>
 Thread<Data>::~Thread() {
 	_destroy_fct( pointer ) ;
+    #ifndef WIN32
+    dlclose(handle);
+    #else
+    #endif
 }
 
 

@@ -41,6 +41,8 @@ namespace visionsystem {
 			std::vector<GenericCamera*> get_all_genericcameras() ;
 			std::vector<Plugin*>        get_all_subscriptions ( GenericCamera* ) ;
 
+            void whiteboard_wipe();
+
 		private :
 
 			

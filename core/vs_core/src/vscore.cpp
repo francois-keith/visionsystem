@@ -330,6 +330,8 @@ void VsCore::run()
 
 	// Cleaning up a bit
 
+    whiteboard_wipe();
+
 	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) 
 		delete _plugin_threads[i] ;
 	
