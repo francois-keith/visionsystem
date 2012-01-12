@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+#include <csignal>
 
 #include <visionsystem/plugin.h>
 #include <visionsystem/viewer.h>
@@ -8,7 +9,7 @@
 #include "vscore.h"
 
 
-VsCore::VsCore( int argc, char** argv, char** envv )
+VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true)
 {
 	// Set base directory
 
@@ -40,9 +41,23 @@ VsCore::~VsCore()
 
 }
 
+void VsCore::sigint_handler(int signum)
+{
+    if(signum == SIGINT)
+    {
+        whiteboard_mutex["core_stop"]->unlock();
+        whiteboard_write< bool >( string("core_stop") , true ) ;
+    }
+    else
+    {
+        exit(signum);
+    }
+}
 
 void VsCore::parse_config_line ( vector<string> &line ) 
 {
+    if( fill_member(line, "CatchSIGINT", catch_sigint) ) return;
+
 	if ( line[0] == "Controller" ) {
 
 		if ((line.size()!= 2) && (line.size()!=3)) 
@@ -51,7 +66,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 		string sandbox ;
 		
 		if ( line.size() == 2 )
-			 sandbox = _basedir + string("controllers/") + line[1] ;
+			 sandbox = _basedir + string("controllers/") + line[1] + std::string("/");
 		else
 			 sandbox = line[2] ;
 
@@ -81,7 +96,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 		string sandbox ;
 		
 		if ( line.size() == 2 )
-			sandbox = _basedir + string("plugins/") + line[1] ;
+			sandbox = _basedir + string("plugins/") + line[1] + std::string("/");
 		else
 			sandbox = line[2] ;
 
@@ -301,25 +316,26 @@ void VsCore::run()
 	
 	cout << "[vs_core] Sending stop signal to plugins Threads ..." << endl ;
 
-	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) {
-		_plugin_threads[i]->request_stop() ;
+	for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) {
+		_plugin_threads[i-1]->request_stop() ;
 	}
 	
 	// Join Plugins threads
 	
 	cout << "[vs_core] Waiting for plugin threads to stop ..." << endl ;
 
-	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) {
-		cout << "[vs_core] Waiting for " << _plugin_threads[i]->pointer->get_name() << endl ;
-		_plugin_threads[i]->join() ;
+	for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) {
+		cout << "[vs_core] Waiting for " << _plugin_threads[i-1]->pointer->get_name() << endl ;
+		_plugin_threads[i-1]->join() ;
 	}
 	
 	// Plugins post_fct() 
 	
 	cout << "[vs_core] Calling post_fct() for Plugins ..." << endl ;
 
-	for ( size_t i=0 ; i<_plugins.size(); i++ ) 
-		_plugins[i]->post_fct() ;
+	for ( size_t i = _plugins.size() ; i > 0 ; --i ) {
+		_plugins[i-1]->post_fct() ;
+    }
 
 	// Controllers post_fct()
 	
@@ -332,8 +348,8 @@ void VsCore::run()
 
     whiteboard_wipe();
 
-	for ( size_t i=0 ; i<_plugin_threads.size(); i++ ) 
-		delete _plugin_threads[i] ;
+	for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) 
+		delete _plugin_threads[i-1] ;
 	
 	for ( size_t i=0 ; i<_controller_threads.size(); i++ )
 		delete _controller_threads[i] ;

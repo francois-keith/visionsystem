@@ -43,19 +43,20 @@ namespace visionsystem {
 
             void whiteboard_wipe();
 
+            /* WARNING: don't use those when you inherit from VisionSystem unless you KNOW what you're doing */
+			std::map< std::string, boost::mutex* >  whiteboard_mutex ;
+
 		private :
 
 			
 			std::vector< GenericCamera* >			_cameras ;
 			boost::mutex			        _cameras_mutex ;
 
-			std::map< std::string, boost::any >    whiteboard_data ;
-			std::map< std::string, boost::mutex* >  whiteboard_mutex ;
 
 			std::map< Camera*, std::vector<Plugin*> >   _subscriptions ;
 			boost::mutex			       	    _subscriptions_mutex ;
 
-
+			std::map< std::string, boost::any >    whiteboard_data ;
 
 } ;
 

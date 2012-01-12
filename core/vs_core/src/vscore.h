@@ -28,7 +28,11 @@ class VsCore : public VisionSystem, public WithConfigFile
 		VsCore( int argc, char** argv, char** envv ) ;
 		~VsCore() ;
 
+        void sigint_handler(int signum);
+
 		void run() ;
+
+        bool catch_sigint;
 
 	private:
 
@@ -45,8 +49,6 @@ class VsCore : public VisionSystem, public WithConfigFile
 		vector<Thread<Plugin>*>		_plugin_threads ;
 
 		void parse_config_line( vector<string> &line ) ;
-
-
 } ;
 
 #endif
