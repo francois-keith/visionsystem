@@ -24,6 +24,7 @@ class Thread {
 		void start_thread() ;
 		void request_stop() ;
 		void join() ;
+        void cleanup();
 
 		data*  pointer  ;
 
@@ -130,10 +131,13 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
 
 }
 
+template<typename Data>
+void Thread<Data>::cleanup() {
+	_destroy_fct( pointer ) ;
+}
 
 template<typename Data>
 Thread<Data>::~Thread() {
-	_destroy_fct( pointer ) ;
     #ifndef WIN32
     dlclose(handle);
     #else

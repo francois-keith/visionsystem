@@ -349,7 +349,14 @@ void VsCore::run()
     whiteboard_wipe();
 
 	for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) 
+    {
+		_plugin_threads[i-1]->cleanup();
+    }
+
+	for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) 
+    {
 		delete _plugin_threads[i-1] ;
+    }
 	
 	for ( size_t i=0 ; i<_controller_threads.size(); i++ )
 		delete _controller_threads[i] ;
