@@ -1,7 +1,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
+
+#ifndef WIN32
 #include <csignal>
+#endif
 
 #include <visionsystem/plugin.h>
 #include <visionsystem/viewer.h>
@@ -43,6 +46,7 @@ VsCore::~VsCore()
 
 void VsCore::sigint_handler(int signum)
 {
+    #ifndef WIN32
     if(signum == SIGINT)
     {
         whiteboard_mutex["core_stop"]->unlock();
@@ -52,6 +56,7 @@ void VsCore::sigint_handler(int signum)
     {
         exit(signum);
     }
+    #endif
 }
 
 void VsCore::parse_config_line ( vector<string> &line ) 
