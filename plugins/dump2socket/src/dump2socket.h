@@ -1,14 +1,14 @@
 #ifndef _H_DUMP2SOCKET_H_
 #define _H_DUMP2SOCKET_H_
 
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
+#include <boost/asio.hpp>
+
 #include <configparser/configparser.h>
 #include <visionsystem/plugin.h>
 #include <vision/image/image.h>
 #include <visionsystem/buffer.h>
-
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
-#include <boost/asio.hpp>
 
 using boost::asio::ip::udp;
 
@@ -57,8 +57,8 @@ private:
     std::vector<std::string> cam_names_;
     std::vector<Camera *> cams_;
     bool is_mono_;
-    std::vector<vision::Image<unsigned char, MONO> *> send_imgs_mono_;
-    std::vector<vision::Image<uint32_t, RGB> *> send_imgs_rgb_;
+    std::vector<vision::Image<unsigned char, vision::MONO> *> send_imgs_mono_;
+    std::vector<vision::Image<uint32_t, vision::RGB> *> send_imgs_rgb_;
     std::vector<unsigned char *> send_imgs_raw_data_;
     std::vector<unsigned int> send_imgs_data_size_;
     std::vector<bool> imgs_lock_;

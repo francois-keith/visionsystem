@@ -92,8 +92,8 @@ bool Dump2Socket::pre_fct()
     {
         for(size_t i = 0; i < cams_.size(); ++i)
         {
-            register_to_cam< vision::Image<unsigned char, MONO> >( cams_[i], 10 ) ;
-            send_imgs_mono_.push_back(new vision::Image<unsigned char, MONO>(cams_[i]->get_size()));
+            register_to_cam< vision::Image<unsigned char, vision::MONO> >( cams_[i], 10 ) ;
+            send_imgs_mono_.push_back(new vision::Image<unsigned char, vision::MONO>(cams_[i]->get_size()));
             send_imgs_data_size_.push_back(send_imgs_mono_[i]->data_size);
             send_imgs_raw_data_.push_back(send_imgs_mono_[i]->raw_data);
         }
@@ -102,8 +102,8 @@ bool Dump2Socket::pre_fct()
     {
         for(size_t i = 0; i < cams_.size(); ++i)
         {
-            register_to_cam< vision::Image<uint32_t, RGB> >( cams_[i], 10 ) ;
-            send_imgs_rgb_.push_back(new vision::Image<uint32_t, RGB>(cams_[i]->get_size()));
+            register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[i], 10 ) ;
+            send_imgs_rgb_.push_back(new vision::Image<uint32_t, vision::RGB>(cams_[i]->get_size()));
             send_imgs_data_size_.push_back(send_imgs_rgb_[i]->data_size);
             send_imgs_raw_data_.push_back((unsigned char*)(send_imgs_rgb_[i]->raw_data));
         }
@@ -145,7 +145,7 @@ void Dump2Socket::loop_fct()
     {
         for(size_t i = 0; i < ports_.size(); ++i)
         {
-            vision::Image<unsigned char, MONO> * img = dequeue_image< vision::Image<unsigned char, MONO> > (cams_[i]);
+            vision::Image<unsigned char, vision::MONO> * img = dequeue_image< vision::Image<unsigned char, vision::MONO> > (cams_[i]);
         
             if(imgs_lock_[i])
             {
@@ -153,14 +153,14 @@ void Dump2Socket::loop_fct()
                 imgs_lock_[i] = false;
             }
 
-            enqueue_image< vision::Image<unsigned char, MONO> >(cams_[i], img);
+            enqueue_image< vision::Image<unsigned char, vision::MONO> >(cams_[i], img);
         }
     }
     else
     {
         for(size_t i = 0; i < ports_.size(); ++i)
         {
-            vision::Image<uint32_t, RGB> * img = dequeue_image< vision::Image<uint32_t, RGB> > (cams_[i]);
+            vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (cams_[i]);
             
             if(imgs_lock_[i])
             {
@@ -168,7 +168,7 @@ void Dump2Socket::loop_fct()
                 imgs_lock_[i] = false;
             }
 
-            enqueue_image< vision::Image<uint32_t, RGB> >(cams_[i], img);
+            enqueue_image< vision::Image<uint32_t, vision::RGB> >(cams_[i], img);
         }
     }
 }
@@ -179,14 +179,14 @@ bool Dump2Socket::post_fct()
     {
         for(size_t i = 0; i < cams_.size(); ++i)
         {
-            unregister_to_cam< vision::Image<unsigned char, MONO> >(cams_[i]);
+            unregister_to_cam< vision::Image<unsigned char, vision::MONO> >(cams_[i]);
         }
     }
     else
     {
         for(size_t i = 0; i < cams_.size(); ++i)
         {
-            unregister_to_cam< vision::Image<uint32_t, RGB> >(cams_[i]);
+            unregister_to_cam< vision::Image<uint32_t, vision::RGB> >(cams_[i]);
         }
     }
 
