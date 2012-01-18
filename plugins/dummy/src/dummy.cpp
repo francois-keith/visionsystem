@@ -1,5 +1,7 @@
 #include "dummy.h"
 
+#include <vision/win32/windows.h>
+
 #include <iostream>
 
 Dummy::Dummy( VisionSystem *vs, string sandbox )
