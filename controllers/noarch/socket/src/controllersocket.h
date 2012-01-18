@@ -1,11 +1,9 @@
 #ifndef _H_CONTROLLERSOCKET_H_
 #define _H_CONTROLLERSOCKET_H_
 
-#include <visionsystem/controller.h>
-
 #include "camerasocket.h"
-
 #include <boost/thread.hpp>
+#include <visionsystem/controller.h>
 
 namespace visionsystem
 {

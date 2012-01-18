@@ -36,16 +36,16 @@ void CameraSocket::start_cam()
     }
     if(img_coding_ == VS_MONO8)
     {
-        shw_img_mono_ = new vision::Image<unsigned char, MONO>(get_size());
+        shw_img_mono_ = new vision::Image<unsigned char, vision::MONO>(get_size());
         shw_img_raw_data_ = shw_img_mono_->raw_data;
-        rcv_img_mono_ = new vision::Image<unsigned char, MONO>(get_size());
+        rcv_img_mono_ = new vision::Image<unsigned char, vision::MONO>(get_size());
         rcv_img_raw_data_ = rcv_img_mono_->raw_data;
     }
     else
     {
-        shw_img_rgb_ = new vision::Image<uint32_t, RGB>(get_size());
+        shw_img_rgb_ = new vision::Image<uint32_t, vision::RGB>(get_size());
         shw_img_raw_data_ = (unsigned char*)(shw_img_rgb_->raw_data);
-        rcv_img_rgb_ = new vision::Image<uint32_t, RGB>(get_size());
+        rcv_img_rgb_ = new vision::Image<uint32_t, vision::RGB>(get_size());
         rcv_img_raw_data_ = (unsigned char*)(rcv_img_rgb_->raw_data);
     }
 

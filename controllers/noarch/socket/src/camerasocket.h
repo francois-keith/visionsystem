@@ -1,12 +1,13 @@
 #ifndef _H_CAMERASOCKET_H_
 #define _H_CAMERASOCKET_H_
 
+#include <boost/bind.hpp>
+#include <boost/asio.hpp>
+
 #include <configparser/configparser.h>
 #include <visionsystem/genericcamera.h>
 #include <vision/image/image.h>
-
-#include <boost/bind.hpp>
-#include <boost/asio.hpp>
+#include <vision/win32/windows.h>
 
 using boost::asio::ip::udp;
 
@@ -79,10 +80,10 @@ private:
     boost::asio::deadline_timer timeout_timer_;
 
     /* Camera related */
-    vision::Image<unsigned char, MONO> * shw_img_mono_;
-    vision::Image<unsigned char, MONO> * rcv_img_mono_;
-    vision::Image<uint32_t, RGB> * shw_img_rgb_;
-    vision::Image<uint32_t, RGB> * rcv_img_rgb_;
+    vision::Image<unsigned char, vision::MONO> * shw_img_mono_;
+    vision::Image<unsigned char, vision::MONO> * rcv_img_mono_;
+    vision::Image<uint32_t, vision::RGB> * shw_img_rgb_;
+    vision::Image<uint32_t, vision::RGB> * rcv_img_rgb_;
     unsigned char * shw_img_raw_data_;
     unsigned char * rcv_img_raw_data_;
 
