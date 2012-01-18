@@ -10,12 +10,18 @@ if ( PLUGIN_DUMP2DISK )
 	### Targets
 
 	add_library( "dump2disk" SHARED ${dump2disk_src} ${dump2disk_hdr} )
+	IF(WIN32)
+	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
+	target_link_libraries("dump2disk" "visionsystem" )
+	target_link_libraries("dump2disk" "vision" )
+	target_link_libraries("dump2disk" "configparser" )
+	ENDIF(WIN32)
 
 
 	### INSTAll
 
-	install( TARGETS "dump2disk" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	install( TARGETS "dump2disk" 
+			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main)
 
 else ( PLUGIN_DUMP2DISK )
 

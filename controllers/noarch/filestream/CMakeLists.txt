@@ -14,11 +14,17 @@ if ( CONTROLLER_FILESTREAM )
 	add_library( "filestream" SHARED ${filestream_src} ${filestream_hdr} )
 
 	target_link_libraries ("filestream" ${VISION_LIBRARIES}  ${Boost_FILESYSTEM_LIBRARY} )
+	IF(WIN32)
+	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
+	target_link_libraries("filestream" "visionsystem" )
+	target_link_libraries("filestream" "vision" )
+	target_link_libraries("filestream" "configparser" )
+	ENDIF(WIN32)
 
 	### INSTAll
 
-	install( TARGETS "filestream" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
+	install( TARGETS "filestream" 
+			DESTINATION "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
 
 else ( CONTROLLER_FILESTREAM )
 

@@ -11,11 +11,20 @@ if ( PLUGIN_GRAB )
 
 	add_library( "grab" SHARED ${grab_src} ${grab_hdr} )
 
+	IF(WIN32)
+	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
+	target_link_libraries("grab" "visionsystem" )
+	target_link_libraries("grab" "vision" )
+	target_link_libraries("grab" "configparser" )
+	if ( ImageMagick_Magick++_FOUND )		 
+	target_link_libraries ( "grab" "${ImageMagick_Magick++_LIBRARY}" ) 
+endif ( ImageMagick_Magick++_FOUND )
+	ENDIF(WIN32)
 
 	### INSTAll
 
-	install( TARGETS "grab" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	install( TARGETS "grab" 
+			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
 
 else ( PLUGIN_GRAB )
 

@@ -11,11 +11,15 @@ if ( PLUGIN_DUMMY )
 
 	add_library( "dummy" SHARED ${dummy_src} ${dummy_hdr} )
 
+	IF(WIN32)
+	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
+	target_link_libraries("dummy" "visionsystem")
+	ENDIF(WIN32)
 
 	### INSTAll
 
-	install( TARGETS "dummy" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	install( TARGETS "dummy" 
+			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main)
 
 else ( PLUGIN_DUMMY )
 

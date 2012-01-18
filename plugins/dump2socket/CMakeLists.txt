@@ -11,12 +11,21 @@ if ( PLUGIN_DUMP2SOCKET )
 
 	add_library( "dump2socket" SHARED ${dump2socket_src} ${dump2socket_hdr} )
 
-	target_link_libraries( "dump2socket" ${VISION_LIBRARIES} ${Boost_SYSTEM_LIBRARY} ${Boost_THREAD_LIBRARY})
+	target_link_libraries( "dump2socket" ${VISION_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
+	IF(WIN32)
+	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
+	target_link_libraries("dump2socket" "visionsystem" )
+	target_link_libraries("dump2socket" "vision" )
+	target_link_libraries("dump2socket" "configparser" )
+	ELSE(WIN32)
+	target_link_libraries("dump2socket" ${Boost_THREAD_LIBRARY})
+	ENDIF(WIN32)
 
 	### INSTAll
 
-	install( TARGETS "dump2socket" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	install( TARGETS "dump2socket" 
+			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main 
+			)
 
 else ( PLUGIN_DUMP2SOCKET )
 

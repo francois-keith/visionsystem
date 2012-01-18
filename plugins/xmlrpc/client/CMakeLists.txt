@@ -15,8 +15,8 @@ if ( PLUGIN_XMLRPCCLIENT )
 
 	### INSTAll
 
-	install( TARGETS "xmlrpc-client" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	install( TARGETS "xmlrpc-client" 
+			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
 
     install( FILES ${XMLRPCCLIENT_hdr}
              DESTINATION "${INSTALL_HEADERS_PATH}/visionsystem/vs_plugins/xmlrpc/" )

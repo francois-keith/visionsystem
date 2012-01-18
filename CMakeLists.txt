@@ -41,6 +41,17 @@ endforeach()
 find_package( vision )
 find_package( configparser ) 
 find_package( Boost 1.40.0 COMPONENTS system thread filesystem)
+find_package( ImageMagick COMPONENTS Magick++ ) 
+
+IF(ImageMagick_Magick++_FOUND)
+SET(ImageMagick_Magick++_FOUND_BOOL 1)
+ELSE(ImageMagick_Magick++_FOUND)
+SET(ImageMagick_Magick++_FOUND_BOOL 0)
+ENDIF(ImageMagick_Magick++_FOUND)
+
+if ( ImageMagick_Magick++_FOUND )		 
+	include_directories ( "${ImageMagick_Magick++_INCLUDE_DIR}" )
+endif ( ImageMagick_Magick++_FOUND )	
 
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

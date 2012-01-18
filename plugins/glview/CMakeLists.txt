@@ -22,8 +22,9 @@ if ( PLUGIN_GLVIEW )
 
 	### INSTAll
 
-	install( TARGETS "glview" LIBRARY DESTINATION
-		 "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
+	install( TARGETS "glview" 
+			LIBRARY DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main 
+			RUNTIME DESTINATION "${INSTALL_BIN_PATH}/vs_plugins"  COMPONENT main)
 
 else ( PLUGIN_GLVIEW )
 

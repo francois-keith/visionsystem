@@ -17,10 +17,18 @@ file( GLOB vs_lib_src "src/*.cpp" "src/fast/*.cpp" )
 file( GLOB vs_lib_hdr "src/*.h*")
 file( GLOB vs_lib_hdr_global "include/visionsystem/*.h*" ) 
 
+SOURCE_GROUP(Headers FILES ${vs_lib_hdr})
+
 ### Targets
 
 add_library( "visionsystem" SHARED ${vs_lib_src} ${vs_lib_hdr} )
+target_link_libraries ( "visionsystem" "vision" )
 
+IF(WIN32)
+	add_library( "visionsystem-static" STATIC ${vs_lib_src} ${vs_lib_hdr} )
+	set_target_properties( "visionsystem-static" PROPERTIES OUTPUT_NAME "visionsystem")
+	target_link_libraries ( "visionsystem-static" "vision" )
+ENDIF(WIN32)
 ### INSTAll
 
 install( TARGETS "visionsystem"
