@@ -46,7 +46,7 @@ bool Grab::pre_fct() {
 	
 	if ( vw == NULL ) {
 		cout << "[grab] No viewer found" << endl ;
-		return false ;
+		return true ;
 	}
 	
 	register_callback() ;
@@ -64,26 +64,27 @@ void Grab::preloop_fct() {
 void Grab::loop_fct() {
 
 	for ( int i=0; i<grabbed.size(); i++ )
+	{
 		grabbed[i]->current_frame = dequeue_image< Image<uint32_t, RGB> > ( grabbed[i]->camera ) ;
-
+	}
 
 	if ( grab_next ) {
-
 		for ( int i=0; i<grabbed.size(); i++ )
+		{
 			grabbed[i]->grabbed_frames.push_back( grabbed[i]->current_frame ) ;
+		}
 
 		grab_next = false ;
 
 	} else {
-
 		for ( int i=0; i<grabbed.size(); i++ )
+		{
 			enqueue_image< Image<uint32_t, RGB> > ( grabbed[i]->camera, grabbed[i]->current_frame ) ;
+		}
 	}
-
 }
 
 bool Grab::post_fct() {
-
 	for ( int i=0; i<grabbed.size(); i++ ) {
 	
 		
@@ -98,6 +99,7 @@ bool Grab::post_fct() {
 
 			std::ostringstream filename;
 			filename << camera_path.string() << "/" << j << ".png" ;  
+			std::cout << "[grab] Saving " << filename << std::endl;
 			save_color ( filename.str() , grabbed[i]->grabbed_frames[j] ) ;
 		}
 		
@@ -113,7 +115,7 @@ void Grab::parse_config_line( vector<string> &line ) {
 
 
 void Grab::callback(Camera* cam, XEvent event) {
-
+#ifndef WIN32
 	if (event.type == KeyPress ) {
 
 		switch (XLookupKeysym(&event.xkey, 0)) {
@@ -128,7 +130,7 @@ void Grab::callback(Camera* cam, XEvent event) {
 		}
 
 	}
-
+#endif
 }
 
 
