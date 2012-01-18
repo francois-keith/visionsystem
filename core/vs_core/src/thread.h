@@ -9,6 +9,8 @@
 
 #ifndef WIN32
 	#include <dlfcn.h>
+#else
+	#include <strsafe.h>
 #endif
 
 
@@ -73,7 +75,7 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
     		#else
     			LPVOID lpMsgBuf;
                         LPVOID lpDisplayBuf;
-    			GetLastError() returns the error code
+    			GetLastError();// returns the error code
                         DWORD dw = GetLastError();
     
     			// We get the error message associated with the error code

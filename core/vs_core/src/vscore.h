@@ -13,6 +13,8 @@
 #include <visionsystem/plugin.h>
 #include <visionsystem/camera.h>
 
+#include <vision/win32/windows.h>
+
 #include "thread.h"
 
 using namespace std ;
