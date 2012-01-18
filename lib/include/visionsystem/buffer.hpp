@@ -1,4 +1,3 @@
-
 #define VS_BUFFERSIZE	100
 
 template<typename Data>

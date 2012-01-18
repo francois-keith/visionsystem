@@ -7,8 +7,16 @@
 #include <visionsystem/visionsystem.h>
 #include <visionsystem/genericcamera.h>
 
-#define CONTROLLER(NAME) extern "C" visionsystem::Controller* create( visionsystem::VisionSystem* vs, std::string sandbox ) { return new NAME(vs, sandbox) ; } ; \
-			 extern "C" void destroy( visionsystem::Controller* p ) { delete p ; }
+#include <vision/win32/windows.h>
+
+#ifdef WIN32
+#define VS_CONTROLLER_EXPORT __declspec(dllexport)
+#else
+#define VS_CONTROLLER_EXPORT
+#endif
+
+#define CONTROLLER(NAME) extern "C" VS_CONTROLLER_EXPORT visionsystem::Controller* create( visionsystem::VisionSystem* vs, std::string sandbox ) { return new NAME(vs, sandbox) ; } ; \
+			 extern "C" VS_CONTROLLER_EXPORT void destroy( visionsystem::Controller* p ) { delete p ; }
 
 namespace visionsystem {
 

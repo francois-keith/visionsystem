@@ -9,10 +9,17 @@
 
 #include <visionsystem/imagefill.hpp>
 
-// FIXME faire la version window pour export dll
+#include <vision/win32/windows.h>
 
-#define PLUGIN(NAME) extern "C" visionsystem::Plugin* create( visionsystem::VisionSystem* vs, std::string sandbox ) { return new NAME(vs, sandbox) ; } ; \
-		     extern "C" void destroy( visionsystem::Plugin* p ) { delete p ; }
+#ifdef WIN32
+#define VS_PLUGIN_EXPORT __declspec(dllexport)
+#else
+#define VS_PLUGIN_EXPORT
+#endif
+
+
+#define PLUGIN(NAME) extern "C" VS_PLUGIN_EXPORT visionsystem::Plugin* create( visionsystem::VisionSystem* vs, std::string sandbox ) { return new NAME(vs, sandbox) ; } ; \
+		     extern "C" VS_PLUGIN_EXPORT void destroy( visionsystem::Plugin* p ) { delete p ; }
 
 namespace visionsystem {
 

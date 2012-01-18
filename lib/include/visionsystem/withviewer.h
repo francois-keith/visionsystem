@@ -13,7 +13,8 @@
 #else
 
 	// FIXME	Windows compatibility ?
-
+	typedef union _XEvent
+	{} XEvent;
 #endif
 
 namespace visionsystem {
