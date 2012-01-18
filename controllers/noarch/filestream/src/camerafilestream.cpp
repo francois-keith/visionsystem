@@ -34,11 +34,11 @@ bool CameraFilestream::init_camera()
     }
     if( _img_coding == VS_MONO8 )
     {
-        _img_mono = new vision::Image<unsigned char, MONO>(get_size());
+        _img_mono = new vision::Image<unsigned char, vision::MONO>(get_size());
     }
     if( _img_coding == VS_RGB32  )
     {
-        _img_rgb = new vision::Image<uint32_t, RGB>(get_size());
+        _img_rgb = new vision::Image<uint32_t, vision::RGB>(get_size());
     }
     return true;
 }

@@ -6,6 +6,8 @@
 #include <vision/image/image.h>
 #include <ctime>
 
+#include <vision/win32/windows.h>
+
 namespace visionsystem
 {
 
@@ -57,8 +59,8 @@ public:
     /* Filestream specific */
     std::vector<std::string> _bin_files;
     unsigned int _current_frame;
-    vision::Image<unsigned char, MONO> * _img_mono;
-    vision::Image<uint32_t, RGB> * _img_rgb;
+    vision::Image<unsigned char, vision::MONO> * _img_mono;
+    vision::Image<uint32_t, vision::RGB> * _img_rgb;
 
     unsigned int _buffersize;
 
