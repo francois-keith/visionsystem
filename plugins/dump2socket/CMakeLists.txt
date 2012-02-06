@@ -4,8 +4,8 @@ if ( PLUGIN_DUMP2SOCKET )
 
 	### File Lists
 
-	file( GLOB dump2socket_src "src/*.cpp" )
-	file( GLOB dump2socket_hdr "src/*.h*")
+	SET( dump2socket_src "src/dump2socket.cpp" )
+	SET( dump2socket_hdr "src/dump2socket.h")
 
 	### Targets
 
@@ -20,6 +20,16 @@ if ( PLUGIN_DUMP2SOCKET )
 	ELSE(WIN32)
 	target_link_libraries("dump2socket" ${Boost_THREAD_LIBRARY})
 	ENDIF(WIN32)
+
+    # Check for ZLIB
+    SET(ZLIB_FOUND_NUMERAL 0)
+    find_package(ZLIB)
+    if(ZLIB_FOUND)
+        SET(ZLIB_FOUND_NUMERAL 1)
+        include_directories(${ZLIB_INCLUDE_DIRS})
+        target_link_libraries("dump2socket" ${ZLIB_LIBRARIES})
+    endif(ZLIB_FOUND)
+    configure_file("config.h.in" "${CMAKE_SOURCE_DIR}/plugins/dump2socket/src/config.h")
 
 	### INSTAll
 

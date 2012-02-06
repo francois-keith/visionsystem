@@ -57,6 +57,7 @@ private:
     std::vector<std::string> cam_names_;
     std::vector<Camera *> cams_;
     bool is_mono_;
+    bool compress_data_;
     std::vector<vision::Image<unsigned char, vision::MONO> *> send_imgs_mono_;
     std::vector<vision::Image<uint32_t, vision::RGB> *> send_imgs_rgb_;
     std::vector<unsigned char *> send_imgs_raw_data_;

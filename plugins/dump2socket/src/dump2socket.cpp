@@ -1,5 +1,41 @@
 #include "dump2socket.h"
 
+#include "config.h"
+#if VS_HAS_ZLIB == 1
+
+#include <zlib.h>
+
+unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsigned char * data_out)
+{
+    z_stream strm;
+    strm.zalloc = Z_NULL;
+    strm.zfree  = Z_NULL;
+    strm.opaque = Z_NULL;
+    int ret = deflateInit(&strm, Z_BEST_SPEED);
+    
+    strm.avail_in = data_in_size;
+    strm.next_in  = data_in;
+
+    strm.avail_out = data_in_size;
+    strm.next_out  = data_out;
+
+    int flush = Z_FINISH;
+    ret = deflate(&strm, flush);
+    unsigned int zsize = data_in_size - strm.avail_out;
+    deflateEnd(&strm);
+    return zsize;
+}
+
+#else
+
+unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsigned char * data_out)
+{
+    memcpy(data_out, data_in, data_in_size);
+    return data_in_size;
+} 
+
+#endif // ZLIB specific function
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -10,7 +46,8 @@ Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
   io_service_(), io_service_th_(0), 
   sockets_(0), 
   ports_(0), chunkIDs_(0),
-  cam_names_(0), cams_(0), is_mono_(true), send_imgs_mono_(0), send_imgs_rgb_(0), imgs_lock_(0)
+  cam_names_(0), cams_(0), is_mono_(true), compress_data_(false),
+  send_imgs_mono_(0), send_imgs_rgb_(0), imgs_lock_(0)
 {}
 
 Dump2Socket::~Dump2Socket()
@@ -149,7 +186,14 @@ void Dump2Socket::loop_fct()
         
             if(imgs_lock_[i])
             {
-                send_imgs_mono_[i]->copy(img);
+                if(compress_data_)
+                {
+                    send_imgs_data_size_[i] = compress(img->raw_data, img->data_size, send_imgs_raw_data_[i]);
+                }
+                else
+                {
+                    send_imgs_mono_[i]->copy(img);
+                }
                 imgs_lock_[i] = false;
             }
 
@@ -164,7 +208,14 @@ void Dump2Socket::loop_fct()
             
             if(imgs_lock_[i])
             {
-                send_imgs_rgb_[i]->copy(img);
+                if(compress_data_)
+                {
+                    send_imgs_data_size_[i] = compress((unsigned char *)(img->raw_data), img->data_size, send_imgs_raw_data_[i]);
+                }
+                else
+                {
+                    send_imgs_rgb_[i]->copy(img);
+                }
                 imgs_lock_[i] = false;
             }
 
@@ -269,6 +320,16 @@ void Dump2Socket::parse_config_line( std::vector<std::string> & line )
     if( fill_member(line, "ColorMode", mode) )
     {
         is_mono_ = (mode == "MONO");
+        return;
+    }
+    if( fill_member(line, "Compress", compress_data_) )
+    {
+#if VS_HAS_ZLIB != 1
+        if(compress_data_)
+        {
+            std::cerr << "[WARNING] You configured dump2socket to compress data without ZLIB support" << std::endl;
+        }
+#endif
         return;
     }
 }
