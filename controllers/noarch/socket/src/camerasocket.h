@@ -67,6 +67,7 @@ private:
     bool cam_ready_;
     std::string server_name_;
     short server_port_;
+    bool data_compress_;
 
     /* Socket members */
     boost::asio::io_service & io_service_;

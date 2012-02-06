@@ -6,9 +6,8 @@ if ( CONTROLLER_SOCKET )
 
 	### File Lists
 
-	file( GLOB socket_src "src/*.cpp" )
-	file( GLOB socket_hdr "src/*.h")
-	file( GLOB socket_hdr "src/*.hpp")
+	SET( socket_src "src/camerasocket.cpp" "src/controllersocket.cpp")
+	SET( socket_hdr "src/camerasocket.h" "src/controllersocket.h")
 
 	### Targets
 
@@ -21,6 +20,15 @@ if ( CONTROLLER_SOCKET )
 	target_link_libraries("socket" "vision" )
 	target_link_libraries("socket" "configparser" )
 	ENDIF(WIN32)
+    # Check for ZLIB
+    SET(ZLIB_FOUND_NUMERAL 0)
+    find_package(ZLIB)
+    if(ZLIB_FOUND)
+        SET(ZLIB_FOUND_NUMERAL 1)
+        include_directories(${ZLIB_INCLUDE_DIRS})
+        target_link_libraries("socket" ${ZLIB_LIBRARIES})
+    endif(ZLIB_FOUND)
+    configure_file("config.h.in" "${CMAKE_SOURCE_DIR}/controllers/noarch/socket/src/config.h")
 
 	### INSTAll
 
