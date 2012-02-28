@@ -234,7 +234,15 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
             else
             {
                 chunkID_++;
-                request_ = "more";
+                socket_.async_receive_from(
+                      boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
+                      boost::bind(&CameraSocket::handle_receive_from, this,
+                        boost::asio::placeholders::error,
+                        boost::asio::placeholders::bytes_transferred));
+                timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
+                timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
+                        boost::asio::placeholders::error));
+                return;
             }
         }
         socket_.async_send_to(
