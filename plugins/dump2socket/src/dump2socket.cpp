@@ -266,10 +266,6 @@ void Dump2Socket::handle_receive_from(size_t i, const boost::system::error_code 
             imgs_lock_[i] = true;
             while(imgs_lock_[i]) { usleep(100); }
         }
-        if(client_message == "more")
-        {
-            (chunkIDs_[i])++;
-        }
         send_buffers_[i][0] = chunkIDs_[i];
         size_t send_size = 0;
         if( (chunkIDs_[i] + 1)*(send_size_ - 1) > send_imgs_data_size_[i] )
@@ -310,26 +306,23 @@ void Dump2Socket::handle_send_to(size_t i, const boost::system::error_code & err
                 boost::asio::placeholders::bytes_transferred));
         return;
     }
-        //if(client_message == "more")
-        //{
-            (chunkIDs_[i])++;
-        //}
-        send_buffers_[i][0] = chunkIDs_[i];
-        size_t send_size = 0;
-        if( (chunkIDs_[i] + 1)*(send_size_ - 1) > send_imgs_data_size_[i] )
-        {
-            send_size = send_imgs_data_size_[i] - chunkIDs_[i]*(send_size_ - 1) + 1;
-        }
-        else
-        {
-            send_size = send_size_;
-        }
-        std::memcpy(&(send_buffers_[i][1]), &(send_imgs_raw_data_[i][chunkIDs_[i]*(send_size_ - 1)]), send_size - 1);
-        sockets_[i]->async_send_to(
-            boost::asio::buffer(send_buffers_[i], send_size), sender_endpoints_[i],
-            boost::bind(&Dump2Socket::handle_send_to, this, i,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+    (chunkIDs_[i])++;
+    send_buffers_[i][0] = chunkIDs_[i];
+    size_t send_size = 0;
+    if( (chunkIDs_[i] + 1)*(send_size_ - 1) > send_imgs_data_size_[i] )
+    {
+        send_size = send_imgs_data_size_[i] - chunkIDs_[i]*(send_size_ - 1) + 1;
+    }
+    else
+    {
+        send_size = send_size_;
+    }
+    std::memcpy(&(send_buffers_[i][1]), &(send_imgs_raw_data_[i][chunkIDs_[i]*(send_size_ - 1)]), send_size - 1);
+    sockets_[i]->async_send_to(
+        boost::asio::buffer(send_buffers_[i], send_size), sender_endpoints_[i],
+        boost::bind(&Dump2Socket::handle_send_to, this, i,
+        boost::asio::placeholders::error,
+        boost::asio::placeholders::bytes_transferred));
 }
 
 void Dump2Socket::parse_config_line( std::vector<std::string> & line )
