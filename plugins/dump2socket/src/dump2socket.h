@@ -48,7 +48,7 @@ private:
     enum { max_request_ = 256 };
     std::vector<char *> clients_data_;
     /* send buffer: chunk id + 50k (max) chunk of data */
-    enum { send_size_ = 16385 };
+    enum { send_size_ = 32769 };
     std::vector<unsigned char *> send_buffers_;
     /* Protocol related */
     std::vector<uint8_t> chunkIDs_;
