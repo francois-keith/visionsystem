@@ -143,7 +143,7 @@ void CameraFilestream::parse_config_line( std::vector<std::string> & line )
                 }
             }
         }
-        else
+        else if(_active)
         {
             std::stringstream errorss;
             errorss << "[CameraFilestream] Input path : " << path << " is not a directory!";
