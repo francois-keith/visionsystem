@@ -27,6 +27,26 @@ CameraFilestream::~CameraFilestream()
 
 bool CameraFilestream::init_camera()
 {
+    bfs::path _img_path(_path);
+    if( bfs::is_directory(_path) )
+    {
+        std::vector<bfs::path> ls_path;
+        copy(bfs::directory_iterator(_img_path), bfs::directory_iterator(), back_inserter(ls_path));
+        std::sort(ls_path.begin(), ls_path.end());
+        for(std::vector< bfs::path >::const_iterator it = ls_path.begin(); it != ls_path.end(); ++it)
+        {
+            if( bfs::is_regular_file(*it) && bfs::extension(*it) == ".bin" )
+            {
+                _bin_files.push_back((*it).string());
+            }
+        }
+    }
+    else
+    {
+        std::stringstream errorss;
+        errorss << "[CameraFilestream] Input path : " << _path << " is not a directory!";
+        throw(errorss.str()); 
+    }
     _buffer.clear();
     for( unsigned int i = 0; i < _buffersize; ++i )
     {
@@ -126,29 +146,8 @@ void CameraFilestream::parse_config_line( std::vector<std::string> & line )
         return;
     }
 
-    std::string path;
-    if( fill_member( line, "Path", path ) )
+    if( fill_member( line, "Path", _path ) )
     {
-        bfs::path _img_path(path);
-        if( bfs::is_directory(path) )
-        {
-            std::vector<bfs::path> ls_path;
-            copy(bfs::directory_iterator(_img_path), bfs::directory_iterator(), back_inserter(ls_path));
-            std::sort(ls_path.begin(), ls_path.end());
-            for(std::vector< bfs::path >::const_iterator it = ls_path.begin(); it != ls_path.end(); ++it)
-            {
-                if( bfs::is_regular_file(*it) && bfs::extension(*it) == ".bin" )
-                {
-                    _bin_files.push_back((*it).string());
-                }
-            }
-        }
-        else if(_active)
-        {
-            std::stringstream errorss;
-            errorss << "[CameraFilestream] Input path : " << path << " is not a directory!";
-            throw(errorss.str()); 
-        }
         return;
     }
 

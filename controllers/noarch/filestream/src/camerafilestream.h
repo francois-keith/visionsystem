@@ -55,6 +55,7 @@ public:
     unsigned int _fps; /* read as FPS but stored as time intervall between each frame */
     timeval _previous_frame_t;
     std::string _name;
+    std::string _path;
 
     /* Filestream specific */
     std::vector<std::string> _bin_files;
