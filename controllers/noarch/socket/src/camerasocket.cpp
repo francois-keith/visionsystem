@@ -197,7 +197,7 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
         if(chunkID_ != chunk_buffer_[0])
         {
             /* Missed packet */
-            std::cerr << "[CameraSocket] " << name_ << " : missed an upstream frame" << std::endl;
+//            std::cerr << "[CameraSocket] " << name_ << " : missed an upstream frame" << std::endl;
             chunkID_ = 0;
             request_ = "get";
         }
