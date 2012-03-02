@@ -1,0 +1,101 @@
+#!/usr/bin env python
+# -*- coding: utf-8 -*-
+
+import os
+import re
+import sys
+
+def ParseConfigLine(line):
+    config_re = re.compile("^\[(\S+)\]\s+(\S+).*$")
+    match = config_re.match(line)
+    if match:
+        return match.groups()
+    return ('','')
+    
+
+def ParseCapaFile(path):
+    res = {} # dic containing mode keys with supported framerates
+    with open(path) as fd:
+        lines = fd.readlines()
+        current_mode = ''
+        for line in lines:
+            key,value = ParseConfigLine(line)
+            if key == 'Mode':
+                current_mode = value
+                res[current_mode] = []
+            elif key == 'Framerate'
+                res[current_mode].append(value)
+    return res
+
+class Camera1394:
+    def __init__(self):
+        self.name = 'DefaultCam1394'
+        self.active = False
+        self.mode = 'DC1394_INVALID_VIDEO_MODE'
+        self.framerate = 'DC1394_INVALID_FRAMERATE'
+        self.speed = 'DC1394_INVALID_ISO_SPEED'
+        self.bayer = False
+        self.capa  = {}
+
+    def WriteToFile(self, path):
+        with open(path, 'w') as fd:
+            fd.write('[Name] %s\n'%(self.name))
+            if self.active:
+                fd.write('[Active] 1\n\n')
+            else:
+                fd.write('[Active] 0\n\n')
+            fd.write('[Mode] %s\n'%(self.mode))
+            fd.write('[Framerate] %s\n'%(self.framerate))
+            fd.write('[Speed] %s\n\n'%(self.speed))
+            if self.bayer:
+                fd.write('[Bayer] 1\n[BayerCoding] DC1394_COLOR_FILTER_GRBG\n[BayerMethod] DC1394_BAYER_METHOD_SIMPLE')
+            else:
+                fd.write('[Bayer] 0')
+
+def ParseConfFile(path):
+    res = Camera1394()
+    with open(path) as fd:
+        lines = fd.readlines()
+        for line in lines:
+            key,value = ParseConfigLine(line)
+            if key == 'Name':
+                res.name = value
+            if key == 'Active':
+                res.active = bool(int(value))
+            if key == 'Mode':
+                res.mode = value 
+            if key == 'Framerate':
+                res.mode = value
+            if key == 'Speed':
+                res.speed = value
+            if key == 'Bayer':
+                res.bayer = bool(int(value))
+    return res
+
+def ConfigMenu(cams):
+    # cams is a dictionnary with Camera1394 in it
+    header = 'Name'.center(20) + '|' + 'Active'.center(6) + '|' + 'Mode'.center(35) + '|' + 'Framerate'.center(25)
+
+if __name__ == "__main__":
+    conf_path = ''
+    if os.name == 'posix':
+        conf_path = os.environ['HOME'] + '/.vs_core/'
+    else:
+        conf_path = os.environ['APPDATA'] + '/vs_core/'
+    cam_path = conf_path + '/controllers/camdc1394/'
+    if os.path.exists(cam_path):
+        cams = {}
+        cams_capa = []
+        for path in os.listdir(cam_path):
+            if len(path) > 5) and path[len(path)-5,len(path)] == '.conf':
+                camId = path[:len(path)-5]
+                cams[camId] = ParseConfFile(cam_path+path)
+            for camId in cams:
+                cams[camId].capa = ParseCapaFile(cam_path+camId+'.capa')
+        saveConf = ConfigMenu(cams)
+        if saveConf:
+            for camId in cams:
+                cams[camId].WriteToFile(cam_path+camId+'.conf')
+    else:
+        print "No such directory: %s\nRun the vision server with camdc1394 controller at least once"%(cam_path)
+        sys.exit(-1)
