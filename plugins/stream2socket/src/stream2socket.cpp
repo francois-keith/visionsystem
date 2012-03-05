@@ -99,8 +99,8 @@ bool Stream2Socket::pre_fct()
         vision::ImageRef image_size = cams_[0]->get_size();
         register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[0], 10 ) ;
         send_img_rgb_ = new vision::Image<uint32_t, vision::RGB>(image_size);
-        send_img_data_size_ = send_img_mono_->data_size;
-        send_img_raw_data_ = (unsigned char *)(send_img_mono_->raw_data);
+        send_img_data_size_ = send_img_rgb_->data_size;
+        send_img_raw_data_ = (unsigned char *)(send_img_rgb_->raw_data);
     }
 
     socket_ = new udp::socket(io_service_);
