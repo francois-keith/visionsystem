@@ -34,6 +34,9 @@ if ( CONTROLLER_SOCKET )
 
 	install( TARGETS "socket" 
 			DESTINATION "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main)
+    install( FILES "src/camerasocket.h"
+             DESTINATION "${INSTALL_HEADERS_PATH}/visionsystem/vs_controllers/socket/" 
+             COMPONENT main)
 
 else ( CONTROLLER_SOCKET )
 

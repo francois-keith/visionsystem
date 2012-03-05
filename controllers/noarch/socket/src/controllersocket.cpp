@@ -26,6 +26,7 @@ ControllerSocket::~ControllerSocket()
 bool ControllerSocket::pre_fct( std::vector<GenericCamera *> & cams )
 {
     bfs::path sandbox( get_sandbox() );
+    whiteboard_write<CameraSocket*>("streamcamera", 0);
     if( bfs::is_directory(sandbox) )
     {
         std::vector<bfs::path> ls_path;
@@ -39,6 +40,10 @@ bool ControllerSocket::pre_fct( std::vector<GenericCamera *> & cams )
                 if(cam->is_active())
                 {
                     cam->start_cam();
+                }
+                if(cam->from_stream())
+                {
+                    whiteboard_write<CameraSocket*>("streamcamera", cam);
                 }
                 cams.push_back(cam);
                 cams_.push_back(cam);

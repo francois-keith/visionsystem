@@ -28,12 +28,16 @@ public:
 
     bool has_data();
 
+    void next_cam() { next_cam_ = true; }
+
     unsigned char * get_data();
 
     void stop_cam();
 
     /* Camera methods to implement */
     vision::ImageRef get_size() { return img_size_; }
+
+    bool from_stream() { return from_stream_; }
 
     bool is_active() { return active_; }
 
@@ -62,6 +66,9 @@ public:
     unsigned int fps_; /* read as FPS but stored as time intervall between each frame */
     timeval previous_frame_t_;
     std::string name_;
+    /* This parameter indicates if the camera is fed from stream2socket plugin */
+    bool from_stream_;
+    bool next_cam_;
 private:
     /* CameraSocket specific */
     bool cam_ready_;
