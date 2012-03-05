@@ -163,6 +163,22 @@ void Stream2Socket::loop_fct()
 
         enqueue_image< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_], img);
     }
+    if(next_cam_)
+    {
+        if(is_mono_)
+        {
+            unregister_to_cam< vision::Image<unsigned char, vision::MONO> > (cams_[active_cam_]);
+            active_cam_ = (active_cam_ + 1) % cams_.size();
+            register_to_cam< vision::Image<unsigned char, vision::MONO> > (cams_[active_cam_], 10);
+        }
+        else
+        {
+            unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
+            active_cam_ = (active_cam_ + 1) % cams_.size();
+            register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
+        }
+        next_cam_ = false;
+    }
 }
 
 bool Stream2Socket::post_fct()
@@ -194,6 +210,15 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
         if(client_message == "get")
         {
             /* Client request: reset sending vision::Image */
+            chunkID_ = 0;
+            img_lock_ = true;
+            while(img_lock_) { usleep(100); }
+        }
+        if(client_message == "next")
+        {
+            /* Client requested to change camera stream */
+            next_cam_ = true;
+            while(next_cam_) { usleep(100); }
             chunkID_ = 0;
             img_lock_ = true;
             while(img_lock_) { usleep(100); }

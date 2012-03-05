@@ -63,6 +63,7 @@ private:
     unsigned char * send_img_raw_data_;
     unsigned int send_img_data_size_;
     bool img_lock_;
+    bool next_cam_;
 };
 
 } // namespace visionsystem
