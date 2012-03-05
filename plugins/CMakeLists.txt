@@ -2,6 +2,7 @@
 add_subdirectory ( "dummy" )
 add_subdirectory ( "dump2disk" ) 	
 add_subdirectory ( "dump2socket" ) 	
+add_subdirectory ( "stream2socket" ) 	
 add_subdirectory ( "shutdown"  )
 add_subdirectory ( "grab" )
 add_subdirectory ( "glview" )
