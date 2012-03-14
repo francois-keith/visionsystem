@@ -38,6 +38,15 @@ void unpack(unsigned char * data_in, unsigned int data_in_size, unsigned char * 
 
 #endif
 
+inline void rgb24_to_rgba(unsigned char * rgb24_buffer, unsigned int nb_pixels, unsigned char * rgba_buffer)
+{
+    for(unsigned int i = 0; i < nb_pixels; ++i)
+    {
+        memcpy(&(rgba_buffer[4*i]), &(rgb24_buffer[3*i]), 3);
+        rgba_buffer[4*i+3] = 0xFF;
+    }
+}
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -237,7 +246,7 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                     }
                     else
                     {
-                        shw_img_rgb_->copy(rcv_img_rgb_);
+                        rgb24_to_rgba(rcv_img_raw_data_, shw_img_rgb_->pixels, (unsigned char *)(shw_img_rgb_->raw_data));
                     }
                 }
                 chunkID_ = 0;

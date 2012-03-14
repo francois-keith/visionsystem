@@ -36,6 +36,14 @@ unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsign
 
 #endif // ZLIB specific function
 
+inline void remove_alpha(unsigned char * data_in, unsigned int nb_pixels, unsigned char * data_out)
+{
+    for(unsigned int i = 0; i < nb_pixels; ++i)
+    {
+        memcpy(&(data_out[3*i]), &(data_in[4*i]), 3);
+    }
+}
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -141,7 +149,7 @@ bool Dump2Socket::pre_fct()
         {
             register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[i], 10 ) ;
             send_imgs_rgb_.push_back(new vision::Image<uint32_t, vision::RGB>(cams_[i]->get_size()));
-            send_imgs_data_size_.push_back(send_imgs_rgb_[i]->data_size);
+            send_imgs_data_size_.push_back(3 * send_imgs_rgb_[i]->pixels);
             send_imgs_raw_data_.push_back((unsigned char*)(send_imgs_rgb_[i]->raw_data));
         }
     }
@@ -214,7 +222,7 @@ void Dump2Socket::loop_fct()
                 }
                 else
                 {
-                    send_imgs_rgb_[i]->copy(img);
+                    remove_alpha((unsigned char *)(img->raw_data), img->pixels, send_imgs_raw_data_[i]);
                 }
                 imgs_lock_[i] = false;
             }
