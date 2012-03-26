@@ -1,6 +1,5 @@
 #include "plugin.h"
 
-#include <visionsystem/vs_controllers/socket/camerasocket.h>
 
 GLView::GLView( VisionSystem* core, string sandbox ) 
 :Viewer( core, "glview", sandbox ) 
@@ -111,7 +110,6 @@ void GLView::callback( XEvent event ) {
 	
 	if (event.type == KeyPress ) {
 
-        CameraSocket * current_cam = 0;
 		switch ( XLookupKeysym(&event.xkey, 0) ) {
 
 		case XK_F1:
@@ -204,14 +202,6 @@ void GLView::callback( XEvent event ) {
                     next_cam = i;
                     i = -1;
                 }
-            }
-            break;
-
-        case XK_space:
-            current_cam = dynamic_cast<CameraSocket*>(cameras[active_cam]);
-            if(current_cam && current_cam->from_stream())
-            {
-                current_cam->next_cam();
             }
             break;
 
