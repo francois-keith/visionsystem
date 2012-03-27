@@ -39,6 +39,15 @@ void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *im
 				 	img->raw_data[i] = (unsigned char) ( tmp / 3 ) ;
 				}
 				break ;
+        case VS_RGB32:
+                uint32_t grey;
+                for( i = 0; i < img->pixels; ++i)
+                {
+                    grey = frm->_data[4*i] + frm->_data[4*i+1] + frm->_data[4*i+2];
+                    grey /= 3;
+                    img->raw_data[i] = (unsigned char)grey;
+                }
+                break;
 		default:
 				throw( string( "Image<unsigned char,MONO> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
