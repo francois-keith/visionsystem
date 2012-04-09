@@ -2,42 +2,6 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "config.h"
-
-#if VS_HAS_ZLIB == 1
-
-#include <zlib.h>
-
-void unpack(unsigned char * data_in, unsigned int data_in_size, unsigned char * data_out, unsigned int data_out_size)
-{
-    z_stream strm;
-    strm.zalloc = Z_NULL;
-    strm.zfree  = Z_NULL;
-    strm.opaque = Z_NULL;
-    strm.avail_in = 0;
-    strm.next_in = Z_NULL;
-
-    int ret = inflateInit(&strm);
-
-    strm.avail_in = data_in_size;
-    strm.next_in = data_in;
-    strm.avail_out = data_out_size;
-    strm.next_out = data_out;
-
-    ret = inflate(&strm, Z_NO_FLUSH);
-
-    inflateEnd(&strm);
-}
-
-#else
-
-void unpack(unsigned char * data_in, unsigned int data_in_size, unsigned char * data_out, unsigned int data_out_size)
-{
-    std::memcpy(data_out, data_in, data_in_size);
-}
-
-#endif
-
 inline void rgb24_to_rgba(unsigned char * rgb24_buffer, unsigned int nb_pixels, unsigned char * rgba_buffer)
 {
     for(unsigned int i = 0; i < nb_pixels; ++i)
@@ -55,7 +19,8 @@ namespace visionsystem
 CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   from_stream_(false), next_cam_(false),
-  cam_ready_(false), server_name_(""), server_port_(0), data_compress_(false),
+  cam_ready_(false), server_name_(""), server_port_(0), 
+  data_compress_(false), m_decoder(0),
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
   timeout_timer_(io_service, boost::posix_time::seconds(1)),
   shw_img_mono_(0), rcv_img_mono_(0), shw_img_rgb_(0), rcv_img_rgb_(0), shw_img_raw_data_(0), rcv_img_raw_data_(0), 
@@ -71,6 +36,7 @@ CameraSocket::~CameraSocket()
     delete rcv_img_mono_;
     delete shw_img_rgb_;
     delete rcv_img_rgb_;
+    delete m_decoder;
 }
 
 void CameraSocket::start_cam()
@@ -93,6 +59,19 @@ void CameraSocket::start_cam()
         shw_img_raw_data_ = (unsigned char*)(shw_img_rgb_->raw_data);
         rcv_img_rgb_ = new vision::Image<uint32_t, vision::RGB>(get_size());
         rcv_img_raw_data_ = (unsigned char*)(rcv_img_rgb_->raw_data);
+    }
+
+    if(data_compress_ && img_coding_ == VS_MONO8)
+    {
+        throw(std::string("Compress option and MONO cameras are not compatible"));
+    }
+
+    if(data_compress_)
+    {
+        m_decoder = new vision::H264Decoder(get_size().x, get_size().y);
+        #if Vision_HAS_LIBAVCODEC != 1
+            std::cerr << "[camerasocket] " << get_name() << " is configured with Compress option but libvision does not have H.264 support" << std::endl;
+        #endif
     }
 
     /* TODO DNS resolution */
@@ -229,20 +208,13 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
             {
                 if(img_coding_ == VS_MONO8) 
                 {
-                    if(data_compress_)
-                    {
-                        unpack(rcv_img_raw_data_, chunkID_*chunk_size_ + bytes_recvd, shw_img_mono_->raw_data, shw_img_mono_->data_size);
-                    }
-                    else
-                    {
-                        shw_img_mono_->copy(rcv_img_mono_);
-                    }
+                    shw_img_mono_->copy(rcv_img_mono_);
                 }
                 else
                 {
                     if(data_compress_)
                     {
-                        unpack(rcv_img_raw_data_, chunkID_*chunk_size_ + bytes_recvd, (unsigned char*)(shw_img_rgb_->raw_data), shw_img_rgb_->data_size);
+                        m_decoder->Decode(chunkID_*chunk_size_ + bytes_recvd, rcv_img_raw_data_, *shw_img_rgb_);
                     }
                     else
                     {

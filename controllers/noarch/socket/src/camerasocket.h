@@ -9,6 +9,8 @@
 #include <vision/image/image.h>
 #include <vision/win32/windows.h>
 
+#include <vision/io/H264Decoder.h>
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -43,7 +45,7 @@ public:
 
     visionsystem::FrameCoding get_coding() { return img_coding_; }
 
-    float get_fps() { return fps_; }
+    float get_fps() { return 1e6/fps_; }
 
     std::string get_name() { return name_; }
 private:
@@ -74,7 +76,10 @@ private:
     bool cam_ready_;
     std::string server_name_;
     short server_port_;
+
+    /* H.264 support */
     bool data_compress_;
+    vision::H264Decoder * m_decoder;
 
     /* Socket members */
     boost::asio::io_service & io_service_;
