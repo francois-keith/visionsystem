@@ -37,7 +37,7 @@ public:
 
     visionsystem::FrameCoding get_coding() { return _img_coding; }
 
-    float get_fps() { return _fps; }
+    float get_fps() { return 1e6/_fps; }
 
     std::string get_name() { return _name; }
 
