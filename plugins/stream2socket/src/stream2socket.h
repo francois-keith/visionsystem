@@ -10,6 +10,8 @@
 #include <vision/image/image.h>
 #include <visionsystem/buffer.h>
 
+#include <vision/io/H264Encoder.h>
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -53,13 +55,14 @@ private:
     /* Protocol related */
     uint8_t chunkID_;
 
+    /* H.264 compression if available */
+    bool compress_data_;
+    vision::H264Encoder * encoder_;
+
     /* Plugin related */
     unsigned int active_cam_;
     std::vector<Camera *> cams_;
-    bool is_mono_;
-    bool compress_data_;
-    vision::Image<unsigned char, vision::MONO> * send_img_mono_;
-    vision::Image<uint32_t, vision::RGB> * send_img_rgb_;
+    vision::Image<uint32_t, vision::RGB> * send_img_;
     unsigned char * send_img_raw_data_;
     unsigned int send_img_data_size_;
     bool img_lock_;

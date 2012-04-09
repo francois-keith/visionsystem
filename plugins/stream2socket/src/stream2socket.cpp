@@ -1,41 +1,5 @@
 #include "stream2socket.h"
 
-#include "config.h"
-#if VS_HAS_ZLIB == 1
-
-#include <zlib.h>
-
-unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsigned char * data_out)
-{
-    z_stream strm;
-    strm.zalloc = Z_NULL;
-    strm.zfree  = Z_NULL;
-    strm.opaque = Z_NULL;
-    int ret = deflateInit(&strm, Z_BEST_SPEED);
-    
-    strm.avail_in = data_in_size;
-    strm.next_in  = data_in;
-
-    strm.avail_out = data_in_size;
-    strm.next_out  = data_out;
-
-    int flush = Z_FINISH;
-    ret = deflate(&strm, flush);
-    unsigned int zsize = data_in_size - strm.avail_out;
-    deflateEnd(&strm);
-    return zsize;
-}
-
-#else
-
-unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsigned char * data_out)
-{
-    memcpy(data_out, data_in, data_in_size);
-    return data_in_size;
-} 
-
-#endif // ZLIB specific function
-
 inline void remove_alpha(unsigned char * data_in, unsigned int nb_pixels, unsigned char * data_out)
 {
     for(unsigned int i = 0; i < nb_pixels; ++i)
@@ -54,17 +18,18 @@ Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandb
   io_service_(), io_service_th_(0), 
   socket_(0), 
   port_(0), chunkID_(0),
-  active_cam_(0), cams_(0), is_mono_(true), compress_data_(false),
-  send_img_mono_(0), send_img_rgb_(0), img_lock_(false)
+  active_cam_(0), cams_(0), 
+  compress_data_(false), encoder_(0),
+  send_img_(0), img_lock_(false)
 {}
 
 Stream2Socket::~Stream2Socket()
 {
-    delete send_img_mono_;
-    delete send_img_rgb_;
+    delete send_img_;
     delete[] client_data_;
     delete[] send_buffer_;
     delete socket_;
+    delete encoder_;
 }
 
 bool Stream2Socket::pre_fct()
@@ -93,23 +58,13 @@ bool Stream2Socket::pre_fct()
     {
         throw(std::string("No active cameras in the server, stream2socket cannot operate"));
     }
+    encoder_ = new vision::H264Encoder(cams_[0]->get_size().x, cams_[0]->get_size().y, cams_[0]->get_fps());
 
-    if(is_mono_)
-    {
-        vision::ImageRef image_size = cams_[0]->get_size();
-        register_to_cam< vision::Image<unsigned char, vision::MONO> >( cams_[0], 10 ) ;
-        send_img_mono_ = new vision::Image<unsigned char, vision::MONO>(image_size);
-        send_img_data_size_ = send_img_mono_->data_size;
-        send_img_raw_data_ = send_img_mono_->raw_data;
-    }
-    else
-    {
-        vision::ImageRef image_size = cams_[0]->get_size();
-        register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[0], 10 ) ;
-        send_img_rgb_ = new vision::Image<uint32_t, vision::RGB>(image_size);
-        send_img_data_size_ = 3 * send_img_rgb_->pixels;
-        send_img_raw_data_ = (unsigned char *)(send_img_rgb_->raw_data);
-    }
+    vision::ImageRef image_size = cams_[0]->get_size();
+    register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[0], 10 ) ;
+    send_img_ = new vision::Image<uint32_t, vision::RGB>(image_size);
+    send_img_data_size_ = 3 * send_img_->pixels;
+    send_img_raw_data_ = (unsigned char *)(send_img_->raw_data);
 
     socket_ = new udp::socket(io_service_);
     socket_->open(udp::v4());
@@ -133,72 +88,37 @@ void Stream2Socket::preloop_fct()
 
 void Stream2Socket::loop_fct()
 {
-    if(is_mono_)
+    vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
+    
+    if(img_lock_)
     {
-        vision::Image<unsigned char, vision::MONO> * img = dequeue_image< vision::Image<unsigned char, vision::MONO> > (cams_[active_cam_]);
-        
-        if(img_lock_)
+        if(compress_data_)
         {
-            if(compress_data_)
-            {
-                send_img_data_size_ = compress(img->raw_data, img->data_size, send_img_raw_data_);
-            }
-            else
-            {
-                send_img_mono_->copy(img);
-            }
-            img_lock_ = false;
-        }
-
-        enqueue_image< vision::Image<unsigned char, vision::MONO> >(cams_[active_cam_], img);
-    }
-    else
-    {
-        vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
-        
-        if(img_lock_)
-        {
-            if(compress_data_)
-            {
-                send_img_data_size_ = compress((unsigned char *)(img->raw_data), img->data_size, send_img_raw_data_);
-            }
-            else
-            {
-                remove_alpha((unsigned char*)(img->raw_data), img->pixels, send_img_raw_data_);
-            }
-            img_lock_ = false;
-        }
-
-        enqueue_image< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_], img);
-    }
-    if(next_cam_)
-    {
-        if(is_mono_)
-        {
-            unregister_to_cam< vision::Image<unsigned char, vision::MONO> > (cams_[active_cam_]);
-            active_cam_ = (active_cam_ + 1) % cams_.size();
-            register_to_cam< vision::Image<unsigned char, vision::MONO> > (cams_[active_cam_], 10);
+            vision::H264EncoderResult res = encoder_->Encode(*img);
+            send_img_data_size_ = res.frame_size;
+            send_img_raw_data_  = res.frame_data;
         }
         else
         {
-            unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
-            active_cam_ = (active_cam_ + 1) % cams_.size();
-            register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
+            remove_alpha((unsigned char*)(img->raw_data), img->pixels, send_img_raw_data_);
         }
+        img_lock_ = false;
+    }
+
+    enqueue_image< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_], img);
+
+    if(next_cam_)
+    {
+        unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
+        active_cam_ = (active_cam_ + 1) % cams_.size();
+        register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
         next_cam_ = false;
     }
 }
 
 bool Stream2Socket::post_fct()
 {
-    if(is_mono_)
-    {
-        unregister_to_cam< vision::Image<unsigned char, vision::MONO> >(cams_[active_cam_]);
-    }
-    else
-    {
-        unregister_to_cam< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_]);
-    }
+    unregister_to_cam< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_]);
 
     socket_->close();
     io_service_.stop();
@@ -295,19 +215,12 @@ void Stream2Socket::parse_config_line( std::vector<std::string> & line )
     if( fill_member(line, "Port", port_) )
         return;
 
-    std::string mode;
-    if( fill_member(line, "ColorMode", mode) )
-    {
-        is_mono_ = (mode == "MONO");
-        return;
-    }
-
     if( fill_member(line, "Compress", compress_data_) )
     {
-#if VS_HAS_ZLIB != 1
+#if Vision_HAS_LIBAVCODEC != 1
         if(compress_data_)
         {
-            std::cerr << "[WARNING] You configured dump2socket to compress data without ZLIB support" << std::endl;
+            std::cerr << "[WARNING] You configured stream2socket to compress data without H.264 support" << std::endl;
         }
 #endif
         return;
