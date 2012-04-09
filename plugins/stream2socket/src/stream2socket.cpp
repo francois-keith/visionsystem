@@ -58,7 +58,13 @@ bool Stream2Socket::pre_fct()
     {
         throw(std::string("No active cameras in the server, stream2socket cannot operate"));
     }
-    encoder_ = new vision::H264Encoder(cams_[0]->get_size().x, cams_[0]->get_size().y, cams_[0]->get_fps());
+    if(compress_data_)
+    {
+        encoder_ = new vision::H264Encoder(cams_[0]->get_size().x, cams_[0]->get_size().y, cams_[0]->get_fps());
+        #if Vision_HAS_LIBAVCODEC != 1
+        std::cerr << "[stream2socket] H.264 support not built in vision library, Compress option is not usable" << std::endl;
+        #endif
+    }
 
     vision::ImageRef image_size = cams_[0]->get_size();
     register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[0], 10 ) ;
