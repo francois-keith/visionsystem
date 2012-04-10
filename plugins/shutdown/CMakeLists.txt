@@ -10,6 +10,7 @@ if ( PLUGIN_SHUTDOWN )
 	### Targets
 
 	add_library( "shutdown" SHARED ${shutdown_src} ${shutdown_hdr} )
+    target_link_libraries("shutdown" ${Boost_LIBRARIES})
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("shutdown" "visionsystem" )

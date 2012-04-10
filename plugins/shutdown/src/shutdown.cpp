@@ -71,6 +71,7 @@ void Shutdown::parse_config_line( vector<string> &line ) {
 
 void Shutdown::callback(Camera* cam, XEvent event) {
 #ifndef WIN32
+#ifndef __CYGWIN__
 	if (event.type == KeyPress ) {
 
 		switch (XLookupKeysym(&event.xkey, 0)) {
@@ -82,6 +83,7 @@ void Shutdown::callback(Camera* cam, XEvent event) {
 		}
 
 	}
+#endif
 #endif
 }
 

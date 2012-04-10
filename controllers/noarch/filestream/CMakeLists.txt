@@ -13,7 +13,7 @@ if ( CONTROLLER_FILESTREAM )
 
 	add_library( "filestream" SHARED ${filestream_src} ${filestream_hdr} )
 
-	target_link_libraries ("filestream" ${VISION_LIBRARIES}  ${Boost_FILESYSTEM_LIBRARY} )
+	target_link_libraries ("filestream" ${VISION_LIBRARIES}  ${Boost_LIBRARIES} )
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("filestream" "visionsystem" )

@@ -13,7 +13,7 @@ if ( CONTROLLER_SOCKET )
 
 	add_library( "socket" SHARED ${socket_src} ${socket_hdr} )
 
-	target_link_libraries ("socket" ${VISION_LIBRARIES}  ${Boost_SYSTEM_LIBRARY} )
+	target_link_libraries ("socket" ${VISION_LIBRARIES}  ${Boost_LIBRARIES} )
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("socket" "visionsystem" )

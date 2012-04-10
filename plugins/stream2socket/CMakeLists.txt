@@ -11,14 +11,12 @@ if ( PLUGIN_STREAM2SOCKET )
 
 	add_library( "stream2socket" SHARED ${stream2socket_src} ${stream2socket_hdr} )
 
-	target_link_libraries( "stream2socket" ${VISION_LIBRARIES} ${Boost_SYSTEM_LIBRARY})
+	target_link_libraries( "stream2socket" ${VISION_LIBRARIES} ${Boost_LIBRARIES})
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("stream2socket" "visionsystem" )
 	target_link_libraries("stream2socket" "vision" )
 	target_link_libraries("stream2socket" "configparser" )
-	ELSE(WIN32)
-	target_link_libraries("stream2socket" ${Boost_THREAD_LIBRARY})
 	ENDIF(WIN32)
 
     # Check for ZLIB

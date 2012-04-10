@@ -12,6 +12,8 @@
 
 cmake_minimum_required (VERSION 2.6)
 
+set(CMAKE_LEGACY_CYGWIN_WIN32 1)
+
 project (visionsystem)
 set (visionsystem_VERSION_MAJOR 0)
 set (visionsystem_VERSION_MINOR 3)
@@ -40,7 +42,7 @@ endforeach()
 
 find_package( vision )
 find_package( configparser ) 
-find_package( Boost 1.40.0 COMPONENTS system thread filesystem)
+find_package( Boost 1.40.0 COMPONENTS system thread filesystem serialization)
 find_package( ImageMagick COMPONENTS Magick++ ) 
 
 IF(ImageMagick_Magick++_FOUND)

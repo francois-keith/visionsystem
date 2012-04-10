@@ -11,6 +11,8 @@ if ( PLUGIN_SEQUENCE_GRABBER )
 
 	add_library( "sequence-grabber" SHARED ${sequence-grabber_src} ${sequence-grabber_hdr} )
 
+    target_link_libraries( "sequence-grabber" ${Boost_LIBRARIES} )
+
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("sequence-grabber" "visionsystem" )
@@ -18,7 +20,7 @@ if ( PLUGIN_SEQUENCE_GRABBER )
 	target_link_libraries("sequence-grabber" "configparser" )
 	if ( ImageMagick_Magick++_FOUND )		 
 	target_link_libraries ( "sequence-grabber" "${ImageMagick_Magick++_LIBRARY}" ) 
-endif ( ImageMagick_Magick++_FOUND )
+    endif ( ImageMagick_Magick++_FOUND )
 	ENDIF(WIN32)
 
 	### INSTAll
