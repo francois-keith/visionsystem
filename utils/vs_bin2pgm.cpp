@@ -17,6 +17,19 @@ void usage(const char * exec_name)
 void convert_mono(std::vector<std::string> & bin_files, std::vector<std::string> & png_files);
 void convert_color(std::vector<std::string> & bin_files, std::vector<std::string> & png_files);
 
+void save_to_pgm(const std::string & fname, vision::Image<unsigned char, vision::MONO> * img)
+{
+    std::ofstream fs(fname.c_str(), std::ios::binary);
+    fs << "P5" << std::endl;
+    fs << img->width << " " << img->height << std::endl;
+    fs << 255 << std::endl;
+    for(unsigned int i = 0; i < img->pixels; ++i)
+    {
+        fs << img->raw_data[i];
+    }
+    fs.close();
+}
+
 enum C_MODE
 {
     C_MONO,
@@ -99,7 +112,7 @@ void convert_mono(std::vector<std::string> & bin_files, std::vector<std::string>
         for(size_t i = 0; i < bin_files.size(); ++i)
         {
             deserialize(bin_files[i], *in_img);
-            save_mono(png_files[i], in_img);
+            save_to_pgm(png_files[i], in_img);
         }
         delete in_img;
 }
