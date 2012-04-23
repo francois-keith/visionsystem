@@ -23,7 +23,7 @@ add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 target_link_libraries ( ${EXEC_NAME} 
 				  ${VISION_LIBRARIES}
 				  ${CONFIGPARSER_LIBRARIES}
-				  ${Boost_FILESYSTEM_LIBRARIES}
+				  ${Boost_LIBRARIES}
 				  ${DL_LIBRARIES}
 )  
 
@@ -74,7 +74,7 @@ add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 target_link_libraries ( ${EXEC_NAME} 
 				  ${VISION_LIBRARIES}
 				  ${CONFIGPARSER_LIBRARIES}
-				  ${Boost_FILESYSTEM_LIBRARIES}
+				  ${Boost_LIBRARIES}
 				  ${DL_LIBRARIES}
 )  
 

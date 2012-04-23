@@ -10,6 +10,7 @@ if ( PLUGIN_DUMP2DISK )
 	### Targets
 
 	add_library( "dump2disk" SHARED ${dump2disk_src} ${dump2disk_hdr} )
+    target_link_libraries("dump2disk" ${Boost_LIBRARIES})
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("dump2disk" "visionsystem" )

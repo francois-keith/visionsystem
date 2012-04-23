@@ -12,6 +12,11 @@ if ( PLUGIN_XMLRPCSERVER )
 	add_library( "xmlrpc-server" SHARED ${XMLRPCSERVER_src} ${XMLRPCSERVER_hdr} )
 
 	target_link_libraries( "xmlrpc-server" ${VISION_LIBRARIES} ${XMLRPC_LIBRARIES} ${Boost_THREAD_LIBRARY})
+    if(WIN32)
+    target_link_libraries( "xmlrpc-server" "visionsystem" )
+    target_link_libraries( "xmlrpc-server" "vision" )
+    target_link_libraries( "xmlrpc-server" "configparser" )
+    endif(WIN32)
 
 	### INSTAll
 
