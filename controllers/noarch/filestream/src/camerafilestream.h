@@ -41,6 +41,8 @@ public:
 
     std::string get_name() { return _name; }
 
+    unsigned int get_frame() { return _frame; }
+
 
 private:
     /* Configparser method */
@@ -53,6 +55,7 @@ public:
     bool _active;
     visionsystem::FrameCoding _img_coding;
     unsigned int _fps; /* read as FPS but stored as time intervall between each frame */
+    unsigned int _frame;
     timeval _previous_frame_t;
     std::string _name;
     std::string _path;

@@ -20,6 +20,7 @@ namespace visionsystem {
 			virtual FrameCoding get_coding() = 0 ;
 			virtual float get_fps() = 0 ;
 			virtual std::string get_name() = 0 ;
+            virtual unsigned int get_frame() { return 0; }
 	
 		
 		//	virtual bool set_active( bool ) = 0 ;				// TODO

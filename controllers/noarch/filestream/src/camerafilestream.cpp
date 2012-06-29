@@ -11,7 +11,7 @@ namespace visionsystem
 {
 
 CameraFilestream::CameraFilestream()
-:   _img_size(0,0), _active(false), _img_coding(VS_MONO8), _fps(30), _name("filestream-unconfigured"), 
+:   _img_size(0,0), _active(false), _img_coding(VS_MONO8), _fps(30), _frame(0), _name("filestream-unconfigured"), 
     _bin_files(0), _current_frame(0), _img_mono(0), _img_rgb(0),
     _buffersize(100)
 {
@@ -86,6 +86,7 @@ bool CameraFilestream::has_data()
 
 unsigned char * CameraFilestream::get_data()
 {
+    _frame++;
     if( _img_coding == VS_MONO8 )
     {
         vision::deserialize(_bin_files[_current_frame], *_img_mono);
