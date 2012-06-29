@@ -71,9 +71,9 @@ void SequenceGrabber::preloop_fct() {
         XMLRPCServer * server = whiteboard_read<XMLRPCServer *>("plugin_xmlrpc-server");
         if(server)
         {
+            server->AddMethod(this);
             std::cout << "[SequenceGrabber] Found a XML-RPC server plugin" << std::endl;
             std::cout << "[SequenceGrabber] Acquisition will start when requested via XML-RPC" << std::endl;
-            server->AddMethod(this);
         }
     }
     catch(...)
@@ -170,6 +170,7 @@ void SequenceGrabber::execute(XmlRpcValue & params, XmlRpcValue & result)
     std::string what(params[0]);
     if(what == "start" && !m_started)
     {
+        m_close = false;
         if(is_mono)
         {
             m_save_th = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop_mono, this));
@@ -181,6 +182,7 @@ void SequenceGrabber::execute(XmlRpcValue & params, XmlRpcValue & result)
     }
     if(what == "stop" && m_started)
     {
+        m_started = false;
         m_close = true;
         m_save_th->join();
         delete m_save_th;
@@ -190,15 +192,16 @@ void SequenceGrabber::execute(XmlRpcValue & params, XmlRpcValue & result)
 
 void SequenceGrabber::save_images_loop_mono()
 {
+    unsigned int treated_frames = m_images_mono.size()/m_cameras.size();
     m_started = true;
     while(!m_close)
     {
-        while(!m_close && m_images_mono.size() < m_cameras.size() * (m_frame + 1))
+        while(!m_close && m_images_mono.size() < m_cameras.size() * (treated_frames + 1))
         {
             usleep(1000);
         }
         unsigned int n = m_images_mono.size();
-        for(size_t i = m_cameras.size() * m_frame; i < n; ++i)
+        for(size_t i = m_cameras.size() * treated_frames; i < n; ++i)
         {
             std::stringstream filename;
             filename << get_sandbox()  << "/" << m_images_mono[i].first << "/" << setfill('0') << setw(6) << m_frame << ".bin";
@@ -207,6 +210,7 @@ void SequenceGrabber::save_images_loop_mono()
             if(i % m_cameras.size() == m_cameras.size() - 1)
             {
                 m_frame++;
+                treated_frames++;
             }
         }
     }
@@ -214,15 +218,16 @@ void SequenceGrabber::save_images_loop_mono()
 
 void SequenceGrabber::save_images_loop_rgb()
 {
+    unsigned int treated_frames = m_images_rgb.size()/m_cameras.size();
     m_started = true;
     while(!m_close)
     {
-        while(!m_close && m_images_rgb.size() < m_cameras.size() * (m_frame + 1))
+        while(!m_close && m_images_rgb.size() < m_cameras.size() * (treated_frames + 1))
         {
             usleep(1000);
         }
         unsigned int n = m_images_rgb.size();
-        for(size_t i = m_cameras.size() * m_frame; i < n; ++i)
+        for(size_t i = m_cameras.size() * treated_frames; i < n; ++i)
         {
             std::stringstream filename;
             filename << get_sandbox()  << "/" << m_images_rgb[i].first << "/" << setfill('0') << setw(6) << m_frame << ".bin";
@@ -231,6 +236,7 @@ void SequenceGrabber::save_images_loop_rgb()
             if(i % m_cameras.size() == m_cameras.size() - 1)
             {
                 m_frame++;
+                treated_frames++;
             }
         }
     }
