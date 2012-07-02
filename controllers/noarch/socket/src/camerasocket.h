@@ -34,6 +34,8 @@ public:
 
     unsigned char * get_data();
 
+    unsigned int get_frame() { return frame_; }
+
     void stop_cam();
 
     /* Camera methods to implement */
@@ -66,6 +68,7 @@ public:
     bool active_;
     visionsystem::FrameCoding img_coding_;
     unsigned int fps_; /* read as FPS but stored as time intervall between each frame */
+    unsigned int frame_;
     timeval previous_frame_t_;
     std::string name_;
     /* This parameter indicates if the camera is fed from stream2socket plugin */

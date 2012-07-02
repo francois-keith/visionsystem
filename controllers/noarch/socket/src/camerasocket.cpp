@@ -20,6 +20,7 @@ CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   from_stream_(false), next_cam_(false),
   cam_ready_(false), server_name_(""), server_port_(0), 
+  frame_(0),
   data_compress_(false), m_decoder(0),
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
   timeout_timer_(io_service, boost::posix_time::seconds(1)),
@@ -101,6 +102,7 @@ bool CameraSocket::has_data()
     if(elapsed_time > fps_)
     {
         previous_frame_t_ = now;
+        frame_++;
         return true;
     }
     return false;
