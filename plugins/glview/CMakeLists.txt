@@ -2,6 +2,10 @@ option ( PLUGIN_GLVIEW "Include plugin glview ?" ON )
 
 if ( PLUGIN_GLVIEW )
 
+    if (CONTROLLER_SOCKET)
+        add_definitions(-DVS_HAS_CONTROLLER_SOCKET)
+    endif(CONTROLLER_SOCKET)
+
 	find_package(OpenGL)
 	find_package( X11)
 		
@@ -19,6 +23,9 @@ if ( PLUGIN_GLVIEW )
 	add_library( "glview" SHARED ${glview_src} ${glview_hdr} )
 
 	target_link_libraries ("glview" ${CONFIGPARSER_LIBRARIES} ${VISION_LIBRARIES} ${X11_X11_LIB} ${OPENGL_gl_LIBRARY} "Xxf86vm" )
+    if(CONTROLLER_SOCKET)
+        target_link_libraries("glview" "socket")
+    endif(CONTROLLER_SOCKET)
 
 	### INSTAll
 

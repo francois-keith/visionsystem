@@ -1,5 +1,8 @@
 #include "plugin.h"
 
+#ifdef VS_HAS_CONTROLLER_SOCKET
+    #include <visionsystem/vs_controllers/socket/camerasocket.h>
+#endif
 
 GLView::GLView( VisionSystem* core, string sandbox ) 
 :Viewer( core, "glview", sandbox ) 
@@ -107,6 +110,9 @@ void  GLView::loop_fct() {
 }
 
 void GLView::callback( XEvent event ) {
+#ifdef VS_HAS_CONTROLLER_SOCKET
+CameraSocket * current_cam = 0; 
+#endif
 	
 	if (event.type == KeyPress ) {
 
@@ -204,6 +210,16 @@ void GLView::callback( XEvent event ) {
                 }
             }
             break;
+        
+        #ifdef VS_HAS_CONTROLLER_SOCKET
+        case XK_space:
+            current_cam = dynamic_cast<CameraSocket*>(cameras[active_cam]);
+            if(current_cam && current_cam->from_stream())
+            {
+                current_cam->next_cam();
+            }
+            break;
+        #endif
 
 		default:
 			break;
