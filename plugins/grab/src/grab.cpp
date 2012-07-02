@@ -99,7 +99,7 @@ bool Grab::post_fct() {
 
 			std::ostringstream filename;
 			filename << camera_path.string() << "/" << j << ".png" ;  
-			std::cout << "[grab] Saving " << filename << std::endl;
+			std::cout << "[grab] Saving " << filename.str() << std::endl;
 			save_color ( filename.str() , grabbed[i]->grabbed_frames[j] ) ;
 		}
 		
