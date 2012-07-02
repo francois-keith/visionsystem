@@ -33,6 +33,8 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 	FrameCoding get_coding() ;
 	float       get_fps() ;
 	string      get_name() ;
+    unsigned int get_frame();
+    void increase_frame();
 
 	dc1394camera_t* get_cam() ;
 	void save_capa ( string filename ) ;
@@ -50,7 +52,8 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 	bool	 	_active ;
 	string		_name;
 	uint64_t	_gid ;
-	int		_buffersize ;
+  	int		_buffersize ;
+    unsigned int _frame;
 
 
 	dc1394_t 				*handler ;

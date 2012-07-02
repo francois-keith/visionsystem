@@ -4,6 +4,7 @@
 
 Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
 {
+    _frame = 0;
 	handler = d ;
 	_gid = gid ;
  	
@@ -217,6 +218,15 @@ string Camera1394::get_name() {
 	return _name ;
 }
 
+unsigned int Camera1394::get_frame()
+{
+    return _frame;
+}
+
+void Camera1394::increase_frame()
+{
+    _frame++;
+}
 
 dc1394camera_t* Camera1394::get_cam() {
 	return cam ;

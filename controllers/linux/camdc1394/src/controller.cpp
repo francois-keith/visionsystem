@@ -110,6 +110,7 @@ void Controller1394::loop_fct() {
 				if ( frame ) {
 
 					vsframe = _cams[i]->_buffer.pull() ;						
+                    _cams[i]->increase_frame();
 
 					if ( _cams[i]->get_bayer() == 0 )
 							
