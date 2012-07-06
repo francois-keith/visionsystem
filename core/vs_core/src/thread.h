@@ -46,6 +46,8 @@ class Thread {
 		create_t*	_create_fct ;
 		destroy_t*	_destroy_fct ;
 
+        visionsystem::VisionSystem * _core;
+
 
 	private:
 
@@ -57,7 +59,9 @@ class Thread {
 
 
 template<typename data>
-Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox ) {
+Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox ) 
+: _core(core)
+{
 
     std::string filename ;
 
@@ -170,6 +174,9 @@ void Thread<Data>::main() {
 	
 	try {
 		pointer->preloop_fct() ;
+
+        _core->whiteboard_write("threads_ready", _core->whiteboard_read<unsigned int>("threads_ready") + 1);
+        while( _core->whiteboard_read<bool>("core_stop") );
 
 		while ( !_done ) 
 			pointer->loop_fct() ;

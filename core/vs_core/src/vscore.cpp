@@ -185,8 +185,9 @@ void VsCore::run()
 
 	// WhiteBoard init
 
-	whiteboard_write< bool >( string("core_stop") , false ) ;
+	whiteboard_write< bool >( string("core_stop") , true ) ;
 	whiteboard_write< Viewer* >( string("viewer"), (Viewer*)0 );
+    whiteboard_write< unsigned int > ( std::string("threads_ready") , 0 );
 
 
 	// Parse config file
@@ -275,7 +276,12 @@ void VsCore::run()
 	// Main loop
 	
 	Frame* frm ;
+
+    while( whiteboard_read<unsigned int>("threads_ready") < _plugin_threads.size() + _controller_threads.size() );
 	
+    std::cout << "[vs_core] Acquisition starting" << std::endl;
+    whiteboard_write("core_stop", false);
+    
 	while ( ! whiteboard_read< bool >("core_stop") ) {
 		
 		vector<GenericCamera*> all_cameras = get_all_genericcameras() ;	
