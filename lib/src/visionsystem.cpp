@@ -95,7 +95,7 @@ vector<Plugin*> VisionSystem::get_all_subscriptions( GenericCamera* cam ) {
 
 void VisionSystem::whiteboard_wipe()
 {
-    for( std::map< std::string, boost::mutex*>::iterator it = whiteboard_mutex.begin();
+    for( std::map< std::string, boost::recursive_mutex*>::iterator it = whiteboard_mutex.begin();
             it != whiteboard_mutex.end();
             ++it )
     {

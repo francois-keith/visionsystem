@@ -10,7 +10,7 @@ void VisionSystem::whiteboard_write ( std::string key, Obj value ) {
 	
 	} else {
 
-		boost::mutex *tmp = new boost::mutex();
+		boost::recursive_mutex *tmp = new boost::recursive_mutex();
 		whiteboard_mutex[key] = tmp ;
 		boost::any tmp2 = value ;
 		whiteboard_data[key] = tmp2 ;

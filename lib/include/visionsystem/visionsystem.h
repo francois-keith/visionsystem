@@ -5,6 +5,7 @@
 #include <map>
 #include <boost/any.hpp>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 #include <visionsystem/genericcamera.h>
 
 namespace visionsystem {
@@ -44,7 +45,7 @@ namespace visionsystem {
             void whiteboard_wipe();
 
             /* WARNING: don't use those when you inherit from VisionSystem unless you KNOW what you're doing */
-			std::map< std::string, boost::mutex* >  whiteboard_mutex ;
+			std::map< std::string, boost::recursive_mutex* >  whiteboard_mutex ;
 
 		private :
 
