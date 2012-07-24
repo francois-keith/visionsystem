@@ -54,7 +54,39 @@ void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *im
 	}
 }
 
+inline void __YUV422_YUYV_TO_RGB__(unsigned char * data, unsigned char * rgb_out)
+{
+    int y1, y2, u, v ;
+    int ug_plus_vg, ub, vr ;
+    int r,g,b;
 
+    // This was inspired from libcvd source code
+
+    y1  = data[0] << 8 ;
+    u   = data[1] - 128 ;
+    y2  = data[2] << 8 ;
+    v   = data[3] - 128 ;
+
+    ug_plus_vg = u * 88 + v * 183;
+            ub = u * 454;
+            vr = v * 359;
+
+    r = (y1 + vr) >> 8;
+    g = (y1 - ug_plus_vg) >> 8;
+    b = (y1 + ub) >> 8;
+
+    rgb_out[0] = r < 0 ? 0 : ( r > 255 ? 255 : (unsigned char) r );
+    rgb_out[1] = g < 0 ? 0 : ( g > 255 ? 255 : (unsigned char) g );
+    rgb_out[2] = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
+
+    r = (y2 + vr) >> 8;
+    g = (y2 - ug_plus_vg) >> 8;
+    b = (y2 + ub) >> 8;
+
+    rgb_out[3] = r < 0 ? 0 : ( r > 255 ? 255 : (unsigned char) r );
+    rgb_out[4] = g < 0 ? 0 : ( g > 255 ? 255 : (unsigned char) g );
+    rgb_out[5] = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
+}
 
 template<>
 void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsystem::Frame* frm ) 
@@ -67,50 +99,19 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 
 		case VS_YUV422_YUYV: 
 
-				unsigned char R1,G1,B1 ;
-				unsigned char R2,G2,B2 ;
-				
-				int y1, y2, u, v ;
-	 			int ug_plus_vg, ub, vr ;
-				int r,g,b;			
-
+				unsigned char rgb_out[6];
 
 				for (i=0; i< img->pixels; i+=2 ) {
 			
-					// This was inspired from libcvd source code
+                    __YUV422_YUYV_TO_RGB__(&(frm->_data[ 2*i ]), rgb_out);
 
-					y1  = frm->_data[ 2*i + 0 ] << 8 ;
-					u   = frm->_data[ 2*i + 1 ] - 128 ;
-					y2  = frm->_data[ 2*i + 2 ] << 8 ;
-					v   = frm->_data[ 2*i + 3 ] - 128 ;
-					
-					ug_plus_vg = u * 88 + v * 183;
-			                ub = u * 454;
-			                vr = v * 359;
-					
-					r = (y1 + vr) >> 8;
-					g = (y1 - ug_plus_vg) >> 8;
-					b = (y1 + ub) >> 8;
-					
-					R1 = r < 0 ? 0 : ( r > 255 ? 255 : (unsigned char) r );
-					G1 = g < 0 ? 0 : ( g > 255 ? 255 : (unsigned char) g );
-					B1 = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
-
-					r = (y2 + vr) >> 8;
-					g = (y2 - ug_plus_vg) >> 8;
-					b = (y2 + ub) >> 8;
-		
-					R2 = r < 0 ? 0 : ( r > 255 ? 255 : (unsigned char) r );
-					G2 = g < 0 ? 0 : ( g > 255 ? 255 : (unsigned char) g );
-					B2 = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
-
-					img->raw_data[i] =  ( (uint32_t) B1 ) << 16  |
-							    ( (uint32_t) G1 ) << 8 | 
-							    ( (uint32_t) R1 ) ;  
+					img->raw_data[i] =  ( (uint32_t) rgb_out[2] ) << 16  |
+							    ( (uint32_t) rgb_out[1] ) << 8 |
+							    ( (uint32_t) rgb_out[0] ) ;
 				
-					img->raw_data[i+1] =  ( (uint32_t) B2 ) << 16  |
-							      ( (uint32_t) G2 ) << 8 | 
-							      ( (uint32_t) R2 ) ;  
+					img->raw_data[i+1] =  ( (uint32_t) rgb_out[5] ) << 16  |
+							      ( (uint32_t) rgb_out[4] ) << 8 |
+							      ( (uint32_t) rgb_out[3] ) ;
 				}
 
 				break ;
@@ -161,62 +162,103 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 
 }
 
+inline void __RGB32_TO_HSV__(unsigned char * data, uint16_t & h, uint8_t & s, uint8_t & v)
+{
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+
+    uint8_t rgb_min = 0;
+    uint8_t rgb_max = 255;
+
+    r = data[0];
+    g = data[1];
+    b = data[2];
+    h = 0;
+    s = 0;
+    rgb_min = min(min(r,g),b);
+    rgb_max = max(max(r,g),b);
+    v = rgb_max;
+    if( v != 0 )
+    {
+        s = 255*( rgb_max - rgb_min )/v;
+        if( s == 0 )
+        {
+            h = 0;
+        }
+        else
+        {
+            if( rgb_max == r )
+            {
+                h = 0 + 60*(g - b)/(rgb_max - rgb_min);
+            }
+            else if( rgb_max == g )
+            {
+                h = 120 + 60*(b - r)/(rgb_max - rgb_min);
+            }
+            else
+            {
+                h = 240 + 60*(r - g)/(rgb_max - rgb_min);
+            }
+        }
+    }
+    else
+    {
+        h = 0;
+        s = 0;
+    }
+}
 
 template<>
 void image_fill < Image< uint32_t, HSV > > ( Image<uint32_t,HSV> *img, visionsystem::Frame* frm ) 
 {
 	
 	register unsigned int i ;
-    uint8_t r = 0;
-    uint8_t g = 0;
-    uint8_t b = 0;
     uint16_t h = 0;
     uint8_t s = 0;
     uint8_t v = 0;
-    uint8_t rgb_min = 0;
-    uint8_t rgb_max = 255;
-	
+
 	switch ( frm->_coding ) {
+
+		case VS_YUV422_YUYV:
+
+				unsigned char rgb_out[6];
+
+                for (i=0; i< img->pixels; i+=2 ) {
+
+                    __YUV422_YUYV_TO_RGB__(&(frm->_data[ 2*i ]), rgb_out);
+
+                    __RGB32_TO_HSV__(&(rgb_out[0]), h, s, v);
+
+					img->raw_data[i] =  ( (uint32_t) h ) << 16  |
+							    ( (uint32_t) s ) << 8 |
+							    ( (uint32_t) v ) ;
+
+                    __RGB32_TO_HSV__(&(rgb_out[3]), h, s, v);
+
+					img->raw_data[i+1] =  ( (uint32_t) h ) << 16  |
+							    ( (uint32_t) s ) << 8 |
+							    ( (uint32_t) v ) ;
+				}
+
+				break ;
+
+        case VS_RGB24:
+			for (i=0; i<img->pixels; i++ )
+            {
+                __RGB32_TO_HSV__(&(frm->_data[3*i]), h, s, v);
+
+				img->raw_data[i] =  ( (uint32_t) h ) << 16  |
+						    ( (uint32_t) s ) << 8 | 
+						    ( (uint32_t) v ) ;  
+            }
+            break;
 
 		case VS_RGB32:
 				for (i=0; i<img->pixels; i++ )
                 {
-                    r = frm->_data[4*i];
-                    g = frm->_data[4*i+1];
-                    b = frm->_data[4*i+2];
-                    h = 0;
-                    s = 0;
-                    rgb_min = min(min(r,g),b);
-                    rgb_max = max(max(r,g),b);
-                    v = rgb_max;
-                    if( v != 0 )
-                    {
-                        s = 255*( rgb_max - rgb_min )/v;
-                        if( s == 0 )
-                        {
-                            h = 0;
-                        }
-                        else
-                        {
-                            if( rgb_max == r )
-                            {
-                                h = 0 + 60*(g - b)/(rgb_max - rgb_min);
-                            }
-                            else if( rgb_max == g )
-                            {
-                                h = 120 + 60*(b - r)/(rgb_max - rgb_min);
-                            }
-                            else
-                            {
-                                h = 240 + 60*(r - g)/(rgb_max - rgb_min);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        h = 0;
-                        s = 0;
-                    }
+                    __RGB32_TO_HSV__(&(frm->_data[4*i]), h, s, v);
+
 					img->raw_data[i] =  ( (uint32_t) h ) << 16  |
 							    ( (uint32_t) s ) << 8 | 
 							    ( (uint32_t) v ) ;  
