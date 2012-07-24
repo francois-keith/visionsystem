@@ -42,15 +42,7 @@ bool Shutdown::pre_fct() {
 }
 
 void Shutdown::preloop_fct() {
-
-	for (int i=0; i<time; i++ ) {
-		boost::this_thread::sleep(boost::posix_time::seconds(1));
-	}
-
-	cout << "[shutdown] Timeout. Killing ... " << endl ;
-	
-	whiteboard_write< bool >( string("core_stop") , true ) ;
-
+    boost::thread th(boost::bind(&Shutdown::sleep_fct, this));
 }
 
 void Shutdown::loop_fct() {
@@ -61,6 +53,18 @@ bool Shutdown::post_fct() {
 	return true ;
 }
 
+void Shutdown::sleep_fct() {
+
+	for (int i=0; i<time; i++ ) {
+		boost::this_thread::sleep(boost::posix_time::seconds(1));
+	}
+
+	cout << "[shutdown] Timeout. Killing ... " << endl ;
+	
+	whiteboard_write< bool >( string("core_stop") , true ) ;
+
+
+}
 
 void Shutdown::parse_config_line( vector<string> &line ) {
 

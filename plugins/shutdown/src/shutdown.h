@@ -22,6 +22,7 @@ class Shutdown : public Plugin, public WithViewer, public WithConfigFile {
 		bool post_fct() ;
 
 	private:
+        void sleep_fct() ;
 
 		void callback( Camera* cam, XEvent event ) ;
 		void glfunc( Camera* cam ) ;
