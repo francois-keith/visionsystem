@@ -188,17 +188,22 @@ inline void __RGB32_TO_HSV__(unsigned char * data, uint16_t & h, uint8_t & s, ui
         }
         else
         {
+            int h_in = 0;
             if( rgb_max == r )
             {
-                h = 0 + 60*(g - b)/(rgb_max - rgb_min);
+                h_in = 0 + 60*(g - b)/(rgb_max - rgb_min);
             }
             else if( rgb_max == g )
             {
-                h = 120 + 60*(b - r)/(rgb_max - rgb_min);
+                h_in = 120 + 60*(b - r)/(rgb_max - rgb_min);
             }
             else
             {
-                h = 240 + 60*(r - g)/(rgb_max - rgb_min);
+                h_in = 240 + 60*(r - g)/(rgb_max - rgb_min);
+            }
+            if(h_in < 0)
+            {
+                h_in += 360;
             }
         }
     }
