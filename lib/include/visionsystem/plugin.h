@@ -38,7 +38,7 @@ class Plugin
 		virtual void loop_fct() = 0 ;		// Called by VisionSystem core.
 		virtual bool post_fct() = 0 ;		// Called by VisionSystem core.
 
-		void push_frame( Camera*, Frame* ) ;	// Called by VisionSystem core.
+		void push_frame( Camera*, Frame*, bool skip_frame = false ) ;	// Called by VisionSystem core.
 	
 	protected:
 		

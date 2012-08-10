@@ -12,7 +12,7 @@
 #include "vscore.h"
 
 
-VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true)
+VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_frames(false)
 {
 	// Set base directory
 
@@ -62,6 +62,8 @@ void VsCore::sigint_handler(int signum)
 void VsCore::parse_config_line ( vector<string> &line ) 
 {
     if( fill_member(line, "CatchSIGINT", catch_sigint) ) return;
+
+    if( fill_member(line, "SkipFrames", skip_frames) ) return;
 
 	if ( line[0] == "Controller" ) {
 
@@ -295,7 +297,7 @@ void VsCore::run()
 				vector<Plugin*> subscribed = get_all_subscriptions ( all_cameras[c] ) ;
 
 				for ( size_t p=0; p < subscribed.size(); p++ )
-					subscribed[p]->push_frame( (Camera*) all_cameras[c] , frm ) ;
+					subscribed[p]->push_frame( (Camera*) all_cameras[c] , frm, skip_frames ) ;
 				
 			all_cameras[c]->_buffer.enqueue( frm ) ;
 			

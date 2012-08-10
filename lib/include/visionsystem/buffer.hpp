@@ -89,6 +89,32 @@ Data* Buffer<Data>::pull() {
 
 }
 
+template<typename Data>
+Data* Buffer<Data>::lock_front()
+{
+    Data * tmp;
+    _mutex.lock();
+    if(_frames.size() != 0)
+    {
+        tmp = _frames.front();
+    }
+    else
+    {
+        tmp = _trash.front();
+        _trash.erase(_trash.begin());
+    }
+    return tmp;
+}
+
+template<typename Data>
+void Buffer<Data>::update_front(Data* in)
+{
+    if(_frames.size() == 0)
+    {
+        _frames.push_back(in);
+    }
+    _mutex.unlock();
+}
 
 template<typename Data>
 void Buffer<Data>::clear() {

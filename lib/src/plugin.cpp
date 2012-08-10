@@ -27,11 +27,20 @@ std::string Plugin::get_sandbox() {
 }
 
 
-void Plugin::push_frame( Camera* cam, Frame* newfrm ) {
+void Plugin::push_frame( Camera* cam, Frame* newfrm, bool skip_frame ) {
 	Frame* frm ;
-	frm = frame_buffers[cam]->pull() ;
-	frm->clone ( newfrm ) ;
-	frame_buffers[cam]->push(frm) ;
+    if(!skip_frame)
+    {
+        frm = frame_buffers[cam]->pull() ;
+        frm->clone ( newfrm ) ;
+        frame_buffers[cam]->push(frm) ;
+    }
+    else
+    {
+        frm = frame_buffers[cam]->lock_front();
+        frm->clone( newfrm );
+        frame_buffers[cam]->update_front( frm );
+    }
 }
 
 

@@ -31,6 +31,13 @@ namespace visionsystem {
 			Data* pull() ;
 			void push( Data* ) ;
 
+            // Access front of frame buffer ( Producer side with frameskipping enabled )
+            // Will keep the buffer lock closed until update_front is called
+            Data* lock_front();
+
+            // Unlock the buffer once front has been updated
+            void update_front(Data * in);
+
 			// Misc. 
 			
 			void clear() ;

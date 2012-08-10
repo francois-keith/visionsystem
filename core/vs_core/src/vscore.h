@@ -37,6 +37,7 @@ class VsCore : public VisionSystem, public WithConfigFile
         bool catch_sigint;
 
 	private:
+        bool skip_frames;
 
 		string _basedir ;
 		string _configfile ;
