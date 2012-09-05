@@ -205,6 +205,7 @@ inline void __RGB32_TO_HSV__(unsigned char * data, uint16_t & h, uint8_t & s, ui
             {
                 h_in += 360;
             }
+            h = h_in;
         }
     }
     else
