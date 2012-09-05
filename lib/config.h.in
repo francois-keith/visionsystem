@@ -1,0 +1,7 @@
+#ifndef _H_VS_CONFIG_H_
+#define _H_VS_CONFIG_H_
+
+#define VS_HAS_SDL @SDL_FOUND_NUMERAL@
+
+#endif
+

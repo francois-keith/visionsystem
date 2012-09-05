@@ -9,7 +9,14 @@
 ###
 ###############################################################################
 
-
+# Check for SDL 
+SET(SDL_FOUND_NUMERAL 0)
+find_package(SDL)
+if(SDL_FOUND)
+    SET(SDL_FOUND_NUMERAL 1)
+    include_directories(${SDL_INCLUDE_DIR})
+endif(SDL_FOUND)
+configure_file("config.h.in" "${CMAKE_SOURCE_DIR}/lib/include/visionsystem/config.h")
 
 ### File Lists
 
@@ -29,6 +36,14 @@ IF(WIN32)
 	set_target_properties( "visionsystem-static" PROPERTIES OUTPUT_NAME "visionsystem")
 	target_link_libraries ( "visionsystem-static" "vision" )
 ENDIF(WIN32)
+
+IF(SDL_FOUND)
+    target_link_libraries("visionsystem" ${SDL_LIBRARY})
+    IF(WIN32)
+        target_link_libraries( "visionsystem-static" ${SDL_LIBRARY} )
+    ENDIF(WIN32)
+ENDIF(SDL_FOUND)
+
 ### INSTAll
 
 install( TARGETS "visionsystem"

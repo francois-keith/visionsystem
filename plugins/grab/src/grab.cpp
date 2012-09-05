@@ -135,6 +135,25 @@ void Grab::callback(Camera* cam, XEvent event) {
 #endif
 }
 
+void Grab::sdl_callback(Camera * cam, SDL_Event event)
+{
+#if VS_HAS_SDL == 1
+    switch(event.type)
+    {
+        case SDL_KEYDOWN:
+            switch (event.key.keysym.sym)
+            {
+                case SDLK_g: /* Appui sur la touche Echap, on arrête le programme */
+				    cout << "[grab] Grabing ... " << endl ;
+				    grab_next = true ;
+				    break;
+            }
+            break;
+        default:
+            break;
+    }
+#endif
+}
 
 void Grab::glfunc(Camera* cam) {
 

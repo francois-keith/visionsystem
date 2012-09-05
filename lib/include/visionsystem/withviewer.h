@@ -1,6 +1,8 @@
 #ifndef VS_WITHVIEWER_H
 #define VS_WITHVIEWER_H
 
+#include <visionsystem/config.h>
+
 #include <visionsystem/visionsystem.h>
 #include <visionsystem/plugin.h>
 #include <visionsystem/camera.h>
@@ -17,6 +19,17 @@
 	{} XEvent;
 #endif
 
+#if VS_HAS_SDL == 1
+
+    #include <SDL/SDL_events.h>
+
+#else
+
+    typedef union SDL_Event
+    {} SDL_Event;
+
+#endif 
+
 namespace visionsystem {
 
 
@@ -29,6 +42,7 @@ class WithViewer
 
 			virtual void glfunc ( Camera* ) = 0  ;
 			virtual void callback ( Camera* , XEvent ) = 0 ;
+            virtual void sdl_callback( Camera *, SDL_Event ) {}
 
 	protected:
 
