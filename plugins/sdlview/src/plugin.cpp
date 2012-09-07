@@ -139,7 +139,7 @@ void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
                         {
                             current_cam->next_cam();
                         }
-            break;
+                        break;
                     #endif
                 }
                 break;
