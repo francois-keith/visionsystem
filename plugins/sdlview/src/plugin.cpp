@@ -31,10 +31,23 @@ bool  SDLView::pre_fct() {
 	return true ;
 }
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    uint32_t rmask = 0xff000000;
+    uint32_t gmask = 0x00ff0000;
+    uint32_t bmask = 0x0000ff00;
+    uint32_t amask = 0x000000ff;
+#else
+    uint32_t rmask = 0x000000ff;
+    uint32_t gmask = 0x0000ff00;
+    uint32_t bmask = 0x00ff0000;
+    uint32_t amask = 0xff000000;
+#endif
 
 void  SDLView::preloop_fct() {
     SDL_Init(SDL_INIT_VIDEO);
-    screen = SDL_SetVideoMode(cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, SDL_HWSURFACE);
+    screen = SDL_SetVideoMode(cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    sdl_img = SDL_CreateRGBSurface(SDL_HWSURFACE, cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, rmask, gmask, bmask, amask);
+    SDL_SetAlpha(sdl_img, 0, 0xFF);
     SDL_WM_SetCaption("SDLView", NULL);
 }
 
@@ -79,14 +92,9 @@ void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
             return;
         }
     }
-    for(unsigned int i = 0; i < img->width; ++i)
-    {
-        for(unsigned int j = 0; j < img->height; ++j)
-        {
-            DrawPixel(screen, i, j, (*img)(i,j) & 0xFF, ( (*img)(i,j) >> 8 ) & 0xFF, ( (*img)(i,j) >> 16 ) & 0xFF );
-        }
-    }
-    SDL_UpdateRect(screen, 0, 0, img->width, img->height);
+    memcpy(sdl_img->pixels, img->raw_data, img->data_size);
+    SDL_BlitSurface(sdl_img, NULL, screen, NULL);
+    SDL_Flip(screen);
     if ( SDL_MUSTLOCK(screen) ) {
         SDL_UnlockSurface(screen);
     }

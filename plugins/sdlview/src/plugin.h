@@ -36,6 +36,7 @@ class SDLView: public Viewer
         inline void DrawPixel(SDL_Surface *screen, unsigned int x, unsigned int y, Uint8 R, Uint8 G, Uint8 B);
 
         SDL_Surface * screen;
+        SDL_Surface * sdl_img;
 		vector<Camera*> cameras ;
 		int		active_cam ;
 		int 		next_cam ;
