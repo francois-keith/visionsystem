@@ -5,7 +5,7 @@
 #endif
 
 SDLView::SDLView( VisionSystem* core, string sandbox ) 
-:Viewer( core, "sdlview", sandbox ) 
+:Viewer( core, "sdlview", sandbox ), refresh(true) 
 {
 	active_cam = 0 ;
 	next_cam = 0 ;
@@ -47,6 +47,36 @@ void  SDLView::loop_fct() {
 	Image<uint32_t, RGB>	*img ;
 	img = dequeue_image< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
 
+    if(refresh)
+    {
+        refresh = false;
+    	if ( active_cam != next_cam ) {
+    	    enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
+    		unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
+    		register_to_cam< Image<uint32_t, RGB> >( cameras[next_cam], 10 ) ;
+    		active_cam = next_cam ;
+	        img = dequeue_image< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
+    	}
+
+        boost::thread(boost::bind(&SDLView::refresh_screen, this, img));
+    }
+    else
+    {
+    	enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
+    }
+}
+
+bool  SDLView::post_fct() {
+	unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
+    SDL_Quit();
+	return true ;
+}
+
+void SDLView::gl_print ( ImageRef position, string text ) {
+}
+
+void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
+{
 	// Draw video 
     if ( SDL_MUSTLOCK(screen) ) {
         if ( SDL_LockSurface(screen) < 0 ) {
@@ -78,6 +108,27 @@ void  SDLView::loop_fct() {
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym)
                 {
+                    case SDLK_PAGEUP:
+                        for(int i = active_cam + 1; i < cameras.size(); ++i)
+                        {
+                            if ( cameras[i]->is_active() )
+                            {
+                                next_cam = i;
+                                i = cameras.size();
+                            }
+                        }
+                        break;
+
+                    case SDLK_PAGEDOWN:
+                        for(int i = active_cam - 1; i >= 0; --i)
+                        {
+                            if ( cameras[i]->is_active() )
+                            {
+                                next_cam = i;
+                                i = -1;
+                            }
+                        }
+                        break;
                     case SDLK_ESCAPE: /* Appui sur la touche Echap, on arrête le programme */
                         std::cout << "[SDLView] Exit requested ... " << endl ;
                         whiteboard_write< bool >( string("core_stop"), true ) ;
@@ -98,22 +149,7 @@ void  SDLView::loop_fct() {
     }
 
 	enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
-
-	if ( active_cam != next_cam ) {
-		unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
-		register_to_cam< Image<uint32_t, RGB> >( cameras[next_cam], 10 ) ;
-		active_cam = next_cam ;
-	}
-
-}
-
-bool  SDLView::post_fct() {
-	unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
-    SDL_Quit();
-	return true ;
-}
-
-void SDLView::gl_print ( ImageRef position, string text ) {
+    refresh = true;
 }
 
 inline void SDLView::DrawPixel(SDL_Surface *screen, unsigned int x, unsigned int y, Uint8 R, Uint8 G, Uint8 B)
