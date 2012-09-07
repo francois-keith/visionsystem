@@ -92,6 +92,9 @@ void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
     }
 
     // Handle events
+    #ifdef VS_HAS_CONTROLLER_SOCKET
+    CameraSocket * current_cam = 0;
+    #endif
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
@@ -129,6 +132,15 @@ void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
                         std::cout << "[SDLView] Exit requested ... " << endl ;
                         whiteboard_write< bool >( string("core_stop"), true ) ;
                         break;
+                    #ifdef VS_HAS_CONTROLLER_SOCKET
+                    case SDLK_SPACE:
+                        current_cam = dynamic_cast<CameraSocket*>(cameras[active_cam]);
+                        if(current_cam && current_cam->from_stream())
+                        {
+                            current_cam->next_cam();
+                        }
+            break;
+                    #endif
                 }
                 break;
             default:
