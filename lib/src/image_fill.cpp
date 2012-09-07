@@ -2,7 +2,6 @@
 #include <visionsystem/frame.h>
 #include <vision/image/image.h>
 #include <vision/io/pixelcoding.h>
-#include <stdint.h>
 
 using namespace std ;
 using namespace vision ;
