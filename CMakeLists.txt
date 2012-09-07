@@ -62,6 +62,15 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
+### Assume libavcodec is available under WIN32 and reachable by Visual Studio
+IF(WIN32)
+	SET(LIBAVCODEC_FOUND 1)
+	SET(LIBAVCODEC_FOUND_NUMERAL 1)
+	SET(LIBAVCODEC_LIBRARIES "avutil.lib;avcodec.lib;libx264.lib")
+
+	SET(LIBSWSCALE_FOUND 1)
+	SET(LIBSWSCALE_LIBRARIES "swscale.lib")
+ENDIF(WIN32)
 
 ### Set include directories 
         
