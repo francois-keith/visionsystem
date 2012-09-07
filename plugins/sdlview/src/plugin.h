@@ -1,6 +1,10 @@
 #ifndef GLVIEW_H
 #define GLVIEW_H
 
+#ifdef VS_HAS_CONTROLLER_SOCKET
+    #include <visionsystem/vs_controllers/socket/camerasocket.h>
+#endif
+
 #include <configparser/configparser.h>
 #include <vision/image/image.h>
 #include <visionsystem/viewer.h>
