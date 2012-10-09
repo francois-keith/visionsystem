@@ -16,8 +16,6 @@ VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_
 {
 	// Set base directory
 
-	_basedir = string("") ;
-
 	for (int i = 0 ; envv[i]; i++ ) {
 		if ( strncmp ( envv[i], "HOME=", 5 ) == 0 ) 
 			_basedir = string( &(envv[i][5]) ) + "/.vs_core/" ;
@@ -33,10 +31,27 @@ VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_
 	// Set config file
 	
 	if ( argc >= 2 )
+    {
 		_configfile = string( argv[1] ) ;
+    }
 	else
-		_configfile = _basedir + "vs_core.conf" ;
+    {
+		_configfile = _basedir / "vs_core.conf" ;
+    }
 
+	if ( !exists( _configfile) || is_directory( _configfile) ) 
+    {
+        std::cout << "[vs_core] ERROR: Config file " << _configfile << " is not a file." << std::endl;
+    }
+
+    if ( argc >= 3 )
+    {
+        _basedir = string( argv[2] );
+    }
+    else
+    {
+        _basedir = _configfile.parent_path();
+    }
 }
 
 VsCore::~VsCore()
@@ -70,10 +85,10 @@ void VsCore::parse_config_line ( vector<string> &line )
 		if ((line.size()!= 2) && (line.size()!=3)) 
 			throw("[vs_core] ERROR : Wrong Number of arguments for command [Controller]") ;
 		
-		string sandbox ;
+		path sandbox ;
 		
 		if ( line.size() == 2 )
-			 sandbox = _basedir + string("controllers/") + line[1] + std::string("/");
+			 sandbox = _basedir / "controllers" /  line[1];
 		else
 			 sandbox = line[2] ;
 
@@ -89,7 +104,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 			return ;
 		}
 
-		_controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox ) ) ;
+		_controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox.string() ) ) ;
 		
 		return ;
 
@@ -100,10 +115,10 @@ void VsCore::parse_config_line ( vector<string> &line )
 		if ((line.size()!= 2) && (line.size()!=3)) 
 			throw("[vs_core] ERROR : Wrong Number of arguments for command [Plugin]") ;
 		
-		string sandbox ;
+		path sandbox ;
 		
 		if ( line.size() == 2 )
-			sandbox = _basedir + string("plugins/") + line[1] + std::string("/");
+			sandbox = _basedir / "plugins" / line[1];
 		else
 			sandbox = line[2] ;
 
@@ -119,7 +134,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 			return ;
 		}
 
-		_plugin_threads.push_back( new Thread<Plugin>( this, line[1], sandbox ) ) ;
+		_plugin_threads.push_back( new Thread<Plugin>( this, line[1], sandbox.string() ) ) ;
 
 		return ;
 	}
@@ -133,13 +148,13 @@ void VsCore::run()
 
 	// Initialization
 
-	_controller_path = path(_basedir) / path("controllers")  ;
-	_plugin_path = path(_basedir) / path("plugins") ;
+	_controller_path = _basedir / path("controllers")  ;
+	_plugin_path = _basedir / path("plugins") ;
 
 	// Create base filesystem if needed
 
 	cout << "[vs_core] Base directory is set to: " << _basedir << endl ;
-	cout << "[vs_core] Config file is est to: " << _configfile << endl ;
+	cout << "[vs_core] Config file is set to: " << _configfile << endl ;
 
 	if (!exists( _basedir)) {
 		cout << "[vs_core] WARNING: Could not find Base directory. Creating ... " << _basedir << endl ;
@@ -196,7 +211,7 @@ void VsCore::run()
 
 	try {
 		cout << "[vs_core] Parsing config ..." << endl ;
-		read_config_file ( _configfile.c_str() ) ;
+		read_config_file ( _configfile.string().c_str() ) ;
 	} catch ( string msg ) {
 		cerr << msg << endl ;
 		return ;

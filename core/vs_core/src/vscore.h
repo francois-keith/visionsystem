@@ -39,8 +39,8 @@ class VsCore : public VisionSystem, public WithConfigFile
 	private:
         bool skip_frames;
 
-		string _basedir ;
-		string _configfile ;
+		path _basedir ;
+		path _configfile ;
 		
 		path _controller_path ;
 		path _plugin_path ;
