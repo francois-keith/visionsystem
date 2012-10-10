@@ -51,6 +51,10 @@ VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_
     else
     {
         _basedir = _configfile.parent_path();
+        if(_basedir.empty())
+        {
+            _basedir = ".";
+        }
     }
 }
 
