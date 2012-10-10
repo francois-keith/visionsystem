@@ -25,7 +25,7 @@ CameraSocket::CameraSocket(boost::asio::io_service & io_service)
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
   timeout_timer_(io_service, boost::posix_time::seconds(1)),
   shw_img_mono_(0), rcv_img_mono_(0), shw_img_rgb_(0), rcv_img_rgb_(0), shw_img_raw_data_(0), rcv_img_raw_data_(0), 
-  buffersize_(100)
+  buffersize_(100), verbose_(false)
 {
     previous_frame_t_.tv_sec = 0;
     previous_frame_t_.tv_usec = 0;
@@ -76,9 +76,17 @@ void CameraSocket::start_cam()
     }
 
     /* TODO DNS resolution */
+    if(verbose_)
+    {
+        std::cout << "[camerasocket] " << get_name() << " will connect to " << server_name_ << ":" << server_port_ << std::endl;
+    }
     receiver_endpoint_ = udp::endpoint(boost::asio::ip::address::from_string(server_name_), server_port_);
     socket_.open(udp::v4());
     request_ = "get";
+    if(verbose_)
+    {
+        std::cout << "[camerasocket] " << get_name() << " sending request for image" << std::endl;
+    }
     socket_.async_send_to(
         boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
         boost::bind(&CameraSocket::handle_send_to, this,
@@ -180,6 +188,9 @@ void CameraSocket::parse_config_line( std::vector<std::string> & line )
 #endif
         return;
     }
+
+    if( fill_member( line, "Verbose", verbose_) )
+        return;
 }
 
 void CameraSocket::handle_receive_from(const boost::system::error_code & error,
@@ -208,6 +219,10 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
             std::memcpy(&(rcv_img_raw_data_[chunkID_*(chunk_size_-1)]), &(chunk_buffer_[1]), bytes_recvd);
             if(bytes_recvd < chunk_size_)
             {
+                if(verbose_)
+                {
+                    std::cout << "[camerasocket] " << get_name() << " received enough data, will now Decode" << std::endl;
+                }
                 if(img_coding_ == VS_MONO8) 
                 {
                     shw_img_mono_->copy(rcv_img_mono_);
@@ -237,6 +252,10 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
             else
             {
                 chunkID_++;
+                if(verbose_)
+                {
+                    std::cout << "[camerasocket] " << get_name() << " requesting another chunk" << std::endl;
+                }
                 socket_.async_receive_from(
                       boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
                       boost::bind(&CameraSocket::handle_receive_from, this,
@@ -247,6 +266,10 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                         boost::asio::placeholders::error));
                 return;
             }
+        }
+        if(verbose_)
+        {
+            std::cout << "[camerasocket] " << get_name() << " sending new request " << request_ << std::endl;
         }
         socket_.async_send_to(
             boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
@@ -265,6 +288,10 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
         {
             request_ = "get";
         }
+        if(verbose_)
+        {
+            std::cout << "[camerasocket] " << get_name() << " error in reception, requesting another frame" << std::endl;
+        }
         socket_.async_send_to(
             boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
             boost::bind(&CameraSocket::handle_send_to, this,
@@ -276,6 +303,10 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
 void CameraSocket::handle_send_to(const boost::system::error_code & error,
                                 size_t bytes_send)
 {
+    if(verbose_)
+    {
+        std::cout << "[camerasocket] " << get_name() << " sent request " << request_ << ", waiting for data" << std::endl;
+    }
     socket_.async_receive_from(
           boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
           boost::bind(&CameraSocket::handle_receive_from, this,
@@ -290,6 +321,10 @@ void CameraSocket::handle_timeout(const boost::system::error_code & error)
 {
     if(error != boost::asio::error::operation_aborted)
     {
+        if(verbose_)
+        {
+            std::cout << "[camerasocket] " << get_name() << ": timeout, requesting another frame" << std::endl;
+        }
         request_ = "get";
         chunkID_ = 0;
         socket_.async_send_to(

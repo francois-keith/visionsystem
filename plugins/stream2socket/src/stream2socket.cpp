@@ -20,7 +20,8 @@ Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandb
   port_(0), chunkID_(0),
   active_cam_(0), cams_(0), 
   compress_data_(false), encoder_(0),
-  send_img_(0), img_lock_(false)
+  send_img_(0), img_lock_(false),
+  verbose_(true)
 {}
 
 Stream2Socket::~Stream2Socket()
@@ -78,6 +79,10 @@ bool Stream2Socket::pre_fct()
     client_data_ = new char[max_request_];
     send_buffer_ = new unsigned char[send_size_];
     
+    if(verbose_)
+    {
+        std::cout << "[stream2socket] Waiting for request now" << std::endl;
+    }
     socket_->async_receive_from(
        boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
        boost::bind(&Stream2Socket::handle_receive_from, this, 
@@ -141,6 +146,10 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
     if(!error && bytes_recvd > 0)
     {
         std::string client_message(client_data_);
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Got request " << client_message << std::endl;
+        }
         if(client_message == "get")
         {
             /* Client request: reset sending vision::Image */
@@ -168,6 +177,10 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
             send_size = send_size_;
         }
         std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
+        }
         socket_->async_send_to(
             boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
             boost::bind(&Stream2Socket::handle_send_to, this, 
@@ -176,6 +189,10 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
     }
     else
     {
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Reception error, waiting for next message" << std::endl;
+        }
         socket_->async_receive_from(
             boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
             boost::bind(&Stream2Socket::handle_receive_from, this,
@@ -190,6 +207,10 @@ void Stream2Socket::handle_send_to(const boost::system::error_code & error,
     if(error) { std::cerr << error.message() << std::endl; }
     if(bytes_send < send_size_) // after last packet sent
     {
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Image sent, waiting for next request" << std::endl;
+        }
         socket_->async_receive_from(
             boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
             boost::bind(&Stream2Socket::handle_receive_from, this, 
@@ -209,6 +230,10 @@ void Stream2Socket::handle_send_to(const boost::system::error_code & error,
         send_size = send_size_;
     }
     std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
+    if(verbose_)
+    {
+        std::cout << "[stream2socket] More data to send, next packet size: " << send_size << std::endl;
+    }
     socket_->async_send_to(
         boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
         boost::bind(&Stream2Socket::handle_send_to, this,
@@ -231,6 +256,9 @@ void Stream2Socket::parse_config_line( std::vector<std::string> & line )
 #endif
         return;
     }
+
+    if( fill_member(line, "Verbose", verbose_) )
+        return;
 }
 
 } // namespace visionsystem

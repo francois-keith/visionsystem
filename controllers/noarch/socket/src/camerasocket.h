@@ -104,6 +104,8 @@ private:
     unsigned char * rcv_img_raw_data_;
 
     unsigned int buffersize_;
+
+    bool verbose_;
 };
 
 }
