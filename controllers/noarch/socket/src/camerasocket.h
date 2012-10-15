@@ -79,6 +79,8 @@ private:
     bool cam_ready_;
     std::string server_name_;
     short server_port_;
+    bool reverse_connection_;
+    short port_;
 
     /* H.264 support */
     bool data_compress_;
@@ -90,6 +92,7 @@ private:
     udp::endpoint receiver_endpoint_;
     udp::endpoint sender_endpoint_;
     std::string request_;
+    /* client request */
     enum { chunk_size_ = 32769 };
     unsigned char chunk_buffer_[chunk_size_];
     uint8_t chunkID_;    

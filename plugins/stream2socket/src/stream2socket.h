@@ -44,8 +44,11 @@ private:
     boost::asio::io_service io_service_;
     boost::thread * io_service_th_;
     udp::socket * socket_;
+    std::string server_name_;
+    short server_port_;
     short port_;
     udp::endpoint sender_endpoint_;
+    udp::endpoint receiver_endpoint_;
     /* client request */
     enum { max_request_ = 256 };
     char* client_data_;
@@ -60,6 +63,7 @@ private:
     vision::H264Encoder * encoder_;
 
     /* Plugin related */
+    bool reverse_connection_;
     unsigned int active_cam_;
     std::vector<Camera *> cams_;
     vision::Image<uint32_t, vision::RGB> * send_img_;

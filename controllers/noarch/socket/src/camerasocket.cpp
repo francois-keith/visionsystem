@@ -20,6 +20,7 @@ CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   from_stream_(false), next_cam_(false),
   cam_ready_(false), server_name_(""), server_port_(0), 
+  reverse_connection_(false), port_(0),
   frame_(0),
   data_compress_(false), m_decoder(0),
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
@@ -75,23 +76,40 @@ void CameraSocket::start_cam()
         #endif
     }
 
-    /* TODO DNS resolution */
-    if(verbose_)
+    if(!reverse_connection_)
     {
-        std::cout << "[camerasocket] " << get_name() << " will connect to " << server_name_ << ":" << server_port_ << std::endl;
+        /* TODO DNS resolution */
+        if(verbose_)
+        {
+            std::cout << "[camerasocket] " << get_name() << " will connect to " << server_name_ << ":" << server_port_ << std::endl;
+        }
+        receiver_endpoint_ = udp::endpoint(boost::asio::ip::address::from_string(server_name_), server_port_);
+        socket_.open(udp::v4());
+        request_ = "get";
+        if(verbose_)
+        {
+            std::cout << "[camerasocket] " << get_name() << " sending request for image" << std::endl;
+        }
+        socket_.async_send_to(
+            boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+            boost::bind(&CameraSocket::handle_send_to, this,
+              boost::asio::placeholders::error,
+              boost::asio::placeholders::bytes_transferred));
     }
-    receiver_endpoint_ = udp::endpoint(boost::asio::ip::address::from_string(server_name_), server_port_);
-    socket_.open(udp::v4());
-    request_ = "get";
-    if(verbose_)
+    else
     {
-        std::cout << "[camerasocket] " << get_name() << " sending request for image" << std::endl;
+        socket_.open(udp::v4());
+        socket_.bind(udp::endpoint(udp::v4(), port_));
+        if(verbose_)
+        {
+            std::cout << "[camerasocket] " << get_name() << " bind on port " << port_ << ", Waiting for request now" << std::endl;
+        }
+        socket_.async_receive_from(
+           boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
+           boost::bind(&CameraSocket::handle_receive_from, this,
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred));
     }
-    socket_.async_send_to(
-        boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
-        boost::bind(&CameraSocket::handle_send_to, this,
-          boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
 }
 
 bool CameraSocket::has_data()
@@ -189,6 +207,12 @@ void CameraSocket::parse_config_line( std::vector<std::string> & line )
         return;
     }
 
+    if( fill_member( line, "ReverseConnection", reverse_connection_) )
+        return;
+
+    if( fill_member( line, "ReversePort", port_) )
+        return;
+
     if( fill_member( line, "Verbose", verbose_) )
         return;
 }
@@ -199,6 +223,21 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
     timeout_timer_.cancel();
     if(!error && bytes_recvd)
     {
+        if(bytes_recvd == 5)
+        {
+            std::string request((const char*)chunk_buffer_);
+            if(request == "init")
+            {
+                receiver_endpoint_ = sender_endpoint_;
+                request_ = "get";
+                socket_.async_send_to(
+                    boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+                    boost::bind(&CameraSocket::handle_send_to, this,
+                      boost::asio::placeholders::error,
+                      boost::asio::placeholders::bytes_transferred));
+                return;
+            }
+        }
         if(chunkID_ != chunk_buffer_[0])
         {
             /* Missed packet */

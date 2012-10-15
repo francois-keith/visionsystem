@@ -16,8 +16,10 @@ namespace visionsystem
 Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
 : Plugin( vs, "stream2socket", sandbox ),
   io_service_(), io_service_th_(0), 
-  socket_(0), 
+  socket_(0),
+  server_name_(), server_port_(4242),
   port_(0), chunkID_(0),
+  reverse_connection_(false),
   active_cam_(0), cams_(0), 
   compress_data_(false), encoder_(0),
   send_img_(0), img_lock_(false),
@@ -75,19 +77,35 @@ bool Stream2Socket::pre_fct()
 
     socket_ = new udp::socket(io_service_);
     socket_->open(udp::v4());
-    socket_->bind(udp::endpoint(udp::v4(), port_));
     client_data_ = new char[max_request_];
     send_buffer_ = new unsigned char[send_size_];
     
-    if(verbose_)
+    if(reverse_connection_)
     {
-        std::cout << "[stream2socket] Waiting for request now" << std::endl;
+        receiver_endpoint_ = udp::endpoint(boost::asio::ip::address::from_string(server_name_), server_port_);
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] connecting to " << server_name_ << ":" << server_port_ << " to stream images" << std::endl;
+        }
+        socket_->async_send_to(
+            boost::asio::buffer("init", 5), receiver_endpoint_,
+            boost::bind(&Stream2Socket::handle_send_to, this,
+              boost::asio::placeholders::error,
+              boost::asio::placeholders::bytes_transferred));
     }
-    socket_->async_receive_from(
-       boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-       boost::bind(&Stream2Socket::handle_receive_from, this, 
-           boost::asio::placeholders::error,
-           boost::asio::placeholders::bytes_transferred));
+    else
+    {
+        socket_->bind(udp::endpoint(udp::v4(), port_));
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Waiting for request now" << std::endl;
+        }
+        socket_->async_receive_from(
+           boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
+           boost::bind(&Stream2Socket::handle_receive_from, this, 
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred));
+    }
 
     return true ;
 }
@@ -157,7 +175,7 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
             img_lock_ = true;
             while(img_lock_) { usleep(100); }
         }
-        if(client_message == "next")
+        else if(client_message == "next")
         {
             /* Client requested to change camera stream */
             next_cam_ = true;
@@ -165,6 +183,15 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
             chunkID_ = 0;
             img_lock_ = true;
             while(img_lock_) { usleep(100); }
+        }
+        else
+        {
+            socket_->async_receive_from(
+                boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
+                boost::bind(&Stream2Socket::handle_receive_from, this, 
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+            return;
         }
         send_buffer_[0] = chunkID_;
         size_t send_size = 0;
@@ -193,6 +220,7 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
         {
             std::cout << "[stream2socket] Reception error, waiting for next message" << std::endl;
         }
+        if(error) { std::cerr << error.message() << std::endl; }
         socket_->async_receive_from(
             boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
             boost::bind(&Stream2Socket::handle_receive_from, this,
@@ -256,6 +284,15 @@ void Stream2Socket::parse_config_line( std::vector<std::string> & line )
 #endif
         return;
     }
+
+    if( fill_member(line, "ReverseConnection", reverse_connection_) )
+        return;
+
+    if( fill_member(line, "ServerName", server_name_) )
+        return;
+
+    if( fill_member(line, "ServerPort", server_port_) )
+        return;
 
     if( fill_member(line, "Verbose", verbose_) )
         return;
