@@ -23,7 +23,7 @@ Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandb
   active_cam_(0), cams_(0), 
   compress_data_(false), encoder_(0),
   send_img_(0), img_lock_(false),
-  verbose_(true)
+  verbose_(false)
 {}
 
 Stream2Socket::~Stream2Socket()
