@@ -82,7 +82,14 @@ bool Stream2Socket::pre_fct()
     
     if(reverse_connection_)
     {
-        receiver_endpoint_ = udp::endpoint(boost::asio::ip::address::from_string(server_name_), server_port_);
+        /* DNS Resolution */
+        {
+            udp::resolver resolver(io_service_);
+            std::stringstream ss;
+            ss << server_port_;
+            udp::resolver::query query(udp::v4(), server_name_, ss.str());
+            receiver_endpoint_ = *resolver.resolve(query);
+        }
         if(verbose_)
         {
             std::cout << "[stream2socket] connecting to " << server_name_ << ":" << server_port_ << " to stream images" << std::endl;

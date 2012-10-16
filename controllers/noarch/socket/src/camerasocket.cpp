@@ -78,12 +78,18 @@ void CameraSocket::start_cam()
 
     if(!reverse_connection_)
     {
-        /* TODO DNS resolution */
+        /* DNS resolution */
+        {
+            udp::resolver resolver(io_service_);
+            std::stringstream ss;
+            ss << server_port_;
+            udp::resolver::query query(udp::v4(), server_name_, ss.str());
+            receiver_endpoint_ = *resolver.resolve(query);
+        }
         if(verbose_)
         {
             std::cout << "[camerasocket] " << get_name() << " will connect to " << server_name_ << ":" << server_port_ << std::endl;
         }
-        receiver_endpoint_ = udp::endpoint(boost::asio::ip::address::from_string(server_name_), server_port_);
         socket_.open(udp::v4());
         request_ = "get";
         if(verbose_)
