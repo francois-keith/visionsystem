@@ -65,7 +65,8 @@ void ControllerSocket::loop_fct()
         if(cams_[i]->is_active() && cams_[i]->has_data())
         {
             Frame * vsframe = cams_[i]->_buffer.pull();
-            std::memcpy( vsframe->_data, cams_[i]->get_data(), vsframe->_data_size );
+            std::memcpy( vsframe->_data, cams_[i]->get_data(), cams_[i]->get_data_size() );
+            vsframe->_data_size = cams_[i]->get_data_size();
             cams_[i]->_buffer.push(vsframe);
         }
     }

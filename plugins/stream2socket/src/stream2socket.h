@@ -58,6 +58,9 @@ private:
     /* Protocol related */
     uint8_t chunkID_;
 
+    /* Raw transfer support */
+    bool raw_;
+
     /* H.264 compression if available */
     bool compress_data_;
     vision::H264Encoder * encoder_;

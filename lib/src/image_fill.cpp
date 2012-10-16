@@ -47,6 +47,10 @@ void image_fill < Image< unsigned char, MONO > > ( Image<unsigned char,MONO> *im
                     img->raw_data[i] = (unsigned char)grey;
                 }
                 break;
+        case VS_RAW:
+                memcpy(img->raw_data, frm->_data, frm->_data_size);
+                img->data_size = frm->_data_size;
+                break;
 		default:
 				throw( string( "Image<unsigned char,MONO> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
@@ -154,6 +158,10 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 
 				break ;
 
+        case VS_RAW:
+                memcpy(img->raw_data, frm->_data, frm->_data_size);
+                img->data_size = frm->_data_size;
+                break;
 		default:
 				throw( string( "Image<uint32_t,RGB> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
@@ -269,7 +277,10 @@ void image_fill < Image< uint32_t, HSV > > ( Image<uint32_t,HSV> *img, visionsys
 							    ( (uint32_t) v ) ;  
                 }
 				break ;
-		
+        case VS_RAW:
+                memcpy(img->raw_data, frm->_data, frm->_data_size);
+                img->data_size = frm->_data_size;
+                break;
 		default:
 				throw( string( "Image<uint32_t,HSV> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;

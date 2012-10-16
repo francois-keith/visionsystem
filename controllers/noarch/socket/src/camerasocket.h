@@ -34,6 +34,8 @@ public:
 
     unsigned char * get_data();
 
+    unsigned int get_data_size();
+
     unsigned int get_frame() { return frame_; }
 
     void stop_cam();
@@ -44,6 +46,8 @@ public:
     bool from_stream() { return from_stream_; }
 
     bool is_active() { return active_; }
+
+    bool is_raw() { return raw_; }
 
     visionsystem::FrameCoding get_coding() { return img_coding_; }
 
@@ -81,6 +85,9 @@ private:
     short server_port_;
     bool reverse_connection_;
     short port_;
+
+    /* Raw transfer */
+    bool raw_;
 
     /* H.264 support */
     bool data_compress_;

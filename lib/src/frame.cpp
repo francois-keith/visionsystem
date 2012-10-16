@@ -48,6 +48,10 @@ Frame::Frame( FrameCoding coding, ImageRef size )
 			_data_size = 4 * size.area() ;
 			break ;
 
+        case VS_RAW:
+
+            _data_size = 4 * size.area() ;
+            break;
 
 		default:
 			throw ( string( "Frame.cpp : Unknown Frame Format" )  );

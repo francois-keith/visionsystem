@@ -19,6 +19,7 @@ Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandb
   socket_(0),
   server_name_(), server_port_(4242),
   port_(0), chunkID_(0),
+  raw_(false),
   reverse_connection_(false),
   active_cam_(0), cams_(0), 
   compress_data_(false), encoder_(0),
@@ -133,6 +134,11 @@ void Stream2Socket::loop_fct()
             vision::H264EncoderResult res = encoder_->Encode(*img);
             send_img_data_size_ = res.frame_size;
             send_img_raw_data_  = res.frame_data;
+        }
+        else if(raw_)
+        {
+            memcpy(send_img_raw_data_, img->raw_data, img->data_size);
+            send_img_data_size_ = img->data_size;
         }
         else
         {
@@ -291,6 +297,9 @@ void Stream2Socket::parse_config_line( std::vector<std::string> & line )
 #endif
         return;
     }
+
+    if( fill_member(line, "Raw", raw_) )
+        return;
 
     if( fill_member(line, "ReverseConnection", reverse_connection_) )
         return;

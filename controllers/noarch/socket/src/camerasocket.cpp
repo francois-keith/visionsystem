@@ -21,6 +21,7 @@ CameraSocket::CameraSocket(boost::asio::io_service & io_service)
   from_stream_(false), next_cam_(false),
   cam_ready_(false), server_name_(""), server_port_(0), 
   reverse_connection_(false), port_(0),
+  raw_(false),
   frame_(0),
   data_compress_(false), m_decoder(0),
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
@@ -145,6 +146,18 @@ unsigned char * CameraSocket::get_data()
     return shw_img_raw_data_;
 }
 
+unsigned int CameraSocket::get_data_size()
+{
+    if(img_coding_ == VS_MONO8)
+    {
+        return shw_img_mono_->data_size;
+    }
+    else
+    {
+        return shw_img_rgb_->data_size;
+    }
+}
+
 void CameraSocket::stop_cam()
 {
     socket_.close();
@@ -204,6 +217,15 @@ void CameraSocket::parse_config_line( std::vector<std::string> & line )
 
     if( fill_member( line, "Stream", from_stream_) )
         return;
+
+    if( fill_member( line, "Raw", raw_) )
+    {
+        if(raw_)
+        {
+            img_coding_ = VS_RAW;
+        }
+        return;
+    }
 
     if( fill_member( line, "Compress", data_compress_) )
     {
@@ -277,6 +299,11 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                     if(data_compress_)
                     {
                         m_decoder->Decode(chunkID_*chunk_size_ + bytes_recvd, rcv_img_raw_data_, *shw_img_rgb_);
+                    }
+                    else if(raw_)
+                    {
+                        memcpy(shw_img_rgb_->raw_data, rcv_img_raw_data_, chunkID_*chunk_size_ + bytes_recvd);
+                        shw_img_rgb_->data_size = chunkID_*chunk_size_ + bytes_recvd;
                     }
                     else
                     {
