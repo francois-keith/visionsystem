@@ -1,13 +1,15 @@
 #include "plugin.h"
 
 SDLView::SDLView( VisionSystem* core, string sandbox ) 
-:Viewer( core, "sdlview", sandbox ), refresh(true) 
+:Viewer( core, "sdlview", sandbox ), sdl_running(true)
 {
 	active_cam = 0 ;
 	next_cam = 0 ;
 }
 
 SDLView::~SDLView() {
+	sdl_th->join();
+	delete sdl_th;
 }
 
 
@@ -31,34 +33,16 @@ bool  SDLView::pre_fct() {
 	return true ;
 }
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    uint32_t rmask = 0xff000000;
-    uint32_t gmask = 0x00ff0000;
-    uint32_t bmask = 0x0000ff00;
-    uint32_t amask = 0x000000ff;
-#else
-    uint32_t rmask = 0x000000ff;
-    uint32_t gmask = 0x0000ff00;
-    uint32_t bmask = 0x00ff0000;
-    uint32_t amask = 0xff000000;
-#endif
-
 void  SDLView::preloop_fct() {
-    SDL_Init(SDL_INIT_VIDEO);
-    screen = SDL_SetVideoMode(cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
-    sdl_img = SDL_CreateRGBSurface(SDL_HWSURFACE, cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, rmask, gmask, bmask, amask);
-    SDL_SetAlpha(sdl_img, 0, 0xFF);
-    SDL_WM_SetCaption("SDLView", NULL);
+	sdl_th = new boost::thread(boost::bind(&SDLView::SDL_Loop, this));
 }
 
 void  SDLView::loop_fct() {
 
-	Image<uint32_t, RGB>	*img ;
 	img = dequeue_image< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
 
-    if(refresh)
+    if(sdl_running && !refresh)
     {
-        refresh = false;
     	if ( active_cam != next_cam ) {
     	    enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
     		unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
@@ -66,25 +50,23 @@ void  SDLView::loop_fct() {
     		active_cam = next_cam ;
 	        img = dequeue_image< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
     	}
-
-        boost::thread(boost::bind(&SDLView::refresh_screen, this, img));
+        refresh = true;
+		unsigned int cnt = 0;
+		while(refresh) { cnt++; if(cnt > 10) { break; } Sleep(1); }
     }
-    else
-    {
-    	enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
-    }
+    enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
 }
 
 bool  SDLView::post_fct() {
 	unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
-    SDL_Quit();
+	SDL_Quit();
 	return true ;
 }
 
 void SDLView::gl_print ( ImageRef position, string text ) {
 }
 
-void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
+void SDLView::refresh_screen()
 {
 	// Draw video 
     if ( SDL_MUSTLOCK(screen) ) {
@@ -98,113 +80,101 @@ void SDLView::refresh_screen(vision::Image<uint32_t, vision::RGB> * img)
     if ( SDL_MUSTLOCK(screen) ) {
         SDL_UnlockSurface(screen);
     }
-
-    // Handle events
-    #ifdef VS_HAS_CONTROLLER_SOCKET
-    CameraSocket * current_cam = 0;
-    #endif
-    SDL_Event event;
-    while(SDL_PollEvent(&event))
-    {
-        switch(event.type)
-        {
-            case SDL_QUIT:
-                std::cout << "[SDLView] Exit requested ... " << endl ;
-                whiteboard_write< bool >( string("core_stop"), true ) ;
-                break; 
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym)
-                {
-                    case SDLK_PAGEUP:
-                        for(int i = active_cam + 1; i < cameras.size(); ++i)
-                        {
-                            if ( cameras[i]->is_active() )
-                            {
-                                next_cam = i;
-                                i = cameras.size();
-                            }
-                        }
-                        break;
-
-                    case SDLK_PAGEDOWN:
-                        for(int i = active_cam - 1; i >= 0; --i)
-                        {
-                            if ( cameras[i]->is_active() )
-                            {
-                                next_cam = i;
-                                i = -1;
-                            }
-                        }
-                        break;
-                    case SDLK_ESCAPE: /* Appui sur la touche Echap, on arrête le programme */
-                        std::cout << "[SDLView] Exit requested ... " << endl ;
-                        whiteboard_write< bool >( string("core_stop"), true ) ;
-                        break;
-                    #ifdef VS_HAS_CONTROLLER_SOCKET
-                    case SDLK_SPACE:
-                        current_cam = dynamic_cast<CameraSocket*>(cameras[active_cam]);
-                        if(current_cam && current_cam->from_stream())
-                        {
-                            current_cam->next_cam();
-                        }
-                        break;
-                    #endif
-                }
-                break;
-            default:
-                break;
-        }
-        callbacks_mutex.lock() ;
-
-        for(int i = 0; i < callbacks.size(); ++i)
-        {
-            callbacks[i]->sdl_callback( cameras[active_cam], event ) ;
-        }
-
-        callbacks_mutex.unlock() ;
-    }
-
-	enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
-    refresh = true;
 }
 
-inline void SDLView::DrawPixel(SDL_Surface *screen, unsigned int x, unsigned int y, Uint8 R, Uint8 G, Uint8 B)
+#if	SDL_BYTEORDER == SDL_BIG_ENDIAN
+	uint32_t rmask = 0xff000000;
+	uint32_t gmask = 0x00ff0000;
+	uint32_t bmask = 0x0000ff00;
+	uint32_t amask = 0x000000ff;
+#else
+	uint32_t rmask = 0x000000ff;
+	uint32_t gmask = 0x0000ff00;
+	uint32_t bmask = 0x00ff0000;
+	uint32_t amask = 0xff000000;
+#endif
+
+void SDLView::SDL_Loop()
 {
-    Uint32 color = SDL_MapRGB(screen->format, R, G, B);
+	SDL_Init(SDL_INIT_VIDEO);
+    screen = SDL_SetVideoMode(cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, SDL_SWSURFACE);
+    sdl_img = SDL_CreateRGBSurface(SDL_SWSURFACE, cameras[active_cam]->get_size().x, cameras[active_cam]->get_size().y, 32, rmask, gmask, bmask, amask);
+    SDL_SetAlpha(sdl_img, 0, 0xFF);
+    SDL_WM_SetCaption("SDLView", NULL);
+	sdl_running = true;
 
-    switch (screen->format->BytesPerPixel) {
-        case 1: { /* Assuming 8-bpp */
-            Uint8 *bufp;
+	while(sdl_running)
+	{
+		if(refresh)
+		{
+			refresh_screen();
+			refresh = false;
+		}
 
-            bufp = (Uint8 *)screen->pixels + y*screen->pitch + x;
-            *bufp = color;
-        }
-        break;
+		// Handle events
+		#ifdef VS_HAS_CONTROLLER_SOCKET
+		CameraSocket * current_cam = 0;
+		#endif
+		SDL_Event event;
+		while(SDL_PollEvent(&event))
+		{
+			switch(event.type)
+			{
+				case SDL_QUIT:
+					std::cout << "[SDLView] Exit requested ... " << endl ;
+					whiteboard_write< bool >( string("core_stop"), true ) ;
+					break;
+				case SDL_KEYDOWN:
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_PAGEUP:
+							for(int i = active_cam + 1; i < cameras.size(); ++i)
+							{
+								if ( cameras[i]->is_active() )
+								{
+									next_cam = i;
+									i = cameras.size();
+								}
+							}
+							break;
 
-        case 2: { /* Probably 15-bpp or 16-bpp */
-            Uint16 *bufp;
+						case SDLK_PAGEDOWN:
+							for(int i = active_cam - 1; i >= 0; --i)
+							{
+								if ( cameras[i]->is_active() )
+								{
+									next_cam = i;
+									i = -1;
+								}
+							}
+							break;
+						case SDLK_ESCAPE: // Appui sur la touche Echap, on arrête le programme
+							std::cout << "[SDLView] Exit requested ... " << endl ;
+							whiteboard_write< bool >( string("core_stop"), true ) ;
+							sdl_running = false;
+							break;
+						#ifdef VS_HAS_CONTROLLER_SOCKET
+						case SDLK_SPACE:
+							current_cam = dynamic_cast<CameraSocket*>(cameras[active_cam]);
+							if(current_cam && current_cam->from_stream())
+							{
+								current_cam->next_cam();
+							}
+							break;
+						#endif
+					}
+					break;
+				default:
+					break;
+			}
+			callbacks_mutex.lock() ;
 
-            bufp = (Uint16 *)screen->pixels + y*screen->pitch/2 + x;
-            *bufp = color;
-        }
-        break;
+			for(int i = 0; i < callbacks.size(); ++i)
+			{
+				callbacks[i]->sdl_callback( cameras[active_cam], event ) ;
+			}
 
-        case 3: { /* Slow 24-bpp mode, usually not used */
-            Uint8 *bufp;
-
-            bufp = (Uint8 *)screen->pixels + y*screen->pitch + x;
-            *(bufp+screen->format->Rshift/8) = R;
-            *(bufp+screen->format->Gshift/8) = G;
-            *(bufp+screen->format->Bshift/8) = B;
-        }
-        break;
-
-        case 4: { /* Probably 32-bpp */
-            Uint32 *bufp;
-
-            bufp = (Uint32 *)screen->pixels + y*screen->pitch/4 + x;
-            *bufp = color;
-        }
-        break;
-    }
+			callbacks_mutex.unlock() ;
+		}
+	}
 }

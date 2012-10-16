@@ -31,16 +31,21 @@ class SDLView: public Viewer
 		 void gl_print ( ImageRef position, string text ) ;
 
 	private:
-        void refresh_screen(vision::Image<uint32_t, vision::RGB> * img);
+        inline void refresh_screen();
 
-        inline void DrawPixel(SDL_Surface *screen, unsigned int x, unsigned int y, Uint8 R, Uint8 G, Uint8 B);
+        void SDL_Loop();
 
         SDL_Surface * screen;
         SDL_Surface * sdl_img;
+
+		boost::thread * sdl_th;
+		Image<uint32_t, RGB>	*img ;
+
 		vector<Camera*> cameras ;
 		int		active_cam ;
 		int 		next_cam ;
-        bool refresh;
+		bool sdl_running;
+		bool refresh;
 } ;
 
 PLUGIN( SDLView ) 
