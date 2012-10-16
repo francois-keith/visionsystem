@@ -52,7 +52,7 @@ void  SDLView::loop_fct() {
     	}
         refresh = true;
 		unsigned int cnt = 0;
-		while(refresh) { cnt++; if(cnt > 10) { break; } Sleep(1); }
+		while(refresh) { cnt++; if(cnt > 10) { break; } usleep(1000); }
     }
     enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
 }
