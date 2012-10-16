@@ -251,21 +251,7 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
     timeout_timer_.cancel();
     if(!error && bytes_recvd)
     {
-        if(bytes_recvd == 5)
-        {
-            std::string request((const char*)chunk_buffer_);
-            if(request == "init")
-            {
-                receiver_endpoint_ = sender_endpoint_;
-                request_ = "get";
-                socket_.async_send_to(
-                    boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
-                    boost::bind(&CameraSocket::handle_send_to, this,
-                      boost::asio::placeholders::error,
-                      boost::asio::placeholders::bytes_transferred));
-                return;
-            }
-        }
+        receiver_endpoint_ = sender_endpoint_;
         if(chunkID_ != chunk_buffer_[0])
         {
             /* Missed packet */
@@ -310,16 +296,27 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                         rgb24_to_rgba(rcv_img_raw_data_, shw_img_rgb_->pixels, (unsigned char *)(shw_img_rgb_->raw_data));
                     }
                 }
-                chunkID_ = 0;
                 if(next_cam_ && from_stream_)
                 {
                     request_ = "next";
                     next_cam_ = false;
+                    socket_.async_send_to(
+                        boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+                        boost::bind(&CameraSocket::handle_send_to, this,
+                          boost::asio::placeholders::error,
+                          boost::asio::placeholders::bytes_transferred));
+                    return;
                 }
-                else
-                {
-                    request_ = "get";
-                }
+                chunkID_ = 0;
+                socket_.async_receive_from(
+                      boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
+                      boost::bind(&CameraSocket::handle_receive_from, this,
+                        boost::asio::placeholders::error,
+                        boost::asio::placeholders::bytes_transferred));
+                timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
+                timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
+                        boost::asio::placeholders::error));
+                return;
             }
             else
             {
@@ -351,24 +348,29 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
     }
     else
     {
-        if(next_cam_ && from_stream_)
-        {
-            request_ = "next";
-            next_cam_ = false;
-        }
-        else
-        {
-            request_ = "get";
-        }
         if(verbose_)
         {
             std::cout << "[camerasocket] " << get_name() << " error in reception, requesting another frame" << std::endl;
         }
-        socket_.async_send_to(
-            boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
-            boost::bind(&CameraSocket::handle_send_to, this,
-              boost::asio::placeholders::error,
-              boost::asio::placeholders::bytes_transferred));
+        if(next_cam_ && from_stream_)
+        {
+            request_ = "next";
+            next_cam_ = false;
+            socket_.async_send_to(
+                boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+                boost::bind(&CameraSocket::handle_send_to, this,
+                  boost::asio::placeholders::error,
+                  boost::asio::placeholders::bytes_transferred));
+            return;
+        }
+        socket_.async_receive_from(
+              boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
+              boost::bind(&CameraSocket::handle_receive_from, this,
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+        timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
+        timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
+                boost::asio::placeholders::error));
     }
 }
 
@@ -395,16 +397,18 @@ void CameraSocket::handle_timeout(const boost::system::error_code & error)
     {
         if(verbose_)
         {
-            std::cout << "[camerasocket] " << get_name() << ": timeout, requesting another frame" << std::endl;
+            std::cout << "[camerasocket] " << get_name() << ": timeout, waiting another frame" << std::endl;
         }
-        request_ = "get";
         chunkID_ = 0;
-        socket_.async_send_to(
-            boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
-            boost::bind(&CameraSocket::handle_send_to, this,
-              boost::asio::placeholders::error,
-              boost::asio::placeholders::bytes_transferred));
     }
+    socket_.async_receive_from(
+          boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
+          boost::bind(&CameraSocket::handle_receive_from, this,
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+    timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
+    timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
+            boost::asio::placeholders::error));
 }
 
 } // namespace visionsystem

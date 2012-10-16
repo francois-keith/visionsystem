@@ -93,13 +93,19 @@ bool Stream2Socket::pre_fct()
         }
         if(verbose_)
         {
-            std::cout << "[stream2socket] connecting to " << server_name_ << ":" << server_port_ << " to stream images" << std::endl;
+            std::cout << "[stream2socket] connected to " << server_name_ << ":" << server_port_ << " to stream images" << std::endl;
         }
         socket_->async_send_to(
-            boost::asio::buffer("init", 5), receiver_endpoint_,
+            boost::asio::buffer("", 0), receiver_endpoint_,
             boost::bind(&Stream2Socket::handle_send_to, this,
-              boost::asio::placeholders::error,
-              boost::asio::placeholders::bytes_transferred));
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+        /* Get ready for eventual request */
+        socket_->async_receive_from(
+           boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
+           boost::bind(&Stream2Socket::handle_receive_from, this, 
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred));
     }
     else
     {
@@ -184,6 +190,7 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
         if(client_message == "get")
         {
             /* Client request: reset sending vision::Image */
+            receiver_endpoint_ = sender_endpoint_;
             chunkID_ = 0;
             img_lock_ = true;
             while(img_lock_) { usleep(100); }
@@ -222,10 +229,15 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
             std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
         }
         socket_->async_send_to(
-            boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
+            boost::asio::buffer(send_buffer_, send_size), receiver_endpoint_,
             boost::bind(&Stream2Socket::handle_send_to, this, 
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
+        socket_->async_receive_from(
+            boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
+            boost::bind(&Stream2Socket::handle_receive_from, this, 
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
     }
     else
     {
@@ -252,11 +264,29 @@ void Stream2Socket::handle_send_to(const boost::system::error_code & error,
         {
             std::cout << "[stream2socket] Image sent, waiting for next request" << std::endl;
         }
-        socket_->async_receive_from(
-            boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-            boost::bind(&Stream2Socket::handle_receive_from, this, 
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
+        chunkID_ = 0;
+        img_lock_ = true;
+        while(img_lock_) { usleep(100); }
+        send_buffer_[0] = chunkID_;
+        size_t send_size = 0;
+        if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
+        {
+            send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
+        }
+        else
+        {
+            send_size = send_size_;
+        }
+        std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
+        }
+        socket_->async_send_to(
+            boost::asio::buffer(send_buffer_, send_size), receiver_endpoint_,
+            boost::bind(&Stream2Socket::handle_send_to, this, 
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
         return;
     }
     chunkID_++;
