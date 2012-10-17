@@ -81,6 +81,7 @@ public:
 private:
     /* CameraSocket specific */
     bool cam_ready_;
+    bool has_data_;
     std::string server_name_;
     short server_port_;
     bool reverse_connection_;

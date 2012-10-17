@@ -19,7 +19,8 @@ namespace visionsystem
 CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   from_stream_(false), next_cam_(false),
-  cam_ready_(false), server_name_(""), server_port_(0), 
+  cam_ready_(false), has_data_(false),
+  server_name_(""), server_port_(0), 
   reverse_connection_(false), port_(0),
   raw_(false),
   frame_(0),
@@ -132,8 +133,9 @@ bool CameraSocket::has_data()
     {
         elapsed_time = 1000000*(now.tv_sec - previous_frame_t_.tv_sec) + (now.tv_usec - previous_frame_t_.tv_usec);
     }
-    if(elapsed_time > fps_)
+    if(has_data_ || elapsed_time > fps_)
     {
+        has_data_ = false;
         previous_frame_t_ = now;
         frame_++;
         return true;
@@ -296,6 +298,7 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                         rgb24_to_rgba(rcv_img_raw_data_, shw_img_rgb_->pixels, (unsigned char *)(shw_img_rgb_->raw_data));
                     }
                 }
+                has_data_ = true;
                 if(next_cam_ && from_stream_)
                 {
                     request_ = "next";
@@ -400,15 +403,15 @@ void CameraSocket::handle_timeout(const boost::system::error_code & error)
             std::cout << "[camerasocket] " << get_name() << ": timeout, waiting another frame" << std::endl;
         }
         chunkID_ = 0;
+        socket_.async_receive_from(
+              boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
+              boost::bind(&CameraSocket::handle_receive_from, this,
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+        timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
+        timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
+                boost::asio::placeholders::error));
     }
-    socket_.async_receive_from(
-          boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
-          boost::bind(&CameraSocket::handle_receive_from, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
-    timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
-            boost::asio::placeholders::error));
 }
 
 } // namespace visionsystem
