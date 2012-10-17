@@ -66,6 +66,7 @@ private:
     vision::H264Encoder * encoder_;
 
     /* Plugin related */
+    bool ready_;
     bool reverse_connection_;
     unsigned int active_cam_;
     std::vector<Camera *> cams_;
