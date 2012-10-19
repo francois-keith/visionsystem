@@ -108,7 +108,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 			return ;
 		}
 
-		_controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox.string() ) ) ;
+		_controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox.string() + "/") ) ;
 		
 		return ;
 
@@ -138,7 +138,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 			return ;
 		}
 
-		_plugin_threads.push_back( new Thread<Plugin>( this, line[1], sandbox.string() ) ) ;
+		_plugin_threads.push_back( new Thread<Plugin>( this, line[1], sandbox.string() + "/") ) ;
 
 		return ;
 	}
