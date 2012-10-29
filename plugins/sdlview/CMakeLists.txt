@@ -10,6 +10,7 @@ if ( PLUGIN_SDLVIEW AND SDL_FOUND)
 
     if (CONTROLLER_SOCKET)
         add_definitions(-DVS_HAS_CONTROLLER_SOCKET)
+        include_directories( "${CMAKE_SOURCE_DIR}/controllers/noarch/socket/src/" )
     endif(CONTROLLER_SOCKET)
 
 		
