@@ -1,7 +1,7 @@
 #include "plugin.h"
 
 #ifdef VS_HAS_CONTROLLER_SOCKET
-    #include <visionsystem/vs_controllers/socket/camerasocket.h>
+    #include "camerasocket.h"
 #endif
 
 GLView::GLView( VisionSystem* core, string sandbox ) 

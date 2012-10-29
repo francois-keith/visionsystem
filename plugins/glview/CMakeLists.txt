@@ -4,12 +4,13 @@ if ( PLUGIN_GLVIEW )
 
     if (CONTROLLER_SOCKET)
         add_definitions(-DVS_HAS_CONTROLLER_SOCKET)
+        include_directories( "${CMAKE_SOURCE_DIR}/controllers/noarch/socket/src/" ) 
     endif(CONTROLLER_SOCKET)
 
 	find_package(OpenGL)
 	find_package( X11)
 		
-	include_directories( "${X11_X11_INCLUDE_PATH}"
+        include_directories( "${X11_X11_INCLUDE_PATH}"
 			     "${OPENGL_INCLUDE_DIR}"
 	)
 
