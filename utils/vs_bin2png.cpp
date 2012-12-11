@@ -95,22 +95,34 @@ int main(int argc, char * argv[])
 
 void convert_mono(std::vector<std::string> & bin_files, std::vector<std::string> & png_files)
 {
-        Image<unsigned char, MONO> * in_img = new Image<unsigned char, MONO>();
+        #pragma omp parallel for
         for(size_t i = 0; i < bin_files.size(); ++i)
         {
+            Image<unsigned char, MONO> * in_img = new Image<unsigned char, MONO>();
             deserialize(bin_files[i], *in_img);
             save_mono(png_files[i], in_img);
+            delete in_img;
+            #pragma omp critical
+            {
+                std::cout << "\r" << i+1 << "/" << bin_files.size() << std::flush;
+            }
         }
-        delete in_img;
+        std::cout << std::endl;
 }
 void convert_color(std::vector<std::string> & bin_files, std::vector<std::string> & png_files)
 {
-        Image<uint32_t, RGB> * in_img = new Image<uint32_t, RGB>();
+        #pragma omp parallel for
         for(size_t i = 0; i < bin_files.size(); ++i)
         {
+            Image<uint32_t, RGB> * in_img = new Image<uint32_t, RGB>();
             deserialize(bin_files[i], *in_img);
             save_color(png_files[i], in_img);
+            delete in_img;
+            #pragma omp critical
+            {
+                std::cout << "\r" << i+1 << "/" << bin_files.size() << std::flush;
+            }
         }
-        delete in_img;
+        std::cout << std::endl;
 }
 
