@@ -30,7 +30,13 @@ public:
 
     bool has_data();
 
+    /* Stream camera specific functions */
+    
     void next_cam() { next_cam_ = true; }
+
+    void request_cam(const std::string & cam_name);
+
+    /* End of stream camera specific functions */
 
     unsigned char * get_data();
 
@@ -78,6 +84,8 @@ public:
     /* This parameter indicates if the camera is fed from stream2socket plugin */
     bool from_stream_;
     bool next_cam_;
+    bool request_cam_;
+    std::string request_name_;
 private:
     /* CameraSocket specific */
     bool cam_ready_;

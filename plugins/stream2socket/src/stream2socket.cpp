@@ -25,6 +25,7 @@ Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandb
   active_cam_(0), cams_(0), 
   compress_data_(false), encoder_(0),
   send_img_(0), img_lock_(false),
+  next_cam_(false), request_cam_(false), request_name_(""),
   verbose_(false)
 {}
 
@@ -180,6 +181,19 @@ void Stream2Socket::loop_fct()
         register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
         next_cam_ = false;
     }
+    if(request_cam_)
+    {
+        for(size_t i = 0; i < cams_.size(); ++i)
+        {
+            if(cams_[i]->get_name() == request_name_)
+            {
+                unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
+                active_cam_ = i;
+                register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
+            }
+        }
+        request_cam_ = false;
+    }
 }
 
 bool Stream2Socket::post_fct()
@@ -215,6 +229,11 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
         {
             /* Client requested to change camera stream */
             next_cam_ = true;
+        }
+        else if(client_message.substr(0, 8) == "request ")
+        {
+            request_cam_ = true;
+            request_name_ = client_message.substr(8);
         }
     }
     else

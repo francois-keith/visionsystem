@@ -19,6 +19,7 @@ namespace visionsystem
 CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   from_stream_(false), next_cam_(false),
+  request_cam_(false), request_name_(""), 
   cam_ready_(false), has_data_(false),
   server_name_(""), server_port_(0), 
   reverse_connection_(false), port_(0),
@@ -143,6 +144,12 @@ bool CameraSocket::has_data()
     return false;
 }
 
+void CameraSocket::request_cam(const std::string & cam_name)
+{
+    request_cam_  = true;
+    request_name_ = cam_name;
+}
+
 unsigned char * CameraSocket::get_data()
 {
     return shw_img_raw_data_;
@@ -264,6 +271,13 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                 request_ = "next";
                 next_cam_ = false;
             }
+            else if(request_cam_ && from_stream_)
+            {
+                std::stringstream ss;
+                ss << "request " << request_name_;
+                request_ = ss.str();
+                request_cam_ = false;
+            }
             else
             {
                 request_ = "get";
@@ -303,6 +317,19 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                 {
                     request_ = "next";
                     next_cam_ = false;
+                    socket_.async_send_to(
+                        boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+                        boost::bind(&CameraSocket::handle_send_to, this,
+                          boost::asio::placeholders::error,
+                          boost::asio::placeholders::bytes_transferred));
+                    return;
+                }
+                else if(request_cam_ && from_stream_)
+                {
+                    std::stringstream ss;
+                    ss << "request " << request_name_;
+                    request_ = ss.str();
+                    request_cam_ = false;
                     socket_.async_send_to(
                         boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
                         boost::bind(&CameraSocket::handle_send_to, this,
@@ -359,6 +386,19 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
         {
             request_ = "next";
             next_cam_ = false;
+            socket_.async_send_to(
+                boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+                boost::bind(&CameraSocket::handle_send_to, this,
+                  boost::asio::placeholders::error,
+                  boost::asio::placeholders::bytes_transferred));
+            return;
+        }
+        else if(request_cam_ && from_stream_)
+        {
+            std::stringstream ss;
+            ss << "request " << request_name_;
+            request_ = ss.str();
+            request_cam_ = false;
             socket_.async_send_to(
                 boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
                 boost::bind(&CameraSocket::handle_send_to, this,

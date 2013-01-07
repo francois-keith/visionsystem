@@ -75,6 +75,8 @@ private:
     unsigned int send_img_data_size_;
     bool img_lock_;
     bool next_cam_;
+    bool request_cam_;
+    std::string request_name_;
     bool verbose_;
 };
 
