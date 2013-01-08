@@ -33,4 +33,7 @@ void image_fill < vision::Image< uint32_t, vision::RGB > > ( vision::Image<uint3
 template<>
 void image_fill < vision::Image< uint32_t, vision::HSV > > ( vision::Image<uint32_t, vision::HSV> *img, visionsystem::Frame* frm ) ;
 
+template<>
+void image_fill < vision::Image< uint16_t, vision::DEPTH > > ( vision::Image<uint16_t, vision::DEPTH> *img, visionsystem::Frame * frm) ;
+
 #endif

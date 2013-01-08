@@ -288,3 +288,15 @@ void image_fill < Image< uint32_t, HSV > > ( Image<uint32_t,HSV> *img, visionsys
 
 }
 
+template<>
+void image_fill < Image< uint16_t, DEPTH > > ( Image<uint16_t,DEPTH> *img, visionsystem::Frame* frm ) 
+{
+	switch ( frm->_coding ) {
+        case VS_DEPTH16:
+            std::memcpy(img->raw_data, frm->_data, img->data_size);
+            break;
+		default:
+				throw( string( "Image<uint16_t, DEPTH> : CONVERSION NOT IMPLEMENTED" ) ) ;
+				break ;
+	}
+}
