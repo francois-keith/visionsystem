@@ -11,7 +11,7 @@ if ( PLUGIN_SEQUENCE_GRABBER )
 
 	add_library( "sequence-grabber" SHARED ${sequence-grabber_src} ${sequence-grabber_hdr} )
 
-    target_link_libraries( "sequence-grabber" ${Boost_LIBRARIES} XmlRpc "-L${CMAKE_BINARY_DIR}/xmlrpc/server" xmlrpc-server)
+    target_link_libraries( "sequence-grabber" ${Boost_LIBRARIES} "-L${CMAKE_BINARY_DIR}/xmlrpc/server" xmlrpc-server)
 
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
