@@ -395,6 +395,6 @@ void VsCore::run()
 
 	_plugins.clear() ;
 	_controllers.clear() ;
-
+    std::cout << "[vs_core] Bye ... " << std::endl;
 }
 
