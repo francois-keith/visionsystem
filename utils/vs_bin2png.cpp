@@ -6,21 +6,26 @@
 #include <string>
 #include <vector>
 
+#define MAX_DEPTH 10000
+
 using namespace vision;
 using namespace boost::filesystem;
 
 void usage(const char * exec_name)
 {
-    std::cerr << "[Usage] " << exec_name << " [path to bin files] [MONO|COLOR]" << std::endl;
+    std::cerr << "[Usage] " << exec_name << " [path to bin files] [MONO|COLOR|DEPTH]" << std::endl;
+    std::cerr << "(default to MONO)" << std::endl;
 }
 
 void convert_mono(std::vector<std::string> & bin_files, std::vector<std::string> & png_files);
 void convert_color(std::vector<std::string> & bin_files, std::vector<std::string> & png_files);
+void convert_depth(std::vector<std::string> & bin_files, std::vector<std::string> & png_files);
 
 enum C_MODE
 {
     C_MONO,
-    C_COLOR
+    C_COLOR,
+    C_DEPTH
 };
 
 int main(int argc, char * argv[])
@@ -31,9 +36,16 @@ int main(int argc, char * argv[])
         return 1;
     }
     C_MODE mode = C_MONO;
-    if(argc > 2 && std::string(argv[2]) == "COLOR")
+    if(argc > 2)
     {
-        mode = C_COLOR;
+        if(std::string(argv[2]) == "COLOR")
+        {
+            mode = C_COLOR;
+        }
+        if(std::string(argv[2]) == "DEPTH")
+        {
+            mode = C_DEPTH;
+        }
     }
 
     path bin_path = path(argv[1]);
@@ -78,6 +90,10 @@ int main(int argc, char * argv[])
         if(mode == C_MONO)
         {
             convert_mono(bin_files, png_files);
+        }
+        else if(mode == C_DEPTH)
+        {
+            convert_depth(bin_files, png_files);
         }
         else
         {
@@ -126,3 +142,46 @@ void convert_color(std::vector<std::string> & bin_files, std::vector<std::string
         std::cout << std::endl;
 }
 
+void convert_depth(std::vector<std::string> & bin_files, std::vector<std::string> & png_files)
+{
+    #pragma omp parallel for
+    for(size_t i = 0; i < bin_files.size(); ++i)
+    {
+        Image<uint16_t, DEPTH> * in = new Image<uint16_t, DEPTH>();
+        deserialize(bin_files[i], *in);
+        Image<uint32_t, RGB> * out = new Image<uint32_t, RGB>(in->size);
+
+        // Build histogram
+        unsigned int histo[MAX_DEPTH];
+        memset(histo, 0, MAX_DEPTH*sizeof(unsigned int));
+        for(size_t p = 0; p < in->pixels; ++p)
+        {
+            histo[in->raw_data[p]]++;
+        }
+        unsigned int nbPoints = in->pixels - histo[0];
+        histo[0] = 0;
+        if(nbPoints)
+        {
+            for(size_t c = 1; c < MAX_DEPTH; ++c)
+            {
+                histo[c] += histo[c-1];
+            }
+            for(size_t c = 1; c < MAX_DEPTH; ++c)
+            {
+                histo[c] = (unsigned int)(256 * (1.0f - ((float)histo[c] / nbPoints)));
+            }
+        }
+        for(size_t p = 0; p < in->pixels; ++p)
+        {
+            out->raw_data[p] = histo[in->raw_data[p]];
+        }
+        save_color(png_files[i], out);
+        delete in;
+        delete out;
+        #pragma omp critical
+        {
+            std::cout << "\r" << i+1 << "/" << bin_files.size() << std::flush;
+        }
+    }
+    std::cout << std::endl;
+}
