@@ -9,11 +9,17 @@
 
 using namespace boost::filesystem ;
 
-SequenceGrabber::SequenceGrabber( VisionSystem *vs, string sandbox )
+namespace visionsystem
+{
+
+SequenceGrabber::SequenceGrabber( VisionSystem *vs, std::string sandbox )
 :Plugin( vs, "sequence-grabber", sandbox ), 
  XmlRpcServerMethod("SequenceGrabber", 0),
- m_close(false), m_started(false), m_frame(0), 
- is_mono(true), m_cameras(0), m_images_mono(0), m_images_rgb(0)
+ m_save_th_mono(0), m_save_th_rgb(0), m_save_th_depth(0),
+ mono_count(false), rgb_count(false), depth_count(false),
+ m_close(false), m_started(false), 
+ m_frame_mono(0), m_frame_rgb(0), m_frame_depth(0),
+ m_cameras(0), m_images_mono(0), m_images_rgb(0), m_images_depth(0)
 {
 }
 
@@ -22,27 +28,45 @@ SequenceGrabber::~SequenceGrabber() {
 
 bool SequenceGrabber::pre_fct() {
 
-	string filename = get_sandbox() + string ( "/sequence-grabber.conf") ;
-	try {
-		read_config_file( filename.c_str() ) ; 
-	} catch ( string msg ) {
-		
-		cout << "[SequenceGrabber] Could not read config file" << endl ;
-		cout << "[SequenceGrabber] Will grab all active cameras in MONO mode" << endl ;
+    std::string filename = get_sandbox() + std::string ( "/sequence-grabber.conf") ;
+    try {
+        read_config_file( filename.c_str() ) ; 
+    } catch ( std::string msg ) {
+        
+        std::cout << "[SequenceGrabber] Could not read config file" << std::endl ;
+        std::cout << "[SequenceGrabber] Will grab all active cameras in RGB mode" << std::endl ;
 
-	}
-
-    vector<Camera*> cams = get_all_cameras() ;
-    
-    for (int i=0; i<cams.size(); i++ ) {
-    	if ( cams[i]->is_active() ) {
-            m_cameras.push_back(cams[i]);
-    	}
     }
+
+    /* Default case, grab all cameras */
+    if(m_cameras.size() == 0)
+    {
+        std::vector<Camera*> cams = get_all_cameras() ;
+        for(size_t i = 0; i < cams.size(); ++i)
+        {
+            m_cameras.push_back(CameraConfig(cams[i]->get_name(), ACQ_RGB, 0));
+        }
+    }
+    
+
+    for(std::vector<CameraConfig>::iterator it = m_cameras.begin(); it != m_cameras.end(); ++it)
+    {
+        Camera * cam = get_camera(it->name);
+        if(cam && cam->is_active())
+        {
+            it->cam = cam;
+        }
+        else
+        {
+            m_cameras.erase(it);
+            --it;
+        }
+    }
+    /* From now on we can assume that all Camera* in m_cameras are valid and refer to active cameras */
 
     for(size_t i = 0; i < m_cameras.size(); ++i)
     {
-        path camera_path = path(get_sandbox()) / path(m_cameras[i]->get_name())  ;
+        path camera_path = path(get_sandbox()) / path(m_cameras[i].name)  ;
         if ( exists(camera_path) )
         {
             remove_all(camera_path);
@@ -51,20 +75,29 @@ bool SequenceGrabber::pre_fct() {
     }
 
 
-	return true ;
+    return true ;
 }
 
 void SequenceGrabber::preloop_fct() {
 
-	for ( unsigned int i=0; i< m_cameras.size(); ++i )
+    for ( unsigned int i=0; i< m_cameras.size(); ++i )
     {
-        if(is_mono)
+        switch(m_cameras[i].mode)
         {
-    		register_to_cam< Image<unsigned char, vision::MONO> > ( m_cameras[i], 50 ) ;
-        }
-        else
-        {
-    		register_to_cam< Image<uint32_t, vision::RGB> > ( m_cameras[i], 50 ) ;
+            case ACQ_MONO:
+                mono_count++;
+                register_to_cam< vision::Image<unsigned char, vision::MONO> > ( m_cameras[i].cam, 50 ) ;
+                break;
+            case ACQ_RGB:
+                rgb_count++;
+                register_to_cam< vision::Image<uint32_t, vision::RGB> > ( m_cameras[i].cam, 50 ) ;
+                break;
+            case ACQ_DEPTH:
+                depth_count++;
+                register_to_cam< vision::Image<uint16_t, vision::DEPTH> > ( m_cameras[i].cam, 50 ) ;
+                break;
+            default:
+                break;
         }
     }
     try {
@@ -80,13 +113,20 @@ void SequenceGrabber::preloop_fct() {
     {
         std::cout << "[SequenceGrabber] No XML-RPC server plugin registered to the server" << std::endl;
         std::cout << "[SequenceGrabber] Will start acquisition right away !" << std::endl;
-        if(is_mono)
+        if(mono_count)
         {
-            m_save_th = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop_mono, this));
+            m_save_th_mono = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop< vision::Image<unsigned char, vision::MONO> >, 
+                                                this, boost::cref(m_images_mono), mono_count, boost::ref(m_frame_mono)));
         }
-        else
+        if(rgb_count)
         {
-            m_save_th = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop_rgb, this));
+            m_save_th_rgb = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop< vision::Image<uint32_t, vision::RGB> >, 
+                                                this, boost::cref(m_images_rgb), rgb_count, boost::ref(m_frame_rgb)));
+        }
+        if(depth_count)
+        {
+            m_save_th_depth = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop< vision::Image<uint16_t, vision::DEPTH> >, 
+                                                this, boost::cref(m_images_depth), depth_count, boost::ref(m_frame_depth)));
         }
     }
 }
@@ -97,21 +137,28 @@ void SequenceGrabber::loop_fct() {
     {
         for(unsigned int i = 0; i < m_cameras.size(); ++i)
         {
-            if(is_mono)
+            vision::Image<unsigned char, vision::MONO> * img_mono = 0;
+            vision::Image<uint32_t, vision::RGB> * img_rgb = 0;
+            vision::Image<uint16_t, vision::DEPTH> * img_depth = 0;
+            switch(m_cameras[i].mode)
             {
-                vision::Image<unsigned char, vision::MONO> * img = dequeue_image< Image<unsigned char, vision::MONO> > (m_cameras[i]);
-
-                m_images_mono.push_back(make_pair(m_cameras[i]->get_name(), new vision::Image<unsigned char, vision::MONO>(*img)));
-
-                enqueue_image(m_cameras[i], img);
-            }
-            else
-            {
-                vision::Image<uint32_t, vision::RGB> * img = dequeue_image< Image<uint32_t, vision::RGB> > (m_cameras[i]);
-
-                m_images_rgb.push_back(make_pair(m_cameras[i]->get_name(), new vision::Image<uint32_t, vision::RGB>(*img)));
-
-                enqueue_image(m_cameras[i], img);
+                case ACQ_MONO:
+                    img_mono = dequeue_image<vision::Image<unsigned char, vision::MONO> > (m_cameras[i].cam);
+                    m_images_mono.push_back(make_pair(m_cameras[i].name, new vision::Image<unsigned char, vision::MONO>(*img_mono)));
+                    enqueue_image(m_cameras[i].cam, img_mono);
+                    break;
+                case ACQ_RGB:
+                    img_rgb = dequeue_image<vision::Image<uint32_t, vision::RGB> > (m_cameras[i].cam);
+                    m_images_rgb.push_back(make_pair(m_cameras[i].name, new vision::Image<uint32_t, vision::RGB>(*img_rgb)));
+                    enqueue_image(m_cameras[i].cam, img_rgb);
+                    break;
+                case ACQ_DEPTH:
+                    img_depth = dequeue_image<vision::Image<uint16_t, vision::DEPTH> > (m_cameras[i].cam);
+                    m_images_depth.push_back(make_pair(m_cameras[i].name, new vision::Image<uint16_t, vision::DEPTH>(*img_depth)));
+                    enqueue_image(m_cameras[i].cam, img_depth);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -119,126 +166,163 @@ void SequenceGrabber::loop_fct() {
     {
         for(unsigned int i = 0; i < m_cameras.size(); ++i)
         {
-            if(is_mono)
+            vision::Image<unsigned char, vision::MONO> * img_mono = 0;
+            vision::Image<uint32_t, vision::RGB> * img_rgb = 0;
+            vision::Image<uint16_t, vision::DEPTH> * img_depth = 0;
+            switch(m_cameras[i].mode)
             {
-                vision::Image<unsigned char, vision::MONO> * img = dequeue_image< Image<unsigned char, vision::MONO> > (m_cameras[i]);
-                enqueue_image(m_cameras[i], img);
-            }
-            else
-            {
-                vision::Image<uint32_t, vision::RGB> * img = dequeue_image< Image<uint32_t, vision::RGB> > (m_cameras[i]);
-                enqueue_image(m_cameras[i], img);
+                case ACQ_MONO:
+                    img_mono = dequeue_image<vision::Image<unsigned char, vision::MONO> > (m_cameras[i].cam);
+                    enqueue_image(m_cameras[i].cam, img_mono);
+                    break;
+                case ACQ_RGB:
+                    img_rgb = dequeue_image<vision::Image<uint32_t, vision::RGB> > (m_cameras[i].cam);
+                    enqueue_image(m_cameras[i].cam, img_rgb);
+                    break;
+                case ACQ_DEPTH:
+                    img_depth = dequeue_image<vision::Image<uint16_t, vision::DEPTH> > (m_cameras[i].cam);
+                    enqueue_image(m_cameras[i].cam, img_depth);
+                    break;
+                default:
+                    break;
             }
         }
-        m_frame++;
+        m_frame_mono++;
+        m_frame_rgb++;
+        m_frame_depth++;
     }
 }
 
 bool SequenceGrabber::post_fct() {
-    for(unsigned int i = 0; i < m_cameras.size(); ++i)
+    for ( unsigned int i=0; i< m_cameras.size(); ++i )
     {
-        if(is_mono)
+        switch(m_cameras[i].mode)
         {
-            unregister_to_cam< vision::Image<unsigned char, vision::MONO> >(m_cameras[i]);	
+            case ACQ_MONO:
+                unregister_to_cam<vision::Image<unsigned char, vision::MONO> > ( m_cameras[i].cam ) ;
+                break;
+            case ACQ_RGB:
+                unregister_to_cam<vision::Image<uint32_t, vision::RGB> > ( m_cameras[i].cam ) ;
+                break;
+            case ACQ_DEPTH:
+                unregister_to_cam<vision::Image<uint16_t, vision::DEPTH> > ( m_cameras[i].cam ) ;
+                break;
+            default:
+                break;
         }
-        else
-        {
-            unregister_to_cam< vision::Image<uint32_t, vision::RGB> >(m_cameras[i]);	
-        }
-	}
+    }
     m_close = true;
-    if(m_save_th)
+    if(m_save_th_mono)
     {
-        m_save_th->join();
-        delete m_save_th;
+        m_save_th_mono->join();
+        delete m_save_th_mono;
+        m_save_th_mono = 0;
     } 
-	return true ;
+    if(m_save_th_rgb)
+    {
+        m_save_th_rgb->join();
+        delete m_save_th_rgb;
+        m_save_th_rgb = 0;
+    } 
+    if(m_save_th_depth)
+    {
+        m_save_th_depth->join();
+        delete m_save_th_depth;
+        m_save_th_depth = 0;
+    } 
+    return true ;
 }
 
 
-void SequenceGrabber::parse_config_line( vector<string> &line ) 
+void SequenceGrabber::parse_config_line( std::vector<std::string> &line ) 
 {
-    std::string mode;
-    if( fill_member(line, "Mode", mode) )
+    std::vector<std::string> cams_in;
+    if( fill_member(line, "Cameras", cams_in) )
     {
-        is_mono = (mode == "MONO");
+        for(size_t i = 0; i < cams_in.size(); ++i)
+        {
+            std::string cam_in = cams_in[i];
+            CameraConfig conf;
+            size_t sep = cam_in.rfind(':');
+            if(sep != std::string::npos)
+            {
+                conf.name = cam_in.substr(0, sep);
+                std::string mode = cam_in.substr(sep+1);
+                if(mode == "MONO")
+                {
+                    conf.mode = ACQ_MONO;
+                }
+                else if(mode == "RGB")
+                {
+                    conf.mode = ACQ_RGB;
+                }
+                else if(mode == "DEPTH")
+                {
+                    conf.mode = ACQ_DEPTH;
+                }
+                else
+                {
+                    // default mode when the camera has ":" in its name
+                    conf.name = cam_in;
+                    conf.mode = ACQ_RGB;
+                }
+            }
+            else
+            {
+                conf.name = cam_in;
+                conf.mode = ACQ_RGB;
+            }
+            m_cameras.push_back(conf);
+        }
     }
 }
 
-void SequenceGrabber::execute(XmlRpcValue & params, XmlRpcValue & result)
+void SequenceGrabber::execute(XmlRpc::XmlRpcValue & params, XmlRpc::XmlRpcValue & result)
 {
     std::string what(params[0]);
     if(what == "start" && !m_started)
     {
         m_close = false;
-        if(is_mono)
+        if(mono_count)
         {
-            m_save_th = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop_mono, this));
+            m_save_th_mono = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop< vision::Image<unsigned char, vision::MONO> >, 
+                                                this, m_images_mono, mono_count, m_frame_mono));
         }
-        else
+        if(rgb_count)
         {
-            m_save_th = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop_rgb, this));
+            m_save_th_rgb = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop< vision::Image<uint32_t, vision::RGB> >, 
+                                                this, m_images_rgb, rgb_count, m_frame_rgb));
+        }
+        if(depth_count)
+        {
+            m_save_th_depth = new boost::thread(boost::bind(&SequenceGrabber::save_images_loop< vision::Image<uint16_t, vision::DEPTH> >, 
+                                                this, m_images_depth, depth_count, m_frame_depth));
         }
     }
     if(what == "stop" && m_started)
     {
         m_started = false;
         m_close = true;
-        m_save_th->join();
-        delete m_save_th;
-        m_save_th = 0;
+        if(m_save_th_mono)
+        {
+            m_save_th_mono->join();
+            delete m_save_th_mono;
+            m_save_th_mono = 0;
+        } 
+        if(m_save_th_rgb)
+        {
+            m_save_th_rgb->join();
+            delete m_save_th_rgb;
+            m_save_th_rgb = 0;
+        } 
+        if(m_save_th_depth)
+        {
+            m_save_th_depth->join();
+            delete m_save_th_depth;
+            m_save_th_depth = 0;
+        } 
     }
 }
 
-void SequenceGrabber::save_images_loop_mono()
-{
-    unsigned int treated_frames = m_images_mono.size()/m_cameras.size();
-    m_started = true;
-    while(!m_close)
-    {
-        while(!m_close && m_images_mono.size() < m_cameras.size() * (treated_frames + 1))
-        {
-            usleep(1000);
-        }
-        unsigned int n = m_images_mono.size();
-        for(size_t i = m_cameras.size() * treated_frames; i < n; ++i)
-        {
-            std::stringstream filename;
-            filename << get_sandbox()  << "/" << m_images_mono[i].first << "/" << setfill('0') << setw(6) << m_frame << ".bin";
-            serialize(filename.str(), *(m_images_mono[i].second));
-            delete m_images_mono[i].second;
-            if(i % m_cameras.size() == m_cameras.size() - 1)
-            {
-                m_frame++;
-                treated_frames++;
-            }
-        }
-    }
-}
-
-void SequenceGrabber::save_images_loop_rgb()
-{
-    unsigned int treated_frames = m_images_rgb.size()/m_cameras.size();
-    m_started = true;
-    while(!m_close)
-    {
-        while(!m_close && m_images_rgb.size() < m_cameras.size() * (treated_frames + 1))
-        {
-            usleep(1000);
-        }
-        unsigned int n = m_images_rgb.size();
-        for(size_t i = m_cameras.size() * treated_frames; i < n; ++i)
-        {
-            std::stringstream filename;
-            filename << get_sandbox()  << "/" << m_images_rgb[i].first << "/" << setfill('0') << setw(6) << m_frame << ".bin";
-            serialize(filename.str(), *(m_images_rgb[i].second));
-            delete m_images_rgb[i].second;
-            if(i % m_cameras.size() == m_cameras.size() - 1)
-            {
-                m_frame++;
-                treated_frames++;
-            }
-        }
-    }
-}
+} // namespace visionsystem
 
