@@ -149,35 +149,8 @@ void convert_depth(std::vector<std::string> & bin_files, std::vector<std::string
     {
         Image<uint16_t, DEPTH> * in = new Image<uint16_t, DEPTH>();
         deserialize(bin_files[i], *in);
-        Image<uint32_t, RGB> * out = new Image<uint32_t, RGB>(in->size);
-
-        // Build histogram
-        unsigned int histo[MAX_DEPTH];
-        memset(histo, 0, MAX_DEPTH*sizeof(unsigned int));
-        for(size_t p = 0; p < in->pixels; ++p)
-        {
-            histo[in->raw_data[p]]++;
-        }
-        unsigned int nbPoints = in->pixels - histo[0];
-        histo[0] = 0;
-        if(nbPoints)
-        {
-            for(size_t c = 1; c < MAX_DEPTH; ++c)
-            {
-                histo[c] += histo[c-1];
-            }
-            for(size_t c = 1; c < MAX_DEPTH; ++c)
-            {
-                histo[c] = (unsigned int)(256 * (1.0f - ((float)histo[c] / nbPoints)));
-            }
-        }
-        for(size_t p = 0; p < in->pixels; ++p)
-        {
-            out->raw_data[p] = histo[in->raw_data[p]];
-        }
-        save_color(png_files[i], out);
+        save_color(png_files[i], in);
         delete in;
-        delete out;
         #pragma omp critical
         {
             std::cout << "\r" << i+1 << "/" << bin_files.size() << std::flush;
