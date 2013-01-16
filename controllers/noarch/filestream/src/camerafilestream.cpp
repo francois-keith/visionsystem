@@ -103,11 +103,11 @@ unsigned char * CameraFilestream::get_data()
         _current_frame = (_current_frame + 1) % _bin_files.size();
         return (unsigned char*)(_img_rgb->raw_data);
     }
-    else( _img_coding == VS_DEPTH16 )
+    else if ( _img_coding == VS_DEPTH16 )
     {
         vision::deserialize(_bin_files[_current_frame], *_img_depth);
         _current_frame = (_current_frame + 1) % _bin_files.size();
-        return (unsigned char*)(_img_rgb->raw_data);
+        return (unsigned char*)(_img_depth->raw_data);
     }
 }
 
