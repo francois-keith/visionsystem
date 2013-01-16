@@ -7,14 +7,21 @@
 using namespace boost::filesystem ;
 
 Grab::Grab( VisionSystem *vs, string sandbox )
-:Plugin( vs, "grab", sandbox ), WithViewer( vs )  
+: Plugin( vs, "grab", sandbox ), WithViewer( vs ),
+  captured_frames(0), saved_frames(0),
+  grab_next(false), grabbed_rgb(0), grabbed_depth(0)
 {
-	grab_next = false ;
-	grabbed.clear() ;
 }
 
 Grab::~Grab() {
-
+    for(size_t i = 0; i < grabbed_depth.size(); ++i)
+    {
+        delete grabbed_depth[i];
+    }
+    for(size_t i = 0; i < grabbed_rgb.size(); ++i)
+    {
+        delete grabbed_rgb[i];
+    }
 }
 
 bool Grab::pre_fct() {
@@ -29,13 +36,25 @@ bool Grab::pre_fct() {
 
 		vector<Camera*> cams = get_all_cameras() ;
 
-		for (int i=0; i<cams.size(); i++ ) {
+		for (int i=0; i<cams.size(); ++i ) {
 			if ( cams[i]->is_active() ) {
-				Registration* newreg = new Registration() ;
-				newreg->camera = cams[i] ;
-				newreg->grabbed_frames.clear() ;
-				grabbed.push_back( newreg ) ;
-				cout << "[grab] will grab on " << cams[i]->get_name() << endl ;
+                Registration< vision::Image<uint32_t, vision::RGB> > * reg_rgb = 0;
+                Registration< vision::Image<uint16_t, vision::DEPTH> > * reg_depth = 0;
+                switch(cams[i]->get_coding())
+                {
+                    case VS_DEPTH8:
+                    case VS_DEPTH16:
+                    case VS_DEPTH32:
+                        reg_depth = new Registration< vision::Image<uint16_t, vision::DEPTH> >(cams[i]);
+                        grabbed_depth.push_back(reg_depth);
+				        std::cout << "[grab] will grab depth on " << cams[i]->get_name() << std::endl ;
+                        break;
+                    default:
+                        reg_rgb = new Registration< vision::Image<uint32_t, vision::RGB> > (cams[i]);
+                        grabbed_rgb.push_back(reg_rgb);
+				        std::cout << "[grab] will grab on " << cams[i]->get_name() << std::endl ;
+                        break;
+                }
 			}
 		}
 
@@ -56,54 +75,65 @@ bool Grab::pre_fct() {
 
 void Grab::preloop_fct() {
 
-	for ( int i=0; i<grabbed.size(); i++ )
-		register_to_cam< Image<uint32_t, RGB> > ( grabbed[i]->camera, 50 ) ;
+    for ( size_t i = 0; i < grabbed_depth.size(); ++i )
+    {
+        register_to_cam< Image<uint16_t, vision::DEPTH> >(grabbed_depth[i]->camera, 10);
+    }
+
+	for ( size_t i = 0; i < grabbed_rgb.size(); ++i )
+    {
+		register_to_cam< Image<uint32_t, RGB> > ( grabbed_rgb[i]->camera, 10 ) ;
+    }
 
 }
 
 void Grab::loop_fct() {
 
-	for ( int i=0; i<grabbed.size(); i++ )
-	{
-		grabbed[i]->current_frame = dequeue_image< Image<uint32_t, RGB> > ( grabbed[i]->camera ) ;
-	}
+    for ( size_t i = 0; i < grabbed_depth.size(); ++i )
+    {
+        grabbed_depth[i]->current_frame = dequeue_image< Image<uint16_t, vision::DEPTH> >(grabbed_depth[i]->camera);
+    }
 
-	if ( grab_next ) {
-		for ( int i=0; i<grabbed.size(); i++ )
+	for ( size_t i = 0; i < grabbed_rgb.size(); ++i )
+    {
+		grabbed_rgb[i]->current_frame = dequeue_image< Image<uint32_t, RGB> > ( grabbed_rgb[i]->camera ) ;
+    }
+
+	if ( grab_next ) 
+    {
+		for ( size_t i=0; i<grabbed_depth.size(); ++i )
 		{
-			grabbed[i]->grabbed_frames.push_back( grabbed[i]->current_frame ) ;
+			grabbed_depth[i]->grabbed_frames.push_back( new vision::Image<uint16_t, vision::DEPTH>(*grabbed_depth[i]->current_frame) ) ;
+            captured_frames++;
 		}
-
+		for ( size_t i=0; i<grabbed_rgb.size(); ++i )
+		{
+			grabbed_rgb[i]->grabbed_frames.push_back( new vision::Image<uint32_t, vision::RGB>(*grabbed_rgb[i]->current_frame) ) ;
+            captured_frames++;
+		}
 		grab_next = false ;
 
-	} else {
-		for ( int i=0; i<grabbed.size(); i++ )
-		{
-			enqueue_image< Image<uint32_t, RGB> > ( grabbed[i]->camera, grabbed[i]->current_frame ) ;
-		}
+	} 
+	for ( size_t i=0; i < grabbed_depth.size(); ++i )
+	{
+		enqueue_image< Image<uint16_t, DEPTH> > ( grabbed_depth[i]->camera, grabbed_depth[i]->current_frame ) ;
+	}
+	for ( size_t i=0; i < grabbed_rgb.size(); ++i )
+	{
+		enqueue_image< Image<uint32_t, RGB> > ( grabbed_rgb[i]->camera, grabbed_rgb[i]->current_frame ) ;
 	}
 }
 
 bool Grab::post_fct() {
-	for ( int i=0; i<grabbed.size(); i++ ) {
-	
-		
-		path camera_path = path( get_sandbox() ) / path( grabbed[i]->camera->get_name() )  ;
-
-		if ( exists( camera_path ) )
-			remove_all( camera_path ) ;
-
-		create_directory ( camera_path ) ;	
-		
-		for ( int j=0; j<grabbed[i]->grabbed_frames.size(); j++ ) {
-
-			std::ostringstream filename;
-			filename << camera_path.string() << "/" << j << ".png" ;  
-			std::cout << "[grab] Saving " << filename.str() << std::endl;
-			save_color ( filename.str() , grabbed[i]->grabbed_frames[j] ) ;
-		}
-		
-	}
+    for ( size_t i = 0; i < grabbed_depth.size(); ++i)
+    {
+        dump2disk(*grabbed_depth[i]);
+    }
+    for ( size_t i = 0; i < grabbed_rgb.size(); ++i)
+    {
+        dump2disk(*grabbed_rgb[i]);
+    }
+    std::cout << std::endl;
 	return true ;
 }
 
