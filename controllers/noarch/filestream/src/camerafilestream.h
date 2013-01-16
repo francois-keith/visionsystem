@@ -65,6 +65,7 @@ public:
     unsigned int _current_frame;
     vision::Image<unsigned char, vision::MONO> * _img_mono;
     vision::Image<uint32_t, vision::RGB> * _img_rgb;
+    vision::Image<uint16_t, vision::DEPTH> * _img_depth;
 
     unsigned int _buffersize;
 

@@ -12,7 +12,7 @@ namespace visionsystem
 
 CameraFilestream::CameraFilestream()
 :   _img_size(0,0), _active(false), _img_coding(VS_MONO8), _fps(30), _frame(0), _name("filestream-unconfigured"), 
-    _bin_files(0), _current_frame(0), _img_mono(0), _img_rgb(0),
+    _bin_files(0), _current_frame(0), _img_mono(0), _img_rgb(0), _img_depth(0),
     _buffersize(100)
 {
     _previous_frame_t.tv_sec = 0;
@@ -60,6 +60,10 @@ bool CameraFilestream::init_camera()
     {
         _img_rgb = new vision::Image<uint32_t, vision::RGB>(get_size());
     }
+    if( _img_coding == VS_DEPTH16 )
+    {
+        _img_depth = new vision::Image<uint16_t, vision::DEPTH>(get_size());
+    }
     return true;
 }
 
@@ -93,9 +97,15 @@ unsigned char * CameraFilestream::get_data()
         _current_frame = (_current_frame + 1) % _bin_files.size();
         return _img_mono->raw_data;
     }
-    else
+    else if( _img_coding == VS_RGB32 )
     {
         vision::deserialize(_bin_files[_current_frame], *_img_rgb);
+        _current_frame = (_current_frame + 1) % _bin_files.size();
+        return (unsigned char*)(_img_rgb->raw_data);
+    }
+    else( _img_coding == VS_DEPTH16 )
+    {
+        vision::deserialize(_bin_files[_current_frame], *_img_depth);
         _current_frame = (_current_frame + 1) % _bin_files.size();
         return (unsigned char*)(_img_rgb->raw_data);
     }
@@ -139,6 +149,10 @@ void CameraFilestream::parse_config_line( std::vector<std::string> & line )
         else if( coding == "RGB" )
         {
             _img_coding = VS_RGB32;
+        }
+        else if( coding == "DEPTH" )
+        {
+            _img_coding = VS_DEPTH16;
         }
         else
         {
