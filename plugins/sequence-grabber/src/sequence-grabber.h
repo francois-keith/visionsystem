@@ -54,6 +54,8 @@ class SequenceGrabber : public Plugin, public configparser::WithConfigFile, publ
             ACQ_DEPTH
         };
 
+        ACQUISITION_MODE fcoding_to_acq(const FrameCoding & coding);
+
         struct CameraConfig
         {
             std::string name;

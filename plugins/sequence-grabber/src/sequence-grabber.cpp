@@ -34,7 +34,7 @@ bool SequenceGrabber::pre_fct() {
     } catch ( std::string msg ) {
         
         std::cout << "[SequenceGrabber] Could not read config file" << std::endl ;
-        std::cout << "[SequenceGrabber] Will grab all active cameras in RGB mode" << std::endl ;
+        std::cout << "[SequenceGrabber] Will grab all active cameras and guess best acquisition mode" << std::endl ;
 
     }
 
@@ -55,6 +55,7 @@ bool SequenceGrabber::pre_fct() {
         if(cam && cam->is_active())
         {
             it->cam = cam;
+            it->mode = fcoding_to_acq(cam->get_coding());
         }
         else
         {
@@ -274,6 +275,24 @@ void SequenceGrabber::parse_config_line( std::vector<std::string> &line )
             }
             m_cameras.push_back(conf);
         }
+    }
+}
+
+SequenceGrabber::ACQUISITION_MODE SequenceGrabber::fcoding_to_acq(const FrameCoding & coding)
+{
+    switch(coding)
+    {
+        case VS_MONO8:
+        case VS_MONO16:
+            return ACQ_MONO;
+        case VS_DEPTH8:
+        case VS_DEPTH16:
+        case VS_DEPTH24:
+        case VS_DEPTH32:
+            return ACQ_DEPTH;
+        /* Default cases (include RGB/YUV variations and unhandled like IR */
+        default:
+            return ACQ_RGB;
     }
 }
 
