@@ -1,8 +1,8 @@
-#include "plugin.h"
-
 #ifdef VS_HAS_CONTROLLER_SOCKET
     #include "camerasocket.h"
 #endif
+
+#include "plugin.h"
 
 SDLView::SDLView( VisionSystem* core, string sandbox ) 
 :Viewer( core, "sdlview", sandbox ), sdl_running(true)
