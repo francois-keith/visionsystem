@@ -44,6 +44,11 @@ if ( CONTROLLER_OPENNI )
 	install( TARGETS "openni" 
 			DESTINATION "${INSTALL_LIB_PATH}/vs_controllers"  COMPONENT main )
 
+    install( FILES "src/cameraopenni.h"
+             DESTINATION "${INSTALL_HEADERS_PATH}/visionsystem/vs_controllers/openni/"
+             COMPONENT main)
+
+
 else ( CONTROLLER_OPENNI )
 
 	message ( WARNING "Controller openni will not be included" ) 

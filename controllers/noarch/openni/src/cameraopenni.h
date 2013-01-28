@@ -64,6 +64,14 @@ public:
     std::string get_name() { return _name; }
     
     unsigned int get_frame() { return _depthMD.FrameID(); }
+
+    DepthGenerator* get_DepthGenerator() { return &_depth; }
+
+    DepthMetaData* get_DepthMetaData() { return &_depthMD; }
+
+    Context* get_Context() { return _context; }
+
+
 private:
     std::string _name;
     bool _active;
@@ -71,6 +79,8 @@ private:
     DepthGenerator _depth;
     DepthMetaData  _depthMD;
     vision::Image<uint16_t, vision::DEPTH> * _data;
+    Context* _context;
+
 };
 
 class CameraOpenNI : public configparser::WithConfigFile

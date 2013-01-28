@@ -52,7 +52,7 @@ void CameraImageOpenNI::update()
     }
 }
 
-CameraDepthOpenNI::CameraDepthOpenNI(Context & context, const std::string & name) : _name(name), _active(true), _frame(0)
+CameraDepthOpenNI::CameraDepthOpenNI(Context & context, const std::string & name) : _name(name), _active(true), _frame(0), _context(&context)
 {
     XnStatus rc = context.FindExistingNode(XN_NODE_TYPE_DEPTH, _depth);
     if (rc != XN_STATUS_OK)
@@ -129,7 +129,11 @@ bool CameraOpenNI::init_camera()
     }
     else if (rc != XN_STATUS_OK)
     {
-        std::cout << "[OpenNI] Open failed: " << xnGetStatusString(rc) << std::endl;
+
+//xnGetStatusString lead to some problem during compilation 
+//        std::cout << "[OpenNI] Open failed: " << xnGetStatusString(rc) << std::endl;
+        std::cout << "[OpenNI] Open failed: "  << std::endl;
+
         return false;
     }
 
