@@ -28,7 +28,7 @@ public:
     bool post_fct();
 
     /* Used to register new method to the server */
-    void AddMethod(XmlRpcServerMethod * method);
+    VS_PLUGIN_EXPORT void AddMethod(XmlRpcServerMethod * method);
 
 private:
     /* Configparser method */

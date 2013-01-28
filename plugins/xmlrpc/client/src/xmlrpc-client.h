@@ -28,7 +28,7 @@ public:
     bool post_fct();
 
     /* Used to access methods on server */
-    bool execute (const char *method, XmlRpcValue const &params, XmlRpcValue &result);
+    VS_PLUGIN_EXPORT bool execute (const char *method, XmlRpcValue const &params, XmlRpcValue &result);
 
 private:
     /* Configparser method */
