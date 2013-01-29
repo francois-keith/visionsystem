@@ -134,7 +134,7 @@ bool CameraSocket::has_data()
     {
         elapsed_time = 1000000*(now.tv_sec - previous_frame_t_.tv_sec) + (now.tv_usec - previous_frame_t_.tv_usec);
     }
-    if(has_data_ || elapsed_time > fps_)
+    if(has_data_)
     {
         has_data_ = false;
         previous_frame_t_ = now;
