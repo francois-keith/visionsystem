@@ -107,8 +107,6 @@ target_link_libraries ( ${EXEC_NAME}
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-std=c99)
-
 install( TARGETS "vs_pgm2bin"
 	    RUNTIME DESTINATION bin COMPONENT main
 	    LIBRARY DESTINATION lib COMPONENT main

@@ -153,7 +153,7 @@ int main(int argc, char * argv[])
             {
                 mkv_output.write_frame( hout, res.frame_data, res.frame_size, encoder->GetPicOut() );
             }
-            std::cout << "\rEncoded " << i << " frames out of " << bin_files.size() << std::flush;
+            std::cout << "\rEncoded " << (i+1) << " frames out of " << bin_files.size() << std::flush;
         }
         std::cout << std::endl;
 
