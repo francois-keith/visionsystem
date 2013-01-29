@@ -105,7 +105,39 @@ target_link_libraries ( ${EXEC_NAME}
 
 ### Install
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_definitions(-std=c99)
+
 install( TARGETS "vs_pgm2bin"
+	    RUNTIME DESTINATION bin COMPONENT main
+	    LIBRARY DESTINATION lib COMPONENT main
+	    ARCHIVE DESTINATION lib COMPONENT main )
+
+
+set(EXEC_NAME "vs_bin2mkv")
+
+set(${EXEC_NAME}_SRC
+    vs_bin2mkv.cpp
+    output/matroska.c
+    output/matroska_ebml.c
+)
+
+add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
+
+
+### Linking
+
+target_link_libraries ( ${EXEC_NAME} 
+				  ${VISION_LIBRARIES}
+				  ${CONFIGPARSER_LIBRARIES}
+				  ${Boost_LIBRARIES}
+				  ${DL_LIBRARIES}
+)  
+
+### Install
+
+install( TARGETS "vs_bin2mkv"
 	    RUNTIME DESTINATION bin COMPONENT main
 	    LIBRARY DESTINATION lib COMPONENT main
 	    ARCHIVE DESTINATION lib COMPONENT main )
