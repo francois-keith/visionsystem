@@ -13,7 +13,7 @@ if ( PLUGIN_XMLRPCCLIENT )
 
 	target_link_libraries( "xmlrpc-client" ${VISION_LIBRARIES} ${XMLRPC_LIBRARIES})
     if(WIN32)
-    target_link_libraries( "xmlrpc-client" "visionsystem" "vision" "configparser" )
+    target_link_libraries( "xmlrpc-client" "visionsystem" "vision" "configparser" "ws2_32")
     endif(WIN32)
 
 	### INSTAll
