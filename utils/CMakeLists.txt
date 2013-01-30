@@ -117,8 +117,6 @@ set(EXEC_NAME "vs_bin2mkv")
 
 set(${EXEC_NAME}_SRC
     vs_bin2mkv.cpp
-    output/matroska.c
-    output/matroska_ebml.c
 )
 
 add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )

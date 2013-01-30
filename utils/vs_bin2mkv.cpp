@@ -1,5 +1,5 @@
 #include <vision/io/imageio.h>
-#include <vision/io/H264Encoder.h>
+#include <vision/io/MKVEncoder.h>
 #include <boost/filesystem.hpp>
 
 #include <algorithm>
@@ -7,11 +7,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-extern "C"
-{
-#include "output/output.h"
-}
 
 #define MAX_DEPTH 10000
 
@@ -79,90 +74,21 @@ int main(int argc, char * argv[])
         }
         std::sort(bin_files.begin(), bin_files.end());
 
-        hnd_t hout = 0;
-        cli_output_opt_t output_opt;
-        memset( &output_opt, 0, sizeof(cli_output_opt_t) );
-
-        if( mkv_output.open_file( const_cast<char*>(movie_name.c_str()), &hout, &output_opt ) )
-        {
-            std::cerr << "Failed to open " << movie_name << std::endl;
-            return -1;
-        }
-
         Image<uint32_t, RGB> * in_img = new Image<uint32_t, RGB>();
-        H264Encoder * encoder = 0;
-        x264_param_t param;
-        uint64_t pts = 0;
-        for(size_t i = 0; i < bin_files.size(); ++i, ++pts)
+        MKVEncoder * encoder = 0;
+
+        for(size_t i = 0; i < bin_files.size(); ++i)
         {
             deserialize(bin_files[i], *in_img);
             if(!encoder)
             {
-                x264_param_default_preset(&param, "veryfast", "zerolatency");
-                param.i_threads = 0;
-                param.b_intra_refresh = 0;
-                param.b_repeat_headers = 0;
-                param.b_annexb = 0;
-                param.i_csp = X264_CSP_I420;
-                param.i_width = in_img->width;
-                param.i_height = in_img->height;
-                param.i_fps_num = fps;
-                param.i_fps_den = 1;
-                // Intra refres:
-                param.i_keyint_max = fps;
-                param.b_intra_refresh = 1;
-                //Rate control:
-                param.rc.i_rc_method = X264_RC_CRF;
-                param.rc.f_rf_constant = 25;
-                param.rc.f_rf_constant_max = 35;
-
-                // Specific for video encoding
-                param.b_vfr_input = 1;
-                param.i_fps_num = fps;
-                param.i_fps_den = 1;
-                param.i_timebase_num = 1;
-                param.i_timebase_den = fps;
-                param.vui.i_sar_width  = 1;
-                param.vui.i_sar_height = 1;
-                param.i_frame_total = bin_files.size();
-
-                encoder = new H264Encoder(&param);
-                x264_param_apply_fastfirstpass( &param );
-                x264_param_apply_profile(&param, "baseline");
-                if( mkv_output.set_param(hout, &param) )
-                {
-                    std::cerr << "Failed to set_param no output" << std::endl;
-                    return -1;
-                }
-                // Write SPS/PPS/SEI
-                x264_nal_t *headers;
-                int i_nal;
-
-                if( x264_encoder_headers( encoder->GetEncoder(), &headers, &i_nal ) < 0 )
-                {
-                    std::cerr <<  "x264_encoder_headers failed" << std::endl;
-                    return -1;
-                }
-                if( mkv_output.write_headers( hout, headers ) < 0 )
-                {
-                    std::cerr <<  "error writing headers to output file" << std::endl;
-                    return -1;
-                }
+                encoder = new MKVEncoder(movie_name, in_img->width, in_img->height, fps, bin_files.size());
             }
-            H264EncoderResult res = encoder->Encode(*in_img, pts);
-            pts = encoder->GetPicIn()->i_pts;
-            if(res.frame_size)
-            {
-                mkv_output.write_frame( hout, res.frame_data, res.frame_size, encoder->GetPicOut() );
-            }
-            std::cout << "\rEncoded " << (i+1) << " frames out of " << bin_files.size() << std::flush;
+            encoder->EncodeFrame(*in_img);
         }
-        std::cout << std::endl;
 
         delete in_img;
         delete encoder;
-        if(hout) { mkv_output.close_file(hout, 0, 0); }
-        
     }
     else
     {
