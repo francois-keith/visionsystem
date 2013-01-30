@@ -92,7 +92,8 @@ int main(int argc, char * argv[])
         Image<uint32_t, RGB> * in_img = new Image<uint32_t, RGB>();
         H264Encoder * encoder = 0;
         x264_param_t param;
-        for(size_t i = 0; i < bin_files.size(); ++i)
+        uint64_t pts = 0;
+        for(size_t i = 0; i < bin_files.size(); ++i, ++pts)
         {
             deserialize(bin_files[i], *in_img);
             if(!encoder)
@@ -148,7 +149,8 @@ int main(int argc, char * argv[])
                     return -1;
                 }
             }
-            H264EncoderResult res = encoder->Encode(*in_img, i);
+            H264EncoderResult res = encoder->Encode(*in_img, pts);
+            pts = encoder->GetPicIn()->i_pts;
             if(res.frame_size)
             {
                 mkv_output.write_frame( hout, res.frame_data, res.frame_size, encoder->GetPicOut() );
