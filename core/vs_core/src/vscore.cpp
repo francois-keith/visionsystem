@@ -66,7 +66,7 @@ VsCore::~VsCore()
 void VsCore::sigint_handler(int signum)
 {
     #ifndef WIN32
-    if(signum == SIGINT)
+    if(signum == SIGINT || signum == SIGQUIT)
     {
         whiteboard_mutex["core_stop"]->unlock();
         whiteboard_write< bool >( string("core_stop") , true ) ;

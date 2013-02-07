@@ -30,6 +30,7 @@ int main ( int argc, char** argv, char** envv ) {
 
 #ifndef WIN32
     signal(SIGINT, &sigint_handler);
+    signal(SIGQUIT, &sigint_handler);
 #endif
 	core = new VsCore( argc, argv, envv ) ;
 
