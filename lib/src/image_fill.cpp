@@ -91,22 +91,57 @@ inline void __YUV422_YUYV_TO_RGB__(unsigned char * data, unsigned char * rgb_out
     rgb_out[5] = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
 }
 
+inline void __YUV422_UYVY_TO_RGB__(unsigned char * data, unsigned char * rgb_out)
+{
+    int yy, uu, vv ;
+    int ug_plus_vg, ub, vr ;
+    int r,g,b;
+
+    // This was inspired from libcvd source code
+
+    yy  = data[1] << 8 ;
+    uu  = data[0] - 128 ;
+    vv  = data[2] - 128 ;
+
+    ug_plus_vg = uu * 88 + vv * 183;
+            ub = uu * 454;
+            vr = vv * 359;
+
+    r = (yy + vr) >> 8;
+    g = (yy - ug_plus_vg) >> 8;
+    b = (yy + ub) >> 8;
+
+    rgb_out[0] = r < 0 ? 0 : ( r > 255 ? 255 : (unsigned char) r );
+    rgb_out[1] = g < 0 ? 0 : ( g > 255 ? 255 : (unsigned char) g );
+    rgb_out[2] = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
+
+    yy = data[3] << 8 ;
+    r = ( yy + vr ) >> 8 ;
+    g = ( yy - ug_plus_vg) >> 8;
+    b = ( yy + ub) >> 8 ;
+
+    rgb_out[3] = r < 0 ? 0 : ( r > 255 ? 255 : (unsigned char) r );
+    rgb_out[4] = g < 0 ? 0 : ( g > 255 ? 255 : (unsigned char) g );
+    rgb_out[5] = b < 0 ? 0 : ( b > 255 ? 255 : (unsigned char) b );
+}
+
+
 template<>
 void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsystem::Frame* frm ) 
 {
 	
 	register unsigned int i ;
+	unsigned char rgb_out[6];
 	
 	switch ( frm->_coding ) {
 
 
 		case VS_YUV422_YUYV: 
 
-				unsigned char rgb_out[6];
 
 				for (i=0; i< img->pixels; i+=2 ) {
 			
-                    __YUV422_YUYV_TO_RGB__(&(frm->_data[ 2*i ]), rgb_out);
+					__YUV422_YUYV_TO_RGB__(&(frm->_data[ 2*i ]), rgb_out);
 
 					img->raw_data[i] =  ( (uint32_t) rgb_out[2] ) << 16  |
 							    ( (uint32_t) rgb_out[1] ) << 8 |
@@ -144,7 +179,7 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 		
 		case VS_DEPTH16:
 
-				for ( int i=0; i<img->pixels; i++ ) {
+				for ( i=0; i<img->pixels; i++ ) {
 
 					uint16_t *depth = (uint16_t*) frm->_data ;
 					uint8_t R,G,B ;
@@ -158,10 +193,49 @@ void image_fill < Image< uint32_t, RGB > > ( Image<uint32_t,RGB> *img, visionsys
 
 				break ;
 
-        case VS_RAW:
-                memcpy(img->raw_data, frm->_data, frm->_data_size);
-                img->data_size = frm->_data_size;
-                break;
+		case VS_RAW:
+				memcpy(img->raw_data, frm->_data, frm->_data_size);
+		                img->data_size = frm->_data_size;
+				break;
+		
+		case VS_YUV422_YYUV:
+				throw( string( "Image<uint32_t,RGB> : CONVERSION YUV422_YYUV NOT IMPLEMENTED" ) ) ;
+				break ;
+
+	
+		case VS_YUV422_YVYU:
+				throw( string( "Image<uint32_t,RGB> : CONVERSION YUV422_YVYU NOT IMPLEMENTED" ) ) ;
+				break ;
+	
+
+		case VS_YUV422_UYVY:
+	
+				for (i=0; i< img->pixels; i+=2 ) {
+			
+					__YUV422_UYVY_TO_RGB__(&(frm->_data[ 2*i ]), rgb_out);
+
+					img->raw_data[i] =  ( (uint32_t) rgb_out[2] ) << 16  |
+							    ( (uint32_t) rgb_out[1] ) << 8 |
+							    ( (uint32_t) rgb_out[0] ) ;
+				
+					img->raw_data[i+1] =  ( (uint32_t) rgb_out[5] ) << 16  |
+							      ( (uint32_t) rgb_out[4] ) << 8 |
+							      ( (uint32_t) rgb_out[3] ) ;
+				}
+
+				break ;
+	
+
+		case VS_YUV422_VYUY:
+				throw( string( "Image<uint32_t,RGB> : CONVERSION YUV422_VYUY NOT IMPLEMENTED" ) ) ;
+				break ;
+
+
+
+
+
+
+
 		default:
 				throw( string( "Image<uint32_t,RGB> : CONVERSION NOT IMPLEMENTED" ) ) ;
 				break ;
