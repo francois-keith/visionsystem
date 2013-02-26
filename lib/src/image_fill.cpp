@@ -27,6 +27,17 @@ template <>
 
 		}
 		break;
+	
+	case VS_YUV422_UYVY:
+		
+		for (i = 0; i < img->pixels; i += 2) {
+
+			img->raw_data[i] = frm->_data[2*i+1];
+			img->raw_data[i+1] = frm->_data[2*i+3];
+
+		}
+		break;
+	
 
 	case VS_MONO8:
 		memcpy(img->raw_data, frm->_data, frm->_data_size);
