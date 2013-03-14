@@ -11,6 +11,12 @@
 
 #include <vision/io/H264Decoder.h>
 
+#ifdef WIN32
+#define VS_PLUGIN_EXPORT __declspec(dllexport)
+#else
+#define VS_PLUGIN_EXPORT
+#endif
+
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -34,7 +40,7 @@ public:
     
     void next_cam() { next_cam_ = true; }
 
-    void request_cam(const std::string & cam_name);
+    VS_PLUGIN_EXPORT void request_cam(const std::string & cam_name);
 
     /* End of stream camera specific functions */
 
