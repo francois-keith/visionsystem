@@ -2,6 +2,11 @@ option ( PLUGIN_STREAM2SOCKET "Include plugin stream2socket ?" ON )
 
 if ( PLUGIN_STREAM2SOCKET )
 
+	if (CONTROLLER_SOCKET)
+        add_definitions(-DVS_HAS_CONTROLLER_SOCKET)
+        include_directories( "${CMAKE_SOURCE_DIR}/controllers/noarch/socket/src/" )
+    endif(CONTROLLER_SOCKET)
+
 	### File Lists
 
 	SET( stream2socket_src "src/stream2socket.cpp" )
@@ -12,6 +17,9 @@ if ( PLUGIN_STREAM2SOCKET )
 	add_library( "stream2socket" SHARED ${stream2socket_src} ${stream2socket_hdr} )
 
 	target_link_libraries( "stream2socket" ${VISION_LIBRARIES})
+	if(CONTROLLER_SOCKET)
+        target_link_libraries("stream2socket" "socket")
+    endif(CONTROLLER_SOCKET)
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("stream2socket" "visionsystem" )

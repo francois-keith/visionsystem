@@ -1,3 +1,7 @@
+#ifdef VS_HAS_CONTROLLER_SOCKET
+    #include "camerasocket.h"
+#endif
+
 #include "stream2socket.h"
 
 inline void remove_alpha(unsigned char * data_in, unsigned int nb_pixels, unsigned char * data_out)
@@ -183,13 +187,26 @@ void Stream2Socket::loop_fct()
     }
     if(request_cam_)
     {
-        for(size_t i = 0; i < cams_.size(); ++i)
+        if(raw_)
         {
-            if(cams_[i]->get_name() == request_name_)
+#ifdef VS_HAS_CONTROLLER_SOCKET
+            CameraSocket * cam = dynamic_cast<CameraSocket*>(cams_[active_cam_]);
+            if(cam && cam->from_stream())
             {
-                unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
-                active_cam_ = i;
-                register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
+                cam->request_cam(request_name_);
+            }
+#endif
+        }
+        else
+        {
+            for(size_t i = 0; i < cams_.size(); ++i)
+            {
+                if(cams_[i]->get_name() == request_name_)
+                {
+                    unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
+                    active_cam_ = i;
+                    register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
+                }
             }
         }
         request_cam_ = false;
