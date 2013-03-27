@@ -34,6 +34,9 @@ public:
     std::string get_name() { return _name; }
     
     unsigned int get_frame() { return _imageMD.FrameID(); }
+
+    ImageGenerator* get_ImageGenerator() { return &_image; }
+
 private:
     std::string _name;
     bool _active;
