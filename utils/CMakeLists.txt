@@ -141,6 +141,8 @@ if(NOT WIN32)
 
     ### Install kill-vs_core utility
 
-    install( FILES "kill-vs_core" DESTINATION ${INSTALL_BIN_PATH} )
+    install( FILES "kill-vs_core"
+                DESTINATION ${INSTALL_BIN_PATH}
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE )
     
 endif(NOT WIN32)
