@@ -138,5 +138,9 @@ if(NOT WIN32)
     	    RUNTIME DESTINATION bin COMPONENT main
     	    LIBRARY DESTINATION lib COMPONENT main
     	    ARCHIVE DESTINATION lib COMPONENT main )
+
+    ### Install kill-vs_core utility
+
+    install( FILES "kill-vs_core" DESTINATION ${INSTALL_BIN_PATH} )
     
 endif(NOT WIN32)
