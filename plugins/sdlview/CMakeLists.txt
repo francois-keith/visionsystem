@@ -25,7 +25,8 @@ if ( PLUGIN_SDLVIEW AND SDL_FOUND)
 
 	add_library( "sdlview" SHARED ${sdlview_src} ${sdlview_hdr} )
 
-	target_link_libraries ("sdlview" ${CONFIGPARSER_LIBRARIES} ${VISION_LIBRARIES} ${SDL_LIBRARY} )
+	target_link_libraries ("sdlview" ${SDL_LIBRARY} )
+	PKG_CONFIG_USE_DEPENDENCY(sdlview vision)
     if(CONTROLLER_SOCKET)
         target_link_libraries("sdlview" "socket")
     endif(CONTROLLER_SOCKET)

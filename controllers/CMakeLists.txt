@@ -2,6 +2,8 @@
 ### Linux specific controllers
 ###
 
+ADD_REQUIRED_DEPENDENCY("configparser")
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 	add_subdirectory(  "linux" ) 

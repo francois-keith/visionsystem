@@ -12,6 +12,7 @@ if (CONTROLLER_CAMV4L2)
 	add_library( "camv4l2" SHARED ${cam1394_src} ${cam1394_hdr} )
 
 	target_link_libraries ( "camv4l2" ${VISION_LIBRARIES} )
+	PKG_CONFIG_USE_DEPENDENCY(camv4l2 configparser)
 
 	### INSTAll
 

@@ -10,8 +10,8 @@ if ( PLUGIN_DUMP2SOCKET )
 	### Targets
 
 	add_library( "dump2socket" SHARED ${dump2socket_src} ${dump2socket_hdr} )
+	PKG_CONFIG_USE_DEPENDENCY(dump2socket vision)
 
-	target_link_libraries( "dump2socket" ${VISION_LIBRARIES})
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("dump2socket" "visionsystem" )

@@ -16,7 +16,6 @@ if ( PLUGIN_STREAM2SOCKET )
 
 	add_library( "stream2socket" SHARED ${stream2socket_src} ${stream2socket_hdr} )
 
-	target_link_libraries( "stream2socket" ${VISION_LIBRARIES})
 	if(CONTROLLER_SOCKET)
         target_link_libraries("stream2socket" "socket")
     endif(CONTROLLER_SOCKET)
@@ -27,7 +26,10 @@ if ( PLUGIN_STREAM2SOCKET )
 	target_link_libraries("stream2socket" "configparser" )
 	target_link_libraries("stream2socket" ${LIBSWSCALE_LIBRARIES})
 	target_link_libraries("stream2socket" ${LIBAVCODEC_LIBRARIES})
+	ELSE(WIN32)
+	PKG_CONFIG_USE_DEPENDENCY(stream2socket vision)
 	ENDIF(WIN32)
+
 
     # Check for ZLIB
     SET(ZLIB_FOUND_NUMERAL 0)

@@ -18,8 +18,9 @@ if ( CONTROLLER_FILESTREAM )
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("filestream" "visionsystem" )
 	target_link_libraries("filestream" "vision" )
-	target_link_libraries("filestream" "configparser" )
 	ENDIF(WIN32)
+
+	PKG_CONFIG_USE_DEPENDENCY(filestream configparser)
 
 	### INSTAll
 

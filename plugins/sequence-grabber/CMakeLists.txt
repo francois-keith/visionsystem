@@ -1,6 +1,8 @@
 option ( PLUGIN_SEQUENCE_GRABBER "Include plugin sequence-grabber ?" ON )
 
 if ( PLUGIN_SEQUENCE_GRABBER )
+	INCLUDE_DIRECTORIES(${XMLRPC_INCLUDE_DIRS})
+	link_directories(${XMLRPC_LIBRARY_DIRS})
 
 	### File Lists
 

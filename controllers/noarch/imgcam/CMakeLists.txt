@@ -14,8 +14,8 @@ if ( CONTROLLER_IMGCAM )
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("imgcam" "visionsystem" )
 	target_link_libraries("imgcam" "vision" )
-	target_link_libraries("imgcam" "configparser" )
 	ENDIF(WIN32)
+	PKG_CONFIG_USE_DEPENDENCY(imgcam configparser)
 
 	### INSTAll
 

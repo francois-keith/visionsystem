@@ -19,7 +19,12 @@ if ( CONTROLLER_OPENNI )
     )
 
     include_directories(${OPENNI_INCLUDE_DIR})
-    message(STATUS "OpenNI found (include: ${OPENNI_INCLUDE_DIR}, lib: ${OPENNI_LIBRARY})")
+    IF(OPENNI_INCLUDE_DIR AND OPENNI_LIBRARY)
+        message(STATUS "OpenNI found (include: ${OPENNI_INCLUDE_DIR}, lib: ${OPENNI_LIBRARY})")
+    ELSE(OPENNI_INCLUDE_DIR AND OPENNI_LIBRARY)
+        message(FATAL_ERROR "OpenNI not found (include: ${OPENNI_INCLUDE_DIR}, lib: ${OPENNI_LIBRARY})\n"
+		"Note: you can turn off this dependency using the option CONTROLLER_OPENNI")
+    ENDIF(OPENNI_INCLUDE_DIR AND OPENNI_LIBRARY)
 
 
 	### File Lists
@@ -36,8 +41,8 @@ if ( CONTROLLER_OPENNI )
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("openni" "visionsystem" )
 	target_link_libraries("openni" "vision" )
-	target_link_libraries("openni" "configparser" )
 	ENDIF(WIN32)
+	PKG_CONFIG_USE_DEPENDENCY(openni configparser)
 
 	### INSTAll
 

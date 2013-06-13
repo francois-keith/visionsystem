@@ -20,6 +20,7 @@ add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 
 ### Linking
 
+PKG_CONFIG_USE_DEPENDENCY(${EXEC_NAME} vision)
 target_link_libraries ( ${EXEC_NAME} 
 				  ${VISION_LIBRARIES}
 				  ${CONFIGPARSER_LIBRARIES}
@@ -27,6 +28,12 @@ target_link_libraries ( ${EXEC_NAME}
 				  ${DL_LIBRARIES}
 )  
 
+
+ADD_REQUIRED_DEPENDENCY(libavcodec)
+PKG_CONFIG_USE_DEPENDENCY(vs_bin2png libavcodec)
+
+ADD_REQUIRED_DEPENDENCY(vpx)
+PKG_CONFIG_USE_DEPENDENCY(vs_bin2png vpx)
 ### Install
 
 install( TARGETS "vs_bin2png"
@@ -46,11 +53,10 @@ add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 ### Linking
 
 target_link_libraries ( ${EXEC_NAME} 
-				  ${VISION_LIBRARIES}
-				  ${CONFIGPARSER_LIBRARIES}
 				  ${Boost_LIBRARIES}
 				  ${DL_LIBRARIES}
 )  
+PKG_CONFIG_USE_DEPENDENCY(${EXEC_NAME} vision)
 
 ### Install
 
@@ -72,11 +78,10 @@ add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 ### Linking
 
 target_link_libraries ( ${EXEC_NAME} 
-				  ${VISION_LIBRARIES}
-				  ${CONFIGPARSER_LIBRARIES}
 				  ${Boost_LIBRARIES}
 				  ${DL_LIBRARIES}
 )  
+PKG_CONFIG_USE_DEPENDENCY(${EXEC_NAME} vision)
 
 ### Install
 
@@ -97,11 +102,10 @@ add_executable ( ${EXEC_NAME} ${${EXEC_NAME}_SRC} )
 ### Linking
 
 target_link_libraries ( ${EXEC_NAME} 
-				  ${VISION_LIBRARIES}
-				  ${CONFIGPARSER_LIBRARIES}
 				  ${Boost_LIBRARIES}
 				  ${DL_LIBRARIES}
 )  
+PKG_CONFIG_USE_DEPENDENCY(${EXEC_NAME} vision)
 
 ### Install
 
@@ -126,12 +130,11 @@ if(NOT WIN32)
     ### Linking
     
     target_link_libraries ( ${EXEC_NAME} 
-    				  ${VISION_LIBRARIES}
-    				  ${CONFIGPARSER_LIBRARIES}
     				  ${Boost_LIBRARIES}
     				  ${DL_LIBRARIES}
     )  
-    
+    PKG_CONFIG_USE_DEPENDENCY(${EXEC_NAME} vision)
+
     ### Install
     
     install( TARGETS "vs_bin2mkv"

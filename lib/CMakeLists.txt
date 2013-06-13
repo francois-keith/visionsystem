@@ -29,7 +29,7 @@ SOURCE_GROUP(Headers FILES ${vs_lib_hdr})
 ### Targets
 
 add_library( "visionsystem" SHARED ${vs_lib_src} ${vs_lib_hdr} )
-target_link_libraries ( "visionsystem" "vision" )
+PKG_CONFIG_USE_DEPENDENCY(visionsystem vision)
 
 IF(WIN32)
 	add_library( "visionsystem-static" STATIC ${vs_lib_src} ${vs_lib_hdr} )

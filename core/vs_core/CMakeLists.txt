@@ -23,11 +23,18 @@ add_executable ( "vs_core" ${vs_core_srcs} ${vs_core_hdrs} )
 ### Linking
 
 target_link_libraries ( "vs_core" visionsystem
-				  ${VISION_LIBRARIES}
-				  ${CONFIGPARSER_LIBRARIES}
 				  ${Boost_LIBRARIES}
 				  ${DL_LIBRARIES}
-)  
+)
+
+ADD_REQUIRED_DEPENDENCY(libavcodec)
+PKG_CONFIG_USE_DEPENDENCY(vs_core libavcodec)
+
+ADD_REQUIRED_DEPENDENCY(vpx)
+PKG_CONFIG_USE_DEPENDENCY(vs_core vpx)
+
+PKG_CONFIG_USE_DEPENDENCY(vs_core vision)
+PKG_CONFIG_USE_DEPENDENCY(vs_core configparser)
 
 ### Install
 

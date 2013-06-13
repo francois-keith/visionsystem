@@ -23,10 +23,11 @@ if ( PLUGIN_GLVIEW )
 
 	add_library( "glview" SHARED ${glview_src} ${glview_hdr} )
 
-	target_link_libraries ("glview" ${CONFIGPARSER_LIBRARIES} ${VISION_LIBRARIES} ${X11_X11_LIB} ${OPENGL_gl_LIBRARY} "Xxf86vm" )
+	target_link_libraries ("glview" ${X11_X11_LIB} ${OPENGL_gl_LIBRARY} "Xxf86vm" )
     if(CONTROLLER_SOCKET)
         target_link_libraries("glview" "socket")
     endif(CONTROLLER_SOCKET)
+	PKG_CONFIG_USE_DEPENDENCY(glview vision)
 
 	### INSTAll
 

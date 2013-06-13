@@ -12,36 +12,41 @@
 
 cmake_minimum_required (VERSION 2.6)
 
-set(CMAKE_LEGACY_CYGWIN_WIN32 1)
+INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/cpack.cmake)
 
-project (visionsystem)
-set (visionsystem_VERSION_MAJOR 0)
-set (visionsystem_VERSION_MINOR 3)
+set(CMAKE_LEGACY_CYGWIN_WIN32 1)
+SET(CMAKE_MODULE_PATH ${${PROJECT_NAME}_SOURCE_DIR}/CMakeModules)
+
+# name of the project
+SET(PROJECT_NAME visionsystem)
+SET(PROJECT_CONTACT )
+SET(PROJECT_DESCRIPTION "")
+SET(PROJECT_URL "")
 
 set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} /lib /usr/lib /usr/local/lib )
 set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} /usr/include /usr/local/include )
 
-set( CMAKE_MODULE_PATH  ${CMAKE_MODULE_PATH}  
-			"${PROJECT_SOURCE_DIR}/CMakeModules" ) 
+set( CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/CMakeModules) 
+
+set (visionsystem_VERSION_MAJOR 0)
+set (visionsystem_VERSION_MINOR 3)
 
 set ( INSTALL_BIN_PATH bin )
 set ( INSTALL_LIB_PATH lib )
 set ( INSTALL_AR_PATH  lib )
 set ( INSTALL_HEADERS_PATH include )
 
-# Make relative paths absolute (needed later on)
+SET(CXX_DISABLE_WERROR True)
+SET(CXX_DISABLE_WALL True)
+SET(CMAKE_VERBOSE_MAKEFILE ON)
 
-foreach(p LIB BIN HEADERS AR)
-        set(var INSTALL_${p}_PATH)
-        if(NOT IS_ABSOLUTE "${${var}}")
-                set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
-        endif()
-endforeach()
+SETUP_PROJECT()
 
 ### Search for Lib/Headers
 
-find_package( vision )
-find_package( configparser ) 
+ADD_REQUIRED_DEPENDENCY("vision")
+
 find_package( Boost 1.40.0 COMPONENTS system thread filesystem serialization)
 find_package( ImageMagick COMPONENTS Magick++ ) 
 
@@ -79,17 +84,33 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif(OPENMP_FOUND)
 
+
+### Locate xmlrpc
+set(XMLRPC_LIBRARIES "XmlRpc")
+set(XMLRPC_DIR "")
+find_path(XMLRPC_INCLUDE_DIRS "XmlRpc.h" 
+	PATHS ${CMAKE_INCLUDE_PATH} ${XMLRPC_DIR}/src/)
+find_library(XMLRPC_LIBRARY_PATH ${XMLRPC_LIBRARIES}
+	PATHS ${CMAKE_LIBRARY_PATH} ${XMLRPC_DIR})
+
+get_filename_component(XMLRPC_LIBRARY_DIRS ${XMLRPC_LIBRARY_PATH} PATH)
+
+IF(XMLRPC_INCLUDE_DIRS AND XMLRPC_LIBRARY_DIRS)
+  SET(XMLRPC_FOUND TRUE)
+ELSE(XMLRPC_INCLUDE_DIRS AND XMLRPC_LIBRARY_DIRS)
+  SET(XMLRPC_FOUND FALSE)
+ENDIF(XMLRPC_INCLUDE_DIRS AND XMLRPC_LIBRARY_DIRS)
+
+
 ### Set include directories 
         
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/lib/include"
 	             "${CMAKE_CURRENT_BINARY_DIR}"
 		     ${VISION_INCLUDE_DIRS} 
-		     ${CONFIGPARSER_INCLUDE_DIRS}
 		     ${Boost_INCLUDE_DIRS}
 		     ${DL_INCLUDE_DIR} )
 
 link_directories( "${VISION_LIBRARY_DIR}" 
-		   ${CONFIGPARSER_LIBRARY_DIRS}
 		   ${Boost_LIBRARY_DIRS} )
 
 ### Go to subdirs
@@ -99,3 +120,9 @@ add_subdirectory(  "controllers" )
 add_subdirectory(  "core" )
 add_subdirectory(  "plugins" )
 add_subdirectory(  "utils" )
+
+# Add dependency towards the library in the pkg-config file.
+PKG_CONFIG_APPEND_LIBS("visionsystem")
+
+SETUP_PROJECT_FINALIZE()
+SETUP_PROJECT_CPACK()

@@ -19,6 +19,7 @@ if ( CONTROLLER_CAMDC1394 )
 		add_library( "camdc1394" SHARED ${cam1394_src} ${cam1394_hdr} )
 
 		target_link_libraries ("camdc1394" ${VISION_LIBRARIES}  ${DC1394_LIBRARIES} )
+		PKG_CONFIG_USE_DEPENDENCY(camdc1394 configparser)
 
 		### INSTAll
 

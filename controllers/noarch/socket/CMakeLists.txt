@@ -13,15 +13,11 @@ if ( CONTROLLER_SOCKET )
 
 	add_library( "socket" SHARED ${socket_src} ${socket_hdr} )
 
-	target_link_libraries ("socket" ${VISION_LIBRARIES})
-	IF(WIN32)
-	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
-	target_link_libraries("socket" "visionsystem" )
-	target_link_libraries("socket" "vision" )
-	target_link_libraries("socket" "configparser" )
-	target_link_libraries("socket" ${LIBSWSCALE_LIBRARIES})
-	target_link_libraries("socket" ${LIBAVCODEC_LIBRARIES})
-	ENDIF(WIN32)
+	target_link_libraries (socket visionsystem)
+
+	PKG_CONFIG_USE_DEPENDENCY(socket configparser)
+	PKG_CONFIG_USE_DEPENDENCY(socket vision)
+
     # Check for ZLIB
     SET(ZLIB_FOUND_NUMERAL 0)
     find_package(ZLIB)
@@ -39,6 +35,17 @@ if ( CONTROLLER_SOCKET )
     install( FILES "src/camerasocket.h"
              DESTINATION "${INSTALL_HEADERS_PATH}/visionsystem/vs_controllers/socket/" 
              COMPONENT main)
+
+	set(PLUGIN_NAME "visionsystem_socket")
+	set(PLUGIN_DESCRIPTION "socket plugin for vision system")
+	set(PKG_CONFIG_REQUIRES "configparser, vision")
+	set(PLUGIN_LIBS "${LIBDIR_KW}\${libdir}/vs_controllers ${LIBINCL_KW}socket${LIB_EXT}")
+	set(PLUGIN_CFLAGS "")
+
+	configure_file(${CMAKE_MODULE_PATH}/plugin.pc.cmake "${PROJECT_BINARY_DIR}/${PROJECT_NAME}_socket.pc")
+
+	install ( FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}_socket.pc" 
+	      DESTINATION "${INSTALL_LIB_PATH}/pkgconfig" COMPONENT dev )  
 
 else ( CONTROLLER_SOCKET )
 
