@@ -14,10 +14,8 @@ if ( PLUGIN_DUMP2DISK )
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("dump2disk" "visionsystem" )
-	target_link_libraries("dump2disk" "vision" )
-	target_link_libraries("dump2disk" "configparser" )
 	ENDIF(WIN32)
-
+	PKG_CONFIG_USE_DEPENDENCY(dump2disk vision)
 
 	### INSTAll
 

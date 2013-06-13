@@ -18,12 +18,8 @@ if ( PLUGIN_SEQUENCE_GRABBER )
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("sequence-grabber" "visionsystem" )
-	target_link_libraries("sequence-grabber" "vision" )
-	target_link_libraries("sequence-grabber" "configparser" )
-	if ( ImageMagick_Magick++_FOUND )		 
-	target_link_libraries ( "sequence-grabber" "${ImageMagick_Magick++_LIBRARY}" ) 
-    endif ( ImageMagick_Magick++_FOUND )
 	ENDIF(WIN32)
+	PKG_CONFIG_USE_DEPENDENCY(sequence-grabber  vision)
 
 	### INSTAll
 

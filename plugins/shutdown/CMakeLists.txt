@@ -13,10 +13,8 @@ if ( PLUGIN_SHUTDOWN )
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("shutdown" "visionsystem" )
-	target_link_libraries("shutdown" "vision" )
-	target_link_libraries("shutdown" "configparser" )
 	ENDIF(WIN32)
-
+	PKG_CONFIG_USE_DEPENDENCY(shutdown vision)
 
 	### INSTAll
 

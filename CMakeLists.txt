@@ -48,18 +48,6 @@ SETUP_PROJECT()
 ADD_REQUIRED_DEPENDENCY("vision")
 
 find_package( Boost 1.40.0 COMPONENTS system thread filesystem serialization)
-find_package( ImageMagick COMPONENTS Magick++ ) 
-
-IF(ImageMagick_Magick++_FOUND)
-SET(ImageMagick_Magick++_FOUND_BOOL 1)
-ELSE(ImageMagick_Magick++_FOUND)
-SET(ImageMagick_Magick++_FOUND_BOOL 0)
-ENDIF(ImageMagick_Magick++_FOUND)
-
-if ( ImageMagick_Magick++_FOUND )		 
-	include_directories ( "${ImageMagick_Magick++_INCLUDE_DIR}" )
-endif ( ImageMagick_Magick++_FOUND )	
-
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
@@ -106,12 +94,10 @@ ENDIF(XMLRPC_INCLUDE_DIRS AND XMLRPC_LIBRARY_DIRS)
         
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/lib/include"
 	             "${CMAKE_CURRENT_BINARY_DIR}"
-		     ${VISION_INCLUDE_DIRS} 
 		     ${Boost_INCLUDE_DIRS}
 		     ${DL_INCLUDE_DIR} )
 
-link_directories( "${VISION_LIBRARY_DIR}" 
-		   ${Boost_LIBRARY_DIRS} )
+link_directories( ${Boost_LIBRARY_DIRS} )
 
 ### Go to subdirs
 

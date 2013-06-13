@@ -16,9 +16,10 @@ if ( PLUGIN_MOVIE_MAKER )
 	IF(WIN32)
 	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("movie-maker" "visionsystem" )
-	target_link_libraries("movie-maker" "vision" )
     target_link_libraries("movie-maker" "x264" )
 	ENDIF(WIN32)
+	PKG_CONFIG_USE_DEPENDENCY(movie-maker  vision)
+
 
 	### INSTAll
 
