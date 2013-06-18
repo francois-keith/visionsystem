@@ -32,7 +32,7 @@ typedef enum {
 	VS_IR16,
 	VS_IR24,
 	VS_IR32,
-    VS_RAW,
+	VS_RAW
 
 } FrameCoding ;
 

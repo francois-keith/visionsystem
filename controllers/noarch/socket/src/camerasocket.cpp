@@ -18,13 +18,13 @@ namespace visionsystem
 
 CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
+  frame_(0),
   from_stream_(false), next_cam_(false),
   request_cam_(false), request_name_(""), 
   cam_ready_(false), has_data_(false),
   server_name_(""), server_port_(0), 
   reverse_connection_(false), port_(0),
   raw_(false),
-  frame_(0),
   data_compress_(false), m_decoder(0),
   io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
   timeout_timer_(io_service, boost::posix_time::seconds(1)),
@@ -417,8 +417,8 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
     }
 }
 
-void CameraSocket::handle_send_to(const boost::system::error_code & error,
-                                size_t bytes_send)
+void CameraSocket::handle_send_to(const boost::system::error_code & /*error*/,
+								size_t /*bytes_send*/)
 {
     if(verbose_)
     {

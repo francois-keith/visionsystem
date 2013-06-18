@@ -44,12 +44,12 @@ namespace visionsystem {
 	} 
 
 
-	void Viewer::operator<<(const string &s){
+	void Viewer::operator<<(const string &){
 		// FIXME
 	}
 
 
-	void operator<<(Viewer * plugin, const string &s){
+	void operator<<(Viewer *, const string &){
 		// FIXME
 	}
 
