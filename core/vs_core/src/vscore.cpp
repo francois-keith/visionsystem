@@ -86,15 +86,10 @@ void VsCore::parse_config_line ( vector<string> &line )
 
     if ( line[0] == "Controller" ) {
 
-        if ((line.size()!= 2) && (line.size()!=3)) 
-            throw("[vs_core] ERROR : Wrong Number of arguments for command [Controller]") ;
-        
-        path sandbox ;
-        
-        if ( line.size() == 2 )
-             sandbox = _basedir / "controllers" /  line[1];
-        else
-             sandbox = line[2] ;
+		if ((line.size()!= 2) && (line.size()!=3)) 
+			throw("[vs_core] ERROR : Wrong Number of arguments for command [Controller]") ;
+		
+		path sandbox = _basedir / "controllers" /  line[1];
 
         cout << "[vs_core] Loading Controller: " << line[1] << " " << sandbox << endl ;
 
@@ -108,9 +103,21 @@ void VsCore::parse_config_line ( vector<string> &line )
             return ;
         }
 
-        _controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox.string() + "/") ) ;
-        
-        return ;
+        bool load_controller = true;
+        if( line.size() == 3 )
+        {
+            std::stringstream opt_in;
+            opt_in << line[2];
+            opt_in >> load_controller;
+        }
+        _available_controllers.push_back(line[1]);
+        if(load_controller)
+        {
+            _loaded_controllers.push_back(line[1]);
+            _controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox.string() + "/") ) ;
+        }
+		
+		return ;
 
     }
 

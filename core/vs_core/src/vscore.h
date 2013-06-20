@@ -45,8 +45,11 @@ class VsCore : public VisionSystem, public WithConfigFile
         path _controller_path ;
         path _plugin_path ;
 
-        vector<Controller*>  _controllers ;
-        vector<Plugin*>         _plugins ;
+        std::vector<std::string> _available_controllers;
+        std::vector<std::string> _loaded_controllers;
+
+		vector<Controller*>  _controllers ;
+		vector<Plugin*>	     _plugins ;
 
         vector<Thread<Controller>*>    _controller_threads ;
         vector<Thread<Plugin>*>        _plugin_threads ;
