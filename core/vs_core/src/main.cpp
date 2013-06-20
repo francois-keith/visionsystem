@@ -32,17 +32,17 @@ int main ( int argc, char** argv, char** envv ) {
     signal(SIGINT, &sigint_handler);
     signal(SIGQUIT, &sigint_handler);
 #endif
-	core = new VsCore( argc, argv, envv ) ;
+    core = new VsCore( argc, argv, envv ) ;
 
-	try {
-		core->run() ;
-	
-	} catch ( string msg ) {
-		
-		cerr << msg << endl ;
-	
-	}
-	
-	return 0 ;
+    try {
+        core->run() ;
+    
+    } catch ( string msg ) {
+        
+        cerr << msg << endl ;
+    
+    }
+    
+    return 0 ;
 
 }

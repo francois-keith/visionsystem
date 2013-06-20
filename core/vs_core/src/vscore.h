@@ -25,33 +25,33 @@ using namespace visionsystem ;
 
 class VsCore : public VisionSystem, public WithConfigFile 
 {
-	public:
+    public:
 
-		VsCore( int argc, char** argv, char** envv ) ;
-		~VsCore() ;
+        VsCore( int argc, char** argv, char** envv ) ;
+        ~VsCore() ;
 
         void sigint_handler(int signum);
 
-		void run() ;
+        void run() ;
 
         bool catch_sigint;
 
-	private:
+    private:
         bool skip_frames;
 
-		path _basedir ;
-		path _configfile ;
-		
-		path _controller_path ;
-		path _plugin_path ;
+        path _basedir ;
+        path _configfile ;
+        
+        path _controller_path ;
+        path _plugin_path ;
 
-		vector<Controller*>  _controllers ;
-		vector<Plugin*>	     _plugins ;
+        vector<Controller*>  _controllers ;
+        vector<Plugin*>         _plugins ;
 
-		vector<Thread<Controller>*>	_controller_threads ;
-		vector<Thread<Plugin>*>		_plugin_threads ;
+        vector<Thread<Controller>*>    _controller_threads ;
+        vector<Thread<Plugin>*>        _plugin_threads ;
 
-		void parse_config_line( vector<string> &line ) ;
+        void parse_config_line( vector<string> &line ) ;
 } ;
 
 #endif
