@@ -112,6 +112,29 @@ void  GLView::loop_fct() {
 
 }
 
+void GLView::notify_end_of_camera(Camera * cam)
+{
+    std::cout << "Received end of life notification for camera " << cam->get_name() << std::endl;
+    if( cameras[active_cam] == cam )
+    {
+        unregister_to_cam< Image<uint32_t, RGB> >(cameras[active_cam]);
+        cameras = get_all_cameras();
+        for(size_t i = 0; i < cameras.size(); ++i)
+        {
+            if(cameras[i]->is_active())
+            {
+                active_cam = i;
+                next_cam = i;
+                register_to_cam< Image<uint32_t, RGB> >(cameras[next_cam], 10);
+            }
+        }
+    }
+    else
+    {
+        cameras = get_all_cameras();
+    }
+}
+
 void GLView::callback( XEvent event ) {
 #ifdef VS_HAS_CONTROLLER_SOCKET
 CameraSocket * current_cam = 0;
@@ -227,6 +250,11 @@ CameraSocket * current_cam = 0;
             std::cout << "Trying to load filestream controller (debug function)" << std::endl;
             _vscore->load_controller("filestream");
             cameras = get_all_cameras();
+            break;
+
+        case XK_u:
+            std::cout << "Unloading filestream controller (debug function)" << std::endl;
+            _vscore->unload_controller("filestream");
             break;
 
         default:

@@ -20,12 +20,14 @@ class GLView: public Viewer, public WithConfigFile
         GLView( VisionSystem* core, string sandbox ) ;
         ~GLView() ;
 
-         bool  pre_fct() ;
-         void  preloop_fct() ;
-         void  loop_fct() ;
-         bool  post_fct() ;
+        bool  pre_fct() ;
+        void  preloop_fct() ;
+        void  loop_fct() ;
+        bool  post_fct() ;
 
-         void gl_print ( ImageRef position, string text ) ;
+        void notify_end_of_camera(Camera * cam);
+
+        void gl_print ( ImageRef position, string text ) ;
 
     private:
 
