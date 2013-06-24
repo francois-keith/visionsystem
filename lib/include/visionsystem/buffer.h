@@ -13,7 +13,7 @@ namespace visionsystem {
 
 			std::vector< Data* > _frames ;
 			std::vector< Data* > _trash  ;
-			boost::mutex	    _mutex ; 
+			boost::mutex	    _mutex ;
 
 		public:
 
@@ -22,9 +22,9 @@ namespace visionsystem {
 
 			// Primitives to use data inside the buffer ( Consummer side )
 
-			Data* bl_dequeue() ;	
+			Data* bl_dequeue() ;
 			Data* nbl_dequeue() ;
-			void enqueue ( Data* ) ;				    
+			void enqueue ( Data* ) ;
 
 			// Primitives to feed data to the buffer ( Producer side )
 
@@ -38,8 +38,8 @@ namespace visionsystem {
             // Unlock the buffer once front has been updated
             void update_front(Data * in);
 
-			// Misc. 
-			
+			// Misc.
+
 			void clear() ;
 			int size() ;
 			bool is_full() ;

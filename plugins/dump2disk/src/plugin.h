@@ -19,7 +19,7 @@ class Dump2Disk : public Plugin
 		void preloop_fct() ;
 		void loop_fct() ;
 		bool post_fct() ;
-		
+
 	private:
 
 		Camera*					_cam ;

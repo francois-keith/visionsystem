@@ -36,13 +36,13 @@ int main ( int argc, char** argv, char** envv ) {
 
     try {
         core->run() ;
-    
+
     } catch ( string msg ) {
-        
+
         cerr << msg << endl ;
-    
+
     }
-    
+
     return 0 ;
 
 }

@@ -40,11 +40,11 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 	void save_capa ( string filename ) ;
 	bool apply_settings() ;
 	bool stop_cam() ;
-	
-	bool get_bayer() { return bayer ; } 
-	dc1394bayer_method_t get_bayer_method() { return bayer_method ; } 
+
+	bool get_bayer() { return bayer ; }
+	dc1394bayer_method_t get_bayer_method() { return bayer_method ; }
 	dc1394color_filter_t get_bayer_coding() { return bayer_coding ; }
-	
+
 	private:
 
 	void parse_config_line ( vector<string> &line ) ;
@@ -57,18 +57,18 @@ class Camera1394 : public GenericCamera, public WithConfigFile
 
 
 	dc1394_t 				*handler ;
-	dc1394camera_t 				    *cam ;	       
-	dc1394video_mode_t 			    mode ;	
+	dc1394camera_t 				    *cam ;
+	dc1394video_mode_t 			    mode ;
 	dc1394framerate_t 		       framerate ;
 	dc1394speed_t     			   speed ;
-	int 					   flags ; 
-	
+	int 					   flags ;
+
 	std::vector< std::vector<std::string> > features ;
 
 	bool		     bayer ;
 	dc1394bayer_method_t bayer_method ;
 	dc1394color_filter_t bayer_coding ;
-	
+
 };
 
 

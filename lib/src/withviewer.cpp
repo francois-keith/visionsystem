@@ -8,11 +8,11 @@ namespace visionsystem {
 
 
 WithViewer::WithViewer( VisionSystem *vs_core ) {
-	wv_core = vs_core ;	
+	wv_core = vs_core ;
 }
 
 
-WithViewer::~WithViewer() { 
+WithViewer::~WithViewer() {
 
 }
 

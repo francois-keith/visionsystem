@@ -12,7 +12,7 @@ unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsign
     strm.zfree  = Z_NULL;
     strm.opaque = Z_NULL;
     int ret = deflateInit(&strm, Z_BEST_SPEED);
-    
+
     strm.avail_in = data_in_size;
     strm.next_in  = data_in;
 
@@ -32,7 +32,7 @@ unsigned int compress(unsigned char * data_in, unsigned int data_in_size, unsign
 {
     memcpy(data_out, data_in, data_in_size);
     return data_in_size;
-} 
+}
 
 #endif // ZLIB specific function
 
@@ -51,8 +51,8 @@ namespace visionsystem
 
 Dump2Socket::Dump2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
 : Plugin( vs, "dump2socket", sandbox ),
-  io_service_(), io_service_th_(0), 
-  sockets_(0), 
+  io_service_(), io_service_th_(0),
+  sockets_(0),
   ports_(0), chunkIDs_(0),
   cam_names_(0), cams_(0), is_mono_(true), compress_data_(false),
   send_imgs_mono_(0), send_imgs_rgb_(0), imgs_lock_(0)
@@ -104,8 +104,8 @@ bool Dump2Socket::pre_fct()
         for(size_t i = 0; i < cam_names_.size() && next_camera < nb_cams_to_stream; ++i)
         {
             Camera * cam = get_camera(cam_names_[i]);
-            if(cam == 0) 
-            { 
+            if(cam == 0)
+            {
                 std::stringstream err;
                 err << "Camera " << cam_names_[i] << " not registered with vs_core" << std::endl;
                 throw(err.str());
@@ -191,7 +191,7 @@ void Dump2Socket::loop_fct()
         for(size_t i = 0; i < ports_.size(); ++i)
         {
             vision::Image<unsigned char, vision::MONO> * img = dequeue_image< vision::Image<unsigned char, vision::MONO> > (cams_[i]);
-        
+
             if(imgs_lock_[i])
             {
                 if(compress_data_)
@@ -213,7 +213,7 @@ void Dump2Socket::loop_fct()
         for(size_t i = 0; i < ports_.size(); ++i)
         {
             vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (cams_[i]);
-            
+
             if(imgs_lock_[i])
             {
                 if(compress_data_)

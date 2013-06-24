@@ -73,7 +73,7 @@ int main(int argc, char * argv[])
             std::cerr << "[Error] " << argv[1] << " is neither a directory nor a regular file" << std::endl;
             return 1;
         }
-        
+
         std::cout << "[png2bin] Will now convert " <<  png_files.size() << " png files to bin." << std::endl;
         if(mode == C_MONO)
         {

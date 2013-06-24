@@ -14,11 +14,11 @@
 namespace visionsystem
 {
 
-class SequenceGrabber : public Plugin, public configparser::WithConfigFile, public XmlRpc::XmlRpcServerMethod 
+class SequenceGrabber : public Plugin, public configparser::WithConfigFile, public XmlRpc::XmlRpcServerMethod
 {
 
 	public:
-		
+
 		SequenceGrabber( VisionSystem *vs, std::string sandbox ) ;
 		~SequenceGrabber() ;
 
@@ -29,14 +29,14 @@ class SequenceGrabber : public Plugin, public configparser::WithConfigFile, publ
 
         /* Method for XML-RPC call */
         /* Params should be start/stop string */
-        void execute(XmlRpc::XmlRpcValue & params, XmlRpc::XmlRpcValue & result); 
+        void execute(XmlRpc::XmlRpcValue & params, XmlRpc::XmlRpcValue & result);
 
 	private:
 		void parse_config_line( std::vector<std::string> &line ) ;
 
         boost::thread * m_save_th_mono;
         boost::thread * m_save_th_rgb;
-        boost::thread * m_save_th_depth; 
+        boost::thread * m_save_th_depth;
         unsigned int mono_count;
         unsigned int rgb_count;
         unsigned int depth_count;
@@ -68,12 +68,12 @@ class SequenceGrabber : public Plugin, public configparser::WithConfigFile, publ
         };
 
         std::vector< CameraConfig > m_cameras;
-        std::vector< std::pair< std::string, vision::Image<unsigned char, vision::MONO> *> > m_images_mono; 
-        std::vector< std::pair< std::string, vision::Image<uint32_t, vision::RGB> *> > m_images_rgb; 
-        std::vector< std::pair< std::string, vision::Image<uint16_t, vision::DEPTH> *> > m_images_depth; 
+        std::vector< std::pair< std::string, vision::Image<unsigned char, vision::MONO> *> > m_images_mono;
+        std::vector< std::pair< std::string, vision::Image<uint32_t, vision::RGB> *> > m_images_rgb;
+        std::vector< std::pair< std::string, vision::Image<uint16_t, vision::DEPTH> *> > m_images_depth;
 
         template< typename TImage >
-        void save_images_loop(const std::vector< std::pair< std::string, TImage *> > & images, 
+        void save_images_loop(const std::vector< std::pair< std::string, TImage *> > & images,
             unsigned int camera_count, unsigned int & frame_count)
         {
             unsigned int treated_frames = images.size()/camera_count;
@@ -83,7 +83,7 @@ class SequenceGrabber : public Plugin, public configparser::WithConfigFile, publ
                 while(!m_close && images.size() < camera_count * (treated_frames + 1))
                 {
                     usleep(1000);
-                }   
+                }
                 unsigned int n = images.size();
                 for(size_t i = camera_count * treated_frames; i < n; ++i)
                 {
@@ -103,6 +103,6 @@ class SequenceGrabber : public Plugin, public configparser::WithConfigFile, publ
 
 } // namespace visionsystem
 
-PLUGIN( visionsystem::SequenceGrabber ) 
+PLUGIN( visionsystem::SequenceGrabber )
 
 #endif

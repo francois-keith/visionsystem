@@ -61,7 +61,7 @@ int main(int argc, char * argv[])
             std::cerr << "[Error] " << argv[1] << " is neither a directory nor a regular file" << std::endl;
             return 1;
         }
-        
+
         std::cout << "[pgm2bin] Will now convert " <<  pgm_files.size() << " pgm files to bin." << std::endl;
         convert_mono(bin_files, pgm_files);
     }

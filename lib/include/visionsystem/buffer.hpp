@@ -2,14 +2,14 @@
 
 template<typename Data>
 Buffer<Data>::Buffer() {
- 	_frames.reserve( VS_BUFFERSIZE ) ;                                                           
+ 	_frames.reserve( VS_BUFFERSIZE ) ;
         _trash.reserve( VS_BUFFERSIZE ) ;
 }
 
 
 template<typename Data>
 Buffer<Data>::~Buffer() {
-	
+
 	for ( size_t i=0; i<_frames.size() ; i++ )
 		delete (_frames[i]) ;
 
@@ -26,7 +26,7 @@ Data* Buffer<Data>::bl_dequeue() {
 	Data* tmp ;
 	_mutex.lock() ;
 	for ( int counter=0; _frames.size() == 0; counter++ ) {
-		
+
 		_mutex.unlock() ;
 
 		if ( counter == 1000 ) {
@@ -34,7 +34,7 @@ Data* Buffer<Data>::bl_dequeue() {
 		}
 
 		usleep ( 1000 ) ;
-		
+
 		_mutex.lock() ;
 
 	}
@@ -52,7 +52,7 @@ Data* Buffer<Data>::nbl_dequeue() {
 	if ( _frames.size() == 0 )
 		tmp = (Data*) NULL ;
 	else {
-		tmp = _frames.front() ;	
+		tmp = _frames.front() ;
 		_frames.erase( _frames.begin() ) ;
 	}
 	_mutex.unlock() ;
@@ -78,10 +78,10 @@ template<typename Data>
 Data* Buffer<Data>::pull() {
 	Data* tmp ;
 	_mutex.lock() ;
-	if ( _trash.size() == 0 ) 
+	if ( _trash.size() == 0 )
 		throw ( std::string ( "Cannot pull from buffer : no available frame " ) ) ;
 	else {
-		tmp = _trash.front() ;	
+		tmp = _trash.front() ;
 		_trash.erase( _trash.begin() ) ;
 	}
 	_mutex.unlock() ;
@@ -136,7 +136,7 @@ bool Buffer<Data>::is_full() {
 	_mutex.unlock() ;
 	return tmp ;
 }
-	
+
 template<typename Data>
 int Buffer<Data>::size() {
 	int tmp ;

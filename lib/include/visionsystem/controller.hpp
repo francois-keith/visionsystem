@@ -8,4 +8,4 @@ Obj Controller::whiteboard_read ( std::string key ) {
 	return _vscore->whiteboard_read< Obj >( key ) ;
 
 }
-	
+

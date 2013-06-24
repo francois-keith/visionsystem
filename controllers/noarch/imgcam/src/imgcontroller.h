@@ -9,7 +9,7 @@ using namespace visionsystem ;
 
 class ImgController : public visionsystem::Controller
 {
-	public: 
+	public:
 
 		ImgController( VisionSystem* vs, std::string configfile ) ;
 		~ImgController() ;
@@ -30,7 +30,7 @@ class ImgController : public visionsystem::Controller
 
 
 
-CONTROLLER(ImgController) 
+CONTROLLER(ImgController)
 
 
 #endif

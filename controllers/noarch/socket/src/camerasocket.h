@@ -37,7 +37,7 @@ public:
     bool has_data();
 
     /* Stream camera specific functions */
-    
+
     void next_cam() { next_cam_ = true; }
 
     VS_PLUGIN_EXPORT void request_cam(const std::string & cam_name);
@@ -117,7 +117,7 @@ private:
     /* client request */
     enum { chunk_size_ = 32769 };
     unsigned char chunk_buffer_[chunk_size_];
-    uint8_t chunkID_;    
+    uint8_t chunkID_;
     boost::asio::deadline_timer timeout_timer_;
 
     /* Camera related */

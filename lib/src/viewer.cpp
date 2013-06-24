@@ -12,12 +12,12 @@ namespace visionsystem {
 	}
 
 	Viewer::~Viewer() {
-		
+
 	}
 
 	void Viewer::register_glfunc   ( WithViewer* vw  ) {
 		glfuncs_mutex.lock() ;
-		glfuncs.push_back( vw ) ;	
+		glfuncs.push_back( vw ) ;
 		glfuncs_mutex.unlock() ;
 	}
 
@@ -25,7 +25,7 @@ namespace visionsystem {
 		callbacks_mutex.lock() ;
 		callbacks.push_back( vw )  ;
 		callbacks_mutex.unlock() ;
-	} 
+	}
 
 	void Viewer::unregister_glfunc   ( WithViewer* vw ) {
 		glfuncs_mutex.lock() ;
@@ -41,7 +41,7 @@ namespace visionsystem {
 			if ( callbacks[i] == vw )
 				callbacks.erase (callbacks.begin()+i);
 		callbacks_mutex.unlock() ;
-	} 
+	}
 
 
 	void Viewer::operator<<(const string &s){

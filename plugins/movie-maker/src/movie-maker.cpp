@@ -11,10 +11,10 @@ namespace visionsystem
 {
 
 MovieMaker::MovieMaker( VisionSystem *vs, std::string sandbox )
-:Plugin( vs, "movie-maker", sandbox ), 
+:Plugin( vs, "movie-maker", sandbox ),
  m_encode_th(0),
  cam_count(0),
- m_close(false), m_started(false), 
+ m_close(false), m_started(false),
  m_frame(0),
  m_cameras(0), m_encoders(), m_images(0)
 {
@@ -49,7 +49,7 @@ bool MovieMaker::pre_fct() {
             }
         }
     }
-    
+
     return true ;
 }
 
@@ -97,7 +97,7 @@ bool MovieMaker::post_fct() {
         m_encode_th->join();
         delete m_encode_th;
         m_encode_th = 0;
-    } 
+    }
     for(std::map<std::string, vision::MKVEncoder *>::iterator it = m_encoders.begin(); it != m_encoders.end(); ++it)
     {
         delete it->second;

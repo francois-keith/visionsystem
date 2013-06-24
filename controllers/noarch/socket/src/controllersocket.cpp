@@ -10,7 +10,7 @@ namespace visionsystem
 {
 
 ControllerSocket::ControllerSocket( VisionSystem * vs, std::string sandbox )
-: Controller(vs, "controllersocket", sandbox), 
+: Controller(vs, "controllersocket", sandbox),
   io_service_(), io_service_th_(0), cams_(0)
 {
 }

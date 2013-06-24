@@ -28,9 +28,9 @@ bool Grab::pre_fct() {
 
 	string filename = get_sandbox() + string ( "/grab.conf") ;
 	try {
-		read_config_file( filename.c_str() ) ; 
+		read_config_file( filename.c_str() ) ;
 	} catch ( string msg ) {
-		
+
 		cout << "[grab] Could not read config file" << endl ;
 		cout << "[grab] Will grab all active cameras" << endl ;
 
@@ -62,12 +62,12 @@ bool Grab::pre_fct() {
 	}
 
 	Viewer* vw = whiteboard_read< Viewer* >( string("viewer")) ;
-	
+
 	if ( vw == NULL ) {
 		cout << "[grab] No viewer found" << endl ;
 		return true ;
 	}
-	
+
 	register_callback() ;
 
 	return true ;
@@ -99,7 +99,7 @@ void Grab::loop_fct() {
 		grabbed_rgb[i]->current_frame = dequeue_image< Image<uint32_t, RGB> > ( grabbed_rgb[i]->camera ) ;
     }
 
-	if ( grab_next ) 
+	if ( grab_next )
     {
 		for ( size_t i=0; i<grabbed_depth.size(); ++i )
 		{
@@ -113,7 +113,7 @@ void Grab::loop_fct() {
 		}
 		grab_next = false ;
 
-	} 
+	}
 	for ( size_t i=0; i < grabbed_depth.size(); ++i )
 	{
 		enqueue_image< Image<uint16_t, DEPTH> > ( grabbed_depth[i]->camera, grabbed_depth[i]->current_frame ) ;
@@ -155,7 +155,7 @@ void Grab::callback(Camera* cam, XEvent event) {
 				cout << "[grab] Grabing ... " << endl ;
 				grab_next = true ;
 				break;
-			
+
 			default:
 				break ;
 		}

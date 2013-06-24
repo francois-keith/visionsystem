@@ -44,7 +44,7 @@ class SDLView: public Viewer
 		bool refresh;
 } ;
 
-PLUGIN( SDLView ) 
+PLUGIN( SDLView )
 
 #endif
 

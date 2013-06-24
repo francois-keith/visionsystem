@@ -31,7 +31,7 @@ private:
     /* Socket callbacks */
     void handle_receive_from(size_t index, const boost::system::error_code & error,
                                 size_t bytes_recvd);
-    void handle_send_to(size_t index, const boost::system::error_code & error, 
+    void handle_send_to(size_t index, const boost::system::error_code & error,
                                 size_t bytes_send);
 
     /* Configparser method */

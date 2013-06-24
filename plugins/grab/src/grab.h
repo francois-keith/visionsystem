@@ -28,7 +28,7 @@ using namespace boost::filesystem ;
 class Grab : public Plugin, public WithViewer, public WithConfigFile {
 
 	public:
-		
+
 		Grab( VisionSystem *vs, string sandbox ) ;
 		~Grab() ;
 
@@ -78,7 +78,7 @@ class Grab : public Plugin, public WithViewer, public WithConfigFile {
 
             create_directory ( camera_path ) ;
 
-            for ( size_t i = 0; i < reg.grabbed_frames.size(); ++i ) 
+            for ( size_t i = 0; i < reg.grabbed_frames.size(); ++i )
             {
                 std::ostringstream filename;
                 filename << camera_path.string() << "/" << std::setfill('0') << std::setw(6) << i << ".png" ;
@@ -101,6 +101,6 @@ class Grab : public Plugin, public WithViewer, public WithConfigFile {
 
 
 
-PLUGIN( Grab ) 
+PLUGIN( Grab )
 
 #endif

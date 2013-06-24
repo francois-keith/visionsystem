@@ -9,7 +9,7 @@ using namespace visionsystem ;
 class Dummy : public Plugin {
 
 	public:
-		
+
 		Dummy( VisionSystem *vs, string sandbox ) ;
 		~Dummy() ;
 
@@ -23,6 +23,6 @@ class Dummy : public Plugin {
 
 
 
-PLUGIN( Dummy ) 
+PLUGIN( Dummy )
 
 #endif

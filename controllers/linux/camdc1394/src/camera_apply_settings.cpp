@@ -58,7 +58,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_BRIGHTNESS" ) {
-		
+
 			feature = DC1394_FEATURE_BRIGHTNESS ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -69,7 +69,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -111,7 +111,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_EXPOSURE" ) {
-		
+
 			feature = DC1394_FEATURE_EXPOSURE ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -122,7 +122,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -164,7 +164,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_SHARPNESS" ) {
-		
+
 			feature = DC1394_FEATURE_SHARPNESS ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -175,7 +175,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -216,7 +216,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_HUE" ) {
-		
+
 			feature = DC1394_FEATURE_HUE ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -227,7 +227,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -268,7 +268,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_SATURATION" ) {
-		
+
 			feature = DC1394_FEATURE_SATURATION ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -279,7 +279,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -321,7 +321,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_GAMMA" ) {
-		
+
 			feature = DC1394_FEATURE_GAMMA ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -332,7 +332,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -374,7 +374,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_SHUTTER" ) {
-		
+
 			feature = DC1394_FEATURE_SHUTTER ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -385,7 +385,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -427,7 +427,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_GAIN" ) {
-		
+
 			feature = DC1394_FEATURE_GAIN ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -438,7 +438,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -472,7 +472,7 @@ bool Camera1394::apply_settings() {
 			}
 		}
 
-	
+
 		// ***********************************************
 		// ***
 		// *** FEATURE : DC1394_FEATURE_IRIS
@@ -480,7 +480,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_IRIS" ) {
-		
+
 			feature = DC1394_FEATURE_IRIS ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -491,7 +491,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -525,7 +525,7 @@ bool Camera1394::apply_settings() {
 			}
 		}
 
-	
+
 		// ***********************************************
 		// ***
 		// *** FEATURE : DC1394_FEATURE_FOCUS
@@ -533,7 +533,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_FOCUS" ) {
-		
+
 			feature = DC1394_FEATURE_SHUTTER ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -544,7 +544,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -597,19 +597,19 @@ bool Camera1394::apply_settings() {
 
 			cerr << "[camdc1394] Camera " << _gid << " : Feature " << s_feature << " is not implemented yet. Aborting." << endl ;
 			return false ;
-	
+
 		}
-		
-		
+
+
 		// ***********************************************
 		// ***
-		// *** FEATURE : DC1394_FEATURE_WHITE_BALANCE 
+		// *** FEATURE : DC1394_FEATURE_WHITE_BALANCE
 		// ***           ( two args : Ub and Ur )
 		// ***
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_WHITE_BALANCE" ) {
-		
+
 			feature = DC1394_FEATURE_WHITE_BALANCE ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -620,7 +620,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -646,16 +646,16 @@ bool Camera1394::apply_settings() {
 			}
 		}
 
-			
+
 		// ***********************************************
 		// ***
-		// *** FEATURE : DC1394_FEATURE_WHITE_SHADING 
+		// *** FEATURE : DC1394_FEATURE_WHITE_SHADING
 		// ***           ( three args : R G and B )
 		// ***
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_WHITE_SHADING" ) {
-		
+
 			feature = DC1394_FEATURE_WHITE_SHADING ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -666,7 +666,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -686,7 +686,7 @@ bool Camera1394::apply_settings() {
 				value3 = atoi( features[i][3].c_str() ) ;
 				err = dc1394_feature_whiteshading_set_value ( cam, value, value2, value3 ) ;
 				if ( err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set value " 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set value "
 						<< value << " " << value2 << " " << value3 << " for feature " << s_feature << endl ;
 					return false ;
 				}
@@ -694,7 +694,7 @@ bool Camera1394::apply_settings() {
 			}
 		}
 
-		
+
 		// ***********************************************
 		// ***
 		// *** FEATURE : DC1394_FEATURE_TEMPERATURE
@@ -703,7 +703,7 @@ bool Camera1394::apply_settings() {
 		// ***********************************************
 
 		if ( s_feature == "DC1394_FEATURE_TEMPERATURE" ) {
-		
+
 			feature = DC1394_FEATURE_TEMPERATURE ;
 
 			dc1394_feature_is_present( cam, feature, &test ) ;
@@ -714,7 +714,7 @@ bool Camera1394::apply_settings() {
 			if ( s_mode == "DC1394_FEATURE_MODE_AUTO" ) {
 				err = dc1394_feature_set_mode( cam, feature, DC1394_FEATURE_MODE_AUTO ) ;
 				if (err != DC1394_SUCCESS ) {
-					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ; 
+					cerr << "[camdc1394] Camera "<< _gid << " : could not set mode " << s_mode << " for feature " << s_feature << endl ;
 					return false ;
 				}
 				ok = 1 ;
@@ -751,7 +751,7 @@ bool Camera1394::apply_settings() {
 
 		// *******************************************
 		// ***
-		// *** Unknown line 
+		// *** Unknown line
 		// ***
 		// *******************************************
 
@@ -770,10 +770,10 @@ bool Camera1394::apply_settings() {
 	// ***
 	// *******************************************
 
-	
+
 	_buffer.clear() ;
 	for ( int i=0; i< _buffersize; i++ ){
-		_buffer.enqueue ( new Frame( get_coding(), get_size() ) ) ; 
+		_buffer.enqueue ( new Frame( get_coding(), get_size() ) ) ;
 	}
 
 	return true ;

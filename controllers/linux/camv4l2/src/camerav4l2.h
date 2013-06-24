@@ -27,13 +27,13 @@ class CameraV4L2 : public GenericCamera, public WithConfigFile
 	FrameCoding get_coding() ;
 	float       get_fps() ;
 	string      get_name() ;
-	
+
 	public:
 
 	bool    init_camera() ;
-	int     read_frame() ;		
-	bool    stop_camera() ;	
-	
+	int     read_frame() ;
+	bool    stop_camera() ;
+
 	private:
 
 	void parse_config_line( vector<string> &line ) ;
@@ -63,13 +63,13 @@ class CameraV4L2 : public GenericCamera, public WithConfigFile
 	string 		   _dev_name ; 	        // Name of the device
 	io_method	   _io ;		// IO method
 	int                _fd ;                // File descriptor
-        
+
 	struct v4l2_capability _cap;
         struct v4l2_cropcap    _cropcap;
         struct v4l2_crop       _crop;
 	struct v4l2_format     _fmt;
 
-	struct buffer*	 buffers ;        
+	struct buffer*	 buffers ;
 	unsigned int     n_buffers ;
 
 	bool init_read() ;

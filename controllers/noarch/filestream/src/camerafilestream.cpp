@@ -11,7 +11,7 @@ namespace visionsystem
 {
 
 CameraFilestream::CameraFilestream()
-:   _img_size(0,0), _active(false), _img_coding(VS_MONO8), _fps(30), _frame(0), _name("filestream-unconfigured"), 
+:   _img_size(0,0), _active(false), _img_coding(VS_MONO8), _fps(30), _frame(0), _name("filestream-unconfigured"),
     _bin_files(0), _current_frame(0), _img_mono(0), _img_rgb(0), _img_depth(0),
     _buffersize(100)
 {
@@ -45,7 +45,7 @@ bool CameraFilestream::init_camera()
     {
         std::stringstream errorss;
         errorss << "[CameraFilestream] Input path : " << _path << " is not a directory!";
-        throw(errorss.str()); 
+        throw(errorss.str());
     }
     _buffer.clear();
     for( unsigned int i = 0; i < _buffersize; ++i )

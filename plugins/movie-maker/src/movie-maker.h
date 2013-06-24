@@ -16,7 +16,7 @@ class MovieMaker : public Plugin
 {
 
 	public:
-		
+
 		MovieMaker( VisionSystem *vs, std::string sandbox ) ;
 		~MovieMaker() ;
 
@@ -28,7 +28,7 @@ class MovieMaker : public Plugin
 	private:
         void EncoderThread();
 
-        boost::thread * m_encode_th; 
+        boost::thread * m_encode_th;
         unsigned int cam_count;
         bool m_close;
 
@@ -37,11 +37,11 @@ class MovieMaker : public Plugin
 
         std::vector<Camera *> m_cameras;
         std::map< std::string, vision::MKVEncoder *> m_encoders;
-        std::vector< std::pair< std::string, vision::Image<uint32_t, vision::RGB> *> > m_images; 
+        std::vector< std::pair< std::string, vision::Image<uint32_t, vision::RGB> *> > m_images;
 } ;
 
 } // namespace visionsystem
 
-PLUGIN( visionsystem::MovieMaker ) 
+PLUGIN( visionsystem::MovieMaker )
 
 #endif

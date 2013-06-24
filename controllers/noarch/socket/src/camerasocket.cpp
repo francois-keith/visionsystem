@@ -19,16 +19,16 @@ namespace visionsystem
 CameraSocket::CameraSocket(boost::asio::io_service & io_service)
 : img_size_(0,0), active_(false), img_coding_(VS_MONO8), name_("network-unconfigured"),
   from_stream_(false), next_cam_(false),
-  request_cam_(false), request_name_(""), 
+  request_cam_(false), request_name_(""),
   cam_ready_(false), has_data_(false),
-  server_name_(""), server_port_(0), 
+  server_name_(""), server_port_(0),
   reverse_connection_(false), port_(0),
   raw_(false),
   frame_(0),
   data_compress_(false), m_decoder(0),
-  io_service_(io_service), socket_(io_service), request_(""), chunkID_(0), 
+  io_service_(io_service), socket_(io_service), request_(""), chunkID_(0),
   timeout_timer_(io_service, boost::posix_time::seconds(1)),
-  shw_img_mono_(0), rcv_img_mono_(0), shw_img_rgb_(0), rcv_img_rgb_(0), shw_img_raw_data_(0), rcv_img_raw_data_(0), 
+  shw_img_mono_(0), rcv_img_mono_(0), shw_img_rgb_(0), rcv_img_rgb_(0), shw_img_raw_data_(0), rcv_img_raw_data_(0),
   buffersize_(100), verbose_(false)
 {
     previous_frame_t_.tv_sec = 0;
@@ -292,7 +292,7 @@ void CameraSocket::handle_receive_from(const boost::system::error_code & error,
                 {
                     std::cout << "[camerasocket] " << get_name() << " received enough data, will now Decode" << std::endl;
                 }
-                if(img_coding_ == VS_MONO8) 
+                if(img_coding_ == VS_MONO8)
                 {
                     shw_img_mono_->copy(rcv_img_mono_);
                 }

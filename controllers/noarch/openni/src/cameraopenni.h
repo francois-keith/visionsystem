@@ -24,15 +24,15 @@ public:
 
     /* Camera methods to implement */
     vision::ImageRef get_size() { return vision::ImageRef(_imageMD.FullXRes(), _imageMD.FullYRes()); }
-    
+
     bool is_active() { return _active; }
-    
+
     visionsystem::FrameCoding get_coding() { return VS_RGB32; }
-    
+
     float get_fps() { return _imageMD.FPS(); }
-    
+
     std::string get_name() { return _name; }
-    
+
     unsigned int get_frame() { return _imageMD.FrameID(); }
 
     ImageGenerator* get_ImageGenerator() { return &_image; }
@@ -57,15 +57,15 @@ public:
 
     /* Camera methods to implement */
     vision::ImageRef get_size() { return vision::ImageRef(_depthMD.FullXRes(), _depthMD.FullYRes()); }
-    
+
     bool is_active() { return _active; }
-    
+
     visionsystem::FrameCoding get_coding() { return VS_DEPTH16; }
-    
+
     float get_fps() { return _depthMD.FPS(); }
-    
+
     std::string get_name() { return _name; }
-    
+
     unsigned int get_frame() { return _depthMD.FrameID(); }
 
     DepthGenerator* get_DepthGenerator() { return &_depth; }
@@ -100,7 +100,7 @@ public:
     void update();
 
     visionsystem::GenericCamera * get_image_camera() { return _image_cam; }
-    
+
     visionsystem::GenericCamera * get_depth_camera() { return _depth_cam; }
 
     bool is_active() { return _active; }

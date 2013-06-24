@@ -38,7 +38,7 @@ class ControllerV4L2 : public Controller
 
 
 
-CONTROLLER( ControllerV4L2 ) 
+CONTROLLER( ControllerV4L2 )
 
 
 #endif

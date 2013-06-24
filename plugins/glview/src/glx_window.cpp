@@ -230,12 +230,12 @@ void GLWindow::processEvents( XEvent event ) {
 
 int GLWindow::next_event( XEvent *event ) {
 
-	if ( XPending( dpy_ ) == 0 ) 
+	if ( XPending( dpy_ ) == 0 )
 		return 0 ;
-		
+
 	XNextEvent( dpy_, event);
 		return 1 ;
-	
+
 }
 
 
@@ -266,7 +266,7 @@ void GLWindow::draw( Image<uint32_t,RGB> *img) {
 	glOrtho(-0.5, (double) imWidth - 0.5, (double) imHeight - 0.5, -0.5,
 			-1.0, 1.0);
 
-	glPixelZoom( (double) winWidth_ / (double) imWidth, 
+	glPixelZoom( (double) winWidth_ / (double) imWidth,
 	            -(double) winHeight_ / (double) imHeight ) ;
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -280,7 +280,7 @@ void GLWindow::draw( Image<uint32_t,RGB> *img) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, imWidth * sizeof(unsigned char ));
 
-	glDrawPixels( imWidth, imHeight, GL_RGBA, GL_UNSIGNED_BYTE, img->raw_data );		
+	glDrawPixels( imWidth, imHeight, GL_RGBA, GL_UNSIGNED_BYTE, img->raw_data );
 
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 

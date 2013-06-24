@@ -2,12 +2,12 @@
 template< typename Obj >
 void VisionSystem::whiteboard_write ( std::string key, Obj value ) {
 	if ( whiteboard_data.count( key ) ) {
-	
+
 		whiteboard_mutex[key]->lock() ;
 		boost::any tmp = value ;
 		whiteboard_data[key] = tmp ;
 		whiteboard_mutex[key]->unlock() ;
-	
+
 	} else {
 
 		boost::recursive_mutex *tmp = new boost::recursive_mutex();
@@ -26,8 +26,8 @@ Obj VisionSystem::whiteboard_read ( std::string key )  {
 		ret = boost::any_cast< Obj > ( whiteboard_data[key] ) ;
 		whiteboard_mutex[key]->unlock() ;
 		return ret ;
-	} 
-	
+	}
+
 	throw ( std::string ( "Whiteboard error: reading unknown key" ) ) ;
 }
 

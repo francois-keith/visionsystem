@@ -42,7 +42,7 @@ class GLView: public Viewer, public WithConfigFile
 		bool		callback_active ;
 } ;
 
-PLUGIN( GLView ) 
+PLUGIN( GLView )
 
 #endif
 

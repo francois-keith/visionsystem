@@ -19,14 +19,14 @@ namespace visionsystem
 
 Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
 : Plugin( vs, "stream2socket", sandbox ),
-  io_service_(), io_service_th_(0), 
+  io_service_(), io_service_th_(0),
   socket_(0),
   server_name_(), server_port_(4242),
   port_(0), chunkID_(0),
   raw_(false),
   ready_(false),
   reverse_connection_(false),
-  active_cam_(0), cams_(0), 
+  active_cam_(0), cams_(0),
   compress_data_(false), encoder_(0),
   send_img_(0), img_lock_(false),
   next_cam_(false), request_cam_(false), request_name_(""),
@@ -86,7 +86,7 @@ bool Stream2Socket::pre_fct()
     socket_->open(udp::v4());
     client_data_ = new char[max_request_];
     send_buffer_ = new unsigned char[send_size_];
-    
+
     if(reverse_connection_)
     {
         /* DNS Resolution */
@@ -105,7 +105,7 @@ bool Stream2Socket::pre_fct()
         /* Get ready for eventual request */
         socket_->async_receive_from(
            boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-           boost::bind(&Stream2Socket::handle_receive_from, this, 
+           boost::bind(&Stream2Socket::handle_receive_from, this,
                boost::asio::placeholders::error,
                boost::asio::placeholders::bytes_transferred));
     }
@@ -118,7 +118,7 @@ bool Stream2Socket::pre_fct()
         }
         socket_->async_receive_from(
            boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-           boost::bind(&Stream2Socket::handle_receive_from, this, 
+           boost::bind(&Stream2Socket::handle_receive_from, this,
                boost::asio::placeholders::error,
                boost::asio::placeholders::bytes_transferred));
     }
@@ -171,7 +171,7 @@ void Stream2Socket::loop_fct()
         }
         socket_->async_send_to(
             boost::asio::buffer(send_buffer_, send_size), receiver_endpoint_,
-            boost::bind(&Stream2Socket::handle_send_to, this, 
+            boost::bind(&Stream2Socket::handle_send_to, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
     }
@@ -263,7 +263,7 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
     }
     socket_->async_receive_from(
         boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-        boost::bind(&Stream2Socket::handle_receive_from, this, 
+        boost::bind(&Stream2Socket::handle_receive_from, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
 }

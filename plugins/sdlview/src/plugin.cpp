@@ -4,7 +4,7 @@
 
 #include "plugin.h"
 
-SDLView::SDLView( VisionSystem* core, string sandbox ) 
+SDLView::SDLView( VisionSystem* core, string sandbox )
 :Viewer( core, "sdlview", sandbox ), sdl_running(true)
 {
 	active_cam = 0 ;
@@ -26,7 +26,7 @@ bool  SDLView::pre_fct() {
 			active_cam = i ;
 
 	next_cam = active_cam ;
-	
+
 	if ( active_cam == -1 )	{
 		cerr << "[glview] ERROR : No cam is active. " << endl ;
 		return false ;
@@ -72,7 +72,7 @@ void SDLView::gl_print ( ImageRef position, string text ) {
 
 void SDLView::refresh_screen()
 {
-	// Draw video 
+	// Draw video
     if ( SDL_MUSTLOCK(screen) ) {
         if ( SDL_LockSurface(screen) < 0 ) {
             return;

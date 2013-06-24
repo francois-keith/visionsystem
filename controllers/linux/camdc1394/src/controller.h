@@ -38,7 +38,7 @@ class Controller1394 : public visionsystem::Controller
 
 
 
-CONTROLLER( Controller1394 ) 
+CONTROLLER( Controller1394 )
 
 
 #endif

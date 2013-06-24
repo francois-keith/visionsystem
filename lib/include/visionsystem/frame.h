@@ -6,7 +6,7 @@
 namespace visionsystem {
 
 
-// A frame is what every camera outputs ... 
+// A frame is what every camera outputs ...
 // Inside an image, the data is encoded pixel by pixel. In a frame,
 // it is not that simple ... see YUV411 or YUV422 for example.
 

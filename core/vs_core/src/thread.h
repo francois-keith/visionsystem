@@ -33,7 +33,7 @@ class Thread {
     private:
 
         boost::thread    _thread ;
-    
+
         #ifndef WIN32
             void*    handle    ;
         #else
@@ -54,12 +54,12 @@ class Thread {
         void main() ;
         bool _done  ;
 
-} ;    
+} ;
 
 
 
 template<typename data>
-Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox ) 
+Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox )
 : _core(core)
 {
 
@@ -81,7 +81,7 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
                         LPVOID lpDisplayBuf;
                 GetLastError();// returns the error code
                         DWORD dw = GetLastError();
-    
+
                 // We get the error message associated with the error code
                                                                                                                                                                               FormatMessage ( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM, NULL, dw,
                                         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -89,12 +89,12 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
                                                                                                                                                                                                                                  // Display buffer for the error message
 
             lpDisplayBuf = (LPVOID)LocalAlloc( LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + 40) * sizeof(TCHAR) );
-                     
+
             StringCchPrintf( (LPTSTR)lpDisplayBuf,
                       LocalSize(lpDisplayBuf) / sizeof(TCHAR),
                       TEXT("Failed with error %d: %s"),
                           dw, lpMsgBuf );
-            
+
             // We print the error
 
             std::cerr << "[vs_core] ERROR: " << (LPCTSTR)lpDisplayBuf << std::endl;
@@ -102,7 +102,7 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
             LocalFree(lpMsgBuf);
             LocalFree(lpDisplayBuf);
         #endif
-        
+
         throw ( std::string("[vs_core] ERROR: Could not load dll: ") + filename ) ;
      }
 
@@ -117,13 +117,13 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
     #endif
 
     if ( !_create_fct || !_destroy_fct ) {
-    
+
         #ifndef WIN32
             std::cerr << "[vs_core] ERROR: " << dlerror() << '\n';
         #else
             std::cerr << "[vs_core] ERROR: " << filename << std::endl;
         #endif
-    
+
         throw( std::string("[vs_core] ERROR: Could not import symbols") );
     }
 
@@ -132,7 +132,7 @@ Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std:
     pointer = _create_fct( core, sandbox );
 
     // Get ready to run th thread
-    
+
     _done = false ;
 
 }
@@ -153,7 +153,7 @@ Thread<Data>::~Thread() {
 
 template<typename Data>
 void Thread<Data>::start_thread() {
-    _thread = boost::thread( &Thread<Data>::main, this );  
+    _thread = boost::thread( &Thread<Data>::main, this );
 
 }
 
@@ -161,32 +161,32 @@ void Thread<Data>::start_thread() {
 template<typename Data>
 void Thread<Data>::request_stop() {
     _done = true ;
-    _thread.interrupt() ;    
+    _thread.interrupt() ;
 }
 
 template<typename Data>
 void Thread<Data>::join() {
-    _thread.join() ;   
+    _thread.join() ;
 }
 
 template< typename Data >
 void Thread<Data>::main() {
-    
+
     try {
         pointer->preloop_fct() ;
 
         _core->whiteboard_write("threads_ready", _core->whiteboard_read<unsigned int>("threads_ready") + 1);
         while( _core->whiteboard_read<bool>("core_stop") );
 
-        while ( !_done ) 
+        while ( !_done )
             pointer->loop_fct() ;
-    
+
     } catch ( std::string msg ) {
-        
+
         if ( !_done )
             std::cerr << msg << std::endl ;
         return ;
-    
+
     }
 
 }

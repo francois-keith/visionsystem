@@ -13,7 +13,7 @@ using namespace std ;
 using namespace vision ;
 using namespace visionsystem ;
 
-class KinectController : public Controller 
+class KinectController : public Controller
 {
 
 	public:

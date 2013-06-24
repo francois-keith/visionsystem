@@ -28,7 +28,7 @@ Camera* VisionSystem::get_camera ( string name ) {
 	Camera* tmp = NULL ;
 	for ( size_t i=0; i<_cameras.size(); i++ )
 		if ( _cameras[i]->get_name() == name )
-			tmp = (Camera*) _cameras[i] ; 			
+			tmp = (Camera*) _cameras[i] ;
 	_cameras_mutex.unlock() ;
 	return tmp ;
 }
@@ -58,7 +58,7 @@ void VisionSystem::register_to_cam ( Plugin* plugin, Camera* cam ) {
 
 void VisionSystem::unregister_to_cam ( Plugin* plugin, Camera* cam ) {
 	_subscriptions_mutex.lock() ;
-	for (size_t i=0; i<_subscriptions[cam].size(); i++ )	
+	for (size_t i=0; i<_subscriptions[cam].size(); i++ )
 		if ( _subscriptions[cam][i] == plugin )
 			_subscriptions[cam].erase( _subscriptions[cam].begin() + i ) ;
 	_subscriptions_mutex.unlock() ;
@@ -87,7 +87,7 @@ vector<GenericCamera*> VisionSystem::get_all_genericcameras() {
 vector<Plugin*> VisionSystem::get_all_subscriptions( GenericCamera* cam ) {
 	vector<Plugin*> tmp ;
 	_subscriptions_mutex.lock() ;
-	tmp = _subscriptions[cam]  ; 
+	tmp = _subscriptions[cam]  ;
 	_subscriptions_mutex.unlock() ;
 	return tmp ;
 }

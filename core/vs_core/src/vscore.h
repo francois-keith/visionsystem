@@ -23,7 +23,7 @@ using namespace configparser ;
 using namespace vision ;
 using namespace visionsystem ;
 
-class VsCore : public VisionSystem, public WithConfigFile 
+class VsCore : public VisionSystem, public WithConfigFile
 {
     public:
 
@@ -49,7 +49,7 @@ class VsCore : public VisionSystem, public WithConfigFile
 
         path _basedir ;
         path _configfile ;
-        
+
         path _controller_path ;
         path _plugin_path ;
 

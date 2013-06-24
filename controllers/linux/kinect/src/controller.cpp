@@ -2,15 +2,15 @@
 
 #define VERBOSE 1
 
-KinectController::KinectController( VisionSystem *vs, string sandbox ) 
-:Controller( vs, "kinect", sandbox ), _devices(0) 
+KinectController::KinectController( VisionSystem *vs, string sandbox )
+:Controller( vs, "kinect", sandbox ), _devices(0)
 {
 	f_ctx = NULL ;
 	nr_devices = 0 ;
 }
 
 
-KinectController::~KinectController() 
+KinectController::~KinectController()
 {
 
 }
@@ -20,16 +20,16 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 {
 
 	if ( freenect_init( &f_ctx, NULL) < 0 ) {
-		
+
 		cerr << "[kinect] ERROR: freenect_init() failed." << endl ;
 		return 0 ;
-	
+
 	}
 
 	freenect_set_log_level( f_ctx, FREENECT_LOG_NOTICE );
 
 	nr_devices = freenect_num_devices (f_ctx);
-	
+
 	#if VERBOSE
 		cout << "[kinect] Number of devices found: " << nr_devices << endl ;
 	#endif
@@ -47,13 +47,13 @@ bool KinectController::pre_fct( vector< GenericCamera*> &cams )
 	for ( int i=0; i<nr_devices; i++ ) {
 
 		KinectCamera* cam = new KinectCamera( f_ctx, i ) ;
-		
+
 		// std::ostringstream capa_filename;
-		// capa_filename << get_sandbox() << "/" << i << ".capa" ;  
+		// capa_filename << get_sandbox() << "/" << i << ".capa" ;
 		// cam->save_capa( capa_filename.str() )  ;
-				
+
 		std::ostringstream conf_filename;
-		conf_filename << get_sandbox() << "/" << i << ".conf" ;  
+		conf_filename << get_sandbox() << "/" << i << ".conf" ;
 
 		try {
 			cam->read_config_file ( conf_filename.str().c_str() ) ;
@@ -109,7 +109,7 @@ bool KinectController::post_fct()
 	_devices.clear() ;
 
 	freenect_shutdown(f_ctx);
-	
+
 	f_ctx = NULL ;
 	nr_devices = 0 ;
 

@@ -1,19 +1,19 @@
 #include "camera1394.h"
 
 void Camera1394::parse_config_line ( vector<string> &line ) {
-          
-	if ( fill_member( line, "Name", _name ) ) 
+
+	if ( fill_member( line, "Name", _name ) )
 		return ;
 
-	if ( fill_member( line, "Active", _active ) ) 
+	if ( fill_member( line, "Active", _active ) )
 		return ;
 
-	if ( fill_member( line, "Bayer", bayer ) ) 
+	if ( fill_member( line, "Bayer", bayer ) )
 		return ;
 
 	if (line[0] == "Mode") {
 		if (line.size() == 2 )  {
-		
+
 			if ( line[1]=="DC1394_VIDEO_MODE_640x480_YUV411")  { mode = DC1394_VIDEO_MODE_640x480_YUV411 ; return ; }
 
 			if ( line[1]=="DC1394_VIDEO_MODE_320x240_YUV422")  { mode = DC1394_VIDEO_MODE_320x240_YUV422 ; return ; }
@@ -22,7 +22,7 @@ void Camera1394::parse_config_line ( vector<string> &line ) {
 			if ( line[1]=="DC1394_VIDEO_MODE_1024x768_YUV422") { mode = DC1394_VIDEO_MODE_1024x768_YUV422 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1280x960_YUV422") { mode = DC1394_VIDEO_MODE_1280x960_YUV422 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1600x1200_YUV422"){ mode = DC1394_VIDEO_MODE_1600x1200_YUV422 ; return ; }
-	  
+
 			if ( line[1]=="DC1394_VIDEO_MODE_160x120_YUV444")  { mode = DC1394_VIDEO_MODE_160x120_YUV444 ; return ; }
 
 			if ( line[1]=="DC1394_VIDEO_MODE_640x480_MONO8")   { mode = DC1394_VIDEO_MODE_640x480_MONO8 ; return ; }
@@ -36,14 +36,14 @@ void Camera1394::parse_config_line ( vector<string> &line ) {
 			if ( line[1]=="DC1394_VIDEO_MODE_1024x768_MONO16") { mode = DC1394_VIDEO_MODE_1024x768_MONO16 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1280x960_MONO16") { mode = DC1394_VIDEO_MODE_1280x960_MONO16 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1600x1200_MONO16"){ mode = DC1394_VIDEO_MODE_1600x1200_MONO16 ; return ; }
-			 
+
 			if ( line[1]=="DC1394_VIDEO_MODE_640x480_RGB8" )   { mode = DC1394_VIDEO_MODE_640x480_RGB8 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_800x600_RGB8" )   { mode = DC1394_VIDEO_MODE_800x600_RGB8 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1024x768_RGB8" )  { mode = DC1394_VIDEO_MODE_1024x768_RGB8 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1280x960_RGB8" )  { mode = DC1394_VIDEO_MODE_1280x960_RGB8 ; return ; }
 			if ( line[1]=="DC1394_VIDEO_MODE_1600x1200_RGB8" ) { mode = DC1394_VIDEO_MODE_1600x1200_RGB8 ; return ; }
-		}			  
-		throw ( string( "Unknown [Mode] ... aborting" ) ) ;	
+		}
+		throw ( string( "Unknown [Mode] ... aborting" ) ) ;
 	}
 
 	if (line[0] == "Framerate") {
@@ -71,7 +71,7 @@ void Camera1394::parse_config_line ( vector<string> &line ) {
 		}
 		throw ( string("Unknown [Speed] ... aborting") ) ;
 	}
- 
+
 	if (line[0] == "BayerCoding") {
 		if ( line.size() == 2 ) {
 			if (line[1]=="DC1394_COLOR_FILTER_RGGB") { bayer_coding = DC1394_COLOR_FILTER_RGGB ; return ; }

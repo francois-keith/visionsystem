@@ -8,7 +8,7 @@ XMLRPCClient::XMLRPCClient( VisionSystem * vs, std::string sandbox )
   m_client(0),
   m_server_name("127.0.0.1"), m_server_port(1234)
 {}
-    
+
 XMLRPCClient::~XMLRPCClient()
 {
     delete m_client;
@@ -17,7 +17,7 @@ XMLRPCClient::~XMLRPCClient()
 bool XMLRPCClient::pre_fct()
 {
     std::string filename = get_sandbox() + std::string("/xmlrpc-client.conf") ;
-    
+
     try
     {
         read_config_file ( filename.c_str() );
@@ -57,7 +57,7 @@ void XMLRPCClient::parse_config_line( std::vector<std::string> & line )
     if( fill_member(line, "Host", m_server_name) ) return;
 
     if( fill_member(line, "Port", m_server_port) ) return;
-} 
+}
 
 } // namespace visionsystem
 

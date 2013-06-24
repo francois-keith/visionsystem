@@ -17,9 +17,9 @@ class DepthCamera : public GenericCamera
 	public:
 			DepthCamera( freenect_context *ctx, int device_num ) ;
 			~DepthCamera() ;
-		
+
 	public:
-		vision::ImageRef get_size()  ;			 
+		vision::ImageRef get_size()  ;
 		FrameCoding      get_coding()  ;
 		float            get_fps()  ;
 		std::string      get_name()  ;
@@ -42,12 +42,12 @@ class DepthCamera : public GenericCamera
 class RgbCamera : public GenericCamera
 {
 	public:
-	
+
 			RgbCamera( freenect_context *ctx, int device_num ) ;
 			~RgbCamera() ;
-		
+
 	public:
-		vision::ImageRef get_size()  ;			 
+		vision::ImageRef get_size()  ;
 		FrameCoding      get_coding()  ;
 		float            get_fps()  ;
 		std::string      get_name()  ;
@@ -77,7 +77,7 @@ class KinectCamera : public WithConfigFile
 		~KinectCamera() ;
 	public:
 
-		bool apply_settings() ;	
+		bool apply_settings() ;
 		void start_cam() ;
 		void stop_cam() ;
 
@@ -86,21 +86,21 @@ class KinectCamera : public WithConfigFile
 		void parse_config_line ( vector<string> &line ) ;
 
 	private:
-	
+
 		int device_nb ;
 		freenect_context   *f_ctx;
 		freenect_device    *f_dev;
 
 		freenect_led_options  freenect_led ;
 		int 		      freenect_angle ;
-	
-	public:	
+
+	public:
 		RgbCamera	*rgb_cam ;
 		DepthCamera	*depth_cam ;
-} ; 
+} ;
 
 
 
 
 
-#endif 
+#endif

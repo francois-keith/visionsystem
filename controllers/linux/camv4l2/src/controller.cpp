@@ -13,7 +13,7 @@ ControllerV4L2::~ControllerV4L2() {
 
 
 bool ControllerV4L2::pre_fct( vector< GenericCamera* > &cams ) {
-	
+
 	for ( int i=0; i<10; i++ ) {
 		stringstream dev_path ;
 		stringstream conf_path ;
@@ -22,15 +22,15 @@ bool ControllerV4L2::pre_fct( vector< GenericCamera* > &cams ) {
 		conf_path << get_sandbox() << "/video" << i << ".conf" ;
 
 		if ( boost::filesystem::exists( dev_path.str() ) ) {
-			
+
 			std::cout << "[camv4l2] Found " << dev_path.str() << std::endl ;
-			
+
 			CameraV4L2* camera = new CameraV4L2( dev_path.str() ) ;
 
 			try {
-		        
+
 				camera->read_config_file( conf_path.str().c_str() );
-                
+
 			} catch ( string msg ) {
 
 				std::cout << "[camv4l2] Could not open config file for " << dev_path.str() << endl ;
@@ -41,14 +41,14 @@ bool ControllerV4L2::pre_fct( vector< GenericCamera* > &cams ) {
 			if(camera->is_active()) {
 
 				if ( !camera->init_camera() ) {
-					
+
 					std::cerr << "[camv4l2] ERROR : could not initialize " << dev_path.str() << std::endl ;
 					return false ;
-				
+
 				}
 
 			}
-                		
+
 			cams.push_back(camera);
                 	_cams.push_back(camera);
 

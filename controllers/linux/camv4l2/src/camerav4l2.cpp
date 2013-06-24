@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <visionsystem/frame.h>
-#include <fcntl.h>             
+#include <fcntl.h>
 #include <malloc.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -28,7 +28,7 @@ inline void CLEAR(T x)
 }
 
 static int xioctl ( int fd, int request, void * arg ) {
-        
+
 	int r;
         do r = ioctl (fd, request, arg);
         while (-1 == r && EINTR == errno);
@@ -59,7 +59,7 @@ CameraV4L2::CameraV4L2( string dev )
 
 	CLEAR (_fmt);
         _fmt.type                = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-	_fmt.fmt.pix.width       = 640; 
+	_fmt.fmt.pix.width       = 640;
         _fmt.fmt.pix.height      = 480;
 	_fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV ;
 	_fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED ;
@@ -79,13 +79,13 @@ ImageRef CameraV4L2::get_size() {
 
 bool CameraV4L2::is_active() {
 	return _active ;
-}	
+}
 
 
 FrameCoding CameraV4L2::get_coding() {
-	
+
 	switch( _fmt.fmt.pix.pixelformat ) {
-	
+
 		case V4L2_PIX_FMT_YUYV :
 
 			return VS_YUV422_YUYV ;
@@ -122,9 +122,9 @@ void CameraV4L2::parse_config_line ( vector<string> &line ) {
 
 bool CameraV4L2::init_camera() {
 
-	struct stat st; 
+	struct stat st;
 	unsigned int min;
-        
+
 	if (-1 == stat ( _dev_name.c_str(), &st ) ) {
                 cerr << "[camv4l2] ERROR: Cannot identify " << _dev_name << " : " << strerror( errno ) << endl ;
                 return false ;
@@ -139,7 +139,7 @@ bool CameraV4L2::init_camera() {
 
         if (-1 == _fd) {
 
-                cerr << "[camv4l2] ERROR: Cannot open " << _dev_name << " " << errno << " : " << strerror(errno) << endl ; 
+                cerr << "[camv4l2] ERROR: Cannot open " << _dev_name << " " << errno << " : " << strerror(errno) << endl ;
                 return false ;
         }
 
@@ -159,9 +159,9 @@ bool CameraV4L2::init_camera() {
         }
 
 	switch ( _io ) {
-		
+
 		case IO_METHOD_READ:
-			
+
 			if ( !(_cap.capabilities & V4L2_CAP_READWRITE) ) {
 				cerr << "[camv4l2] ERROR: " << _dev_name << " does not support read i/o" << endl ;
 				return false ;
@@ -171,7 +171,7 @@ bool CameraV4L2::init_camera() {
 
 		case IO_METHOD_MMAP:
 		case IO_METHOD_USERPTR:
-			
+
 			if ( !(_cap.capabilities & V4L2_CAP_STREAMING) ) {
 				cerr << "[camvv4l2] ERROR: " << _dev_name << " does not support streaming i/o" << endl ;
 				return false ;
@@ -188,43 +188,43 @@ bool CameraV4L2::init_camera() {
         _cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
         if ( 0 == xioctl (_fd, VIDIOC_CROPCAP, &_cropcap) ) {
-                
+
 		_crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-                _crop.c = _cropcap.defrect; 
+                _crop.c = _cropcap.defrect;
 
                 if (-1 == xioctl ( _fd, VIDIOC_S_CROP, &_crop)) {
-                        
+
 			switch (errno) {
                   	      case EINVAL:
                                 					// FIXME Cropping not supported
 					break;
-                        
+
 				default:
                                 					// FIXME Errors ignored
                                 	break;
                         }
                 }
 
-        } else {	
-                
-		// FIXME Errors ignored. 
+        } else {
+
+		// FIXME Errors ignored.
         }
 
 
                 if ( -1 == xioctl ( _fd, VIDIOC_S_FMT, &_fmt) ) {
-               
+
 	    	cerr << "[camv4l2] ERROR: VIDIOC_S_FMT failed for " << _dev_name << endl ;
 		return false ;
 	}
 
-	// Note VIDIOC_S_FMT may change width and height. 
+	// Note VIDIOC_S_FMT may change width and height.
 
-	// Buggy driver paranoia. 
-	
+	// Buggy driver paranoia.
+
 	min = _fmt.fmt.pix.width * 2;
 	if (_fmt.fmt.pix.bytesperline < min)
 		_fmt.fmt.pix.bytesperline = min;
-	
+
 	min = _fmt.fmt.pix.bytesperline * _fmt.fmt.pix.height;
 	if (_fmt.fmt.pix.sizeimage < min)
 		_fmt.fmt.pix.sizeimage = min;
@@ -232,53 +232,53 @@ bool CameraV4L2::init_camera() {
 	// initialize v4L2 buffers
 
 	switch ( _io ) {
-	
+
 		case IO_METHOD_READ:
-			
+
 			if ( !init_read () )
 				return false ;
 			break;
 
 		case IO_METHOD_MMAP:
-			
+
 			if ( !init_mmap () )
 				return false ;
 			break;
 
 		case IO_METHOD_USERPTR:
-			
-			if ( !init_userp() )  
+
+			if ( !init_userp() )
 				return false ;
 			break;
-	
+
 	}
 
 	// Preparing the buffer ;
-	
+
 	_buffer.clear() ;
 
 	for ( int i=0; i< 50; i++ ) {
-	
+
 		Frame* frm = new Frame( get_coding(), get_size() ) ;
 		_buffer.enqueue( frm ) ;
 
 	}
 
 	// Start capturing
-	
+
         unsigned int i;
         enum v4l2_buf_type type;
 
 	switch ( _io ) {
 		case IO_METHOD_READ:
-				
+
 				/* Nothing to do. */
 				break;
 
 		case IO_METHOD_MMAP:
-	
+
 				for (i = 0; i < n_buffers; ++i) {
-					
+
 					struct v4l2_buffer buf;
 					CLEAR (buf);
 					buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -289,19 +289,19 @@ bool CameraV4L2::init_camera() {
 						cerr << "[camv4l2] ERROR : VIDIOC_QBUF failed." << endl ;
 						return false ;
 					}
-				}	
-				
+				}
+
 				type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 				if (-1 == xioctl (_fd, VIDIOC_STREAMON, &type)) {
 					cerr << "[camv4l2] ERROR : VIDIOC_STREAMON failed." << endl ;
 					return false ;
 				}
-				
+
 				break;
 
 		case IO_METHOD_USERPTR:
-	
+
 				for (i = 0; i < n_buffers; ++i) {
 
 					struct v4l2_buffer buf;
@@ -346,15 +346,15 @@ bool CameraV4L2::init_mmap() {
         req.memory              = V4L2_MEMORY_MMAP;
 
 	if (-1 == xioctl ( _fd, VIDIOC_REQBUFS, &req)) {
-                
+
 		if (EINVAL == errno) {
 
                         cerr << "[camv4l2] ERROR: " << _dev_name <<  " does not support IO_METHOD_MMAP" << endl ;
                  	return false ;
 		 } else {
-                        
+
 			cerr <<  "[camv4l2] ERROR: error occured in VIDIOC_REQBUFS" << endl ;
-   			return false ;             
+   			return false ;
 		 }
         }
 
@@ -373,7 +373,7 @@ bool CameraV4L2::init_mmap() {
         }
 
         for ( n_buffers = 0; n_buffers < req.count; ++n_buffers ) {
-                
+
 		struct v4l2_buffer buf;
                 CLEAR (buf);
 
@@ -444,11 +444,11 @@ bool CameraV4L2::init_userp()
         if ( -1 == xioctl ( _fd, VIDIOC_REQBUFS, &req ) ) {
                 if (EINVAL == errno) {
 
-                        cerr << "[camv4l2] ERROR: " << _dev_name << "does not support IO_METHOD_USERPTR" << endl ; 
+                        cerr << "[camv4l2] ERROR: " << _dev_name << "does not support IO_METHOD_USERPTR" << endl ;
                         return false ;
-                
+
 		} else {
-                
+
 			cerr << "[camv4l2] ERROR: " << _dev_name << " Error in VIDIOC_REQBUFS " << endl ;
 			return false ;
                 }
@@ -462,7 +462,7 @@ bool CameraV4L2::init_userp()
         }
 
         for ( n_buffers = 0; n_buffers < 4; ++n_buffers ) {
-               
+
 	        buffers[n_buffers].length = buffer_size;
                 buffers[n_buffers].start = memalign ( page_size, buffer_size );
 
@@ -488,14 +488,14 @@ int CameraV4L2::read_frame () {
         FD_SET ( _fd, &fds);
 
         /* Timeout. */
-        
+
 	tv.tv_sec = 2;
         tv.tv_usec = 0;
 
         r = select ( _fd + 1, &fds, NULL, NULL, &tv);
 
         if (-1 == r) {
-		
+
 		if (EINTR == errno)
                 	return 0 ;
 
@@ -504,7 +504,7 @@ int CameraV4L2::read_frame () {
         }
 
         if (0 == r) {
-                 
+
 		cerr << "[camv4l] ERROR: select timeout" << endl ;
                 return -1 ;
         }
@@ -515,7 +515,7 @@ int CameraV4L2::read_frame () {
 	unsigned int i;
 
 	switch (_io) {
-	
+
 		case IO_METHOD_READ:
     			if (-1 == read (_fd, buffers[0].start, buffers[0].length)) {
             			switch (errno) {
@@ -523,7 +523,7 @@ int CameraV4L2::read_frame () {
                     				return 0;
 
 					case EIO:
-						
+
 						/* Could ignore EIO, see spec. */
 						/* fall through */
 
@@ -539,7 +539,7 @@ int CameraV4L2::read_frame () {
 
 
 		case IO_METHOD_MMAP:
-			
+
 			CLEAR (buf);
 			buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 			buf.memory = V4L2_MEMORY_MMAP;
@@ -572,7 +572,7 @@ int CameraV4L2::read_frame () {
 
 
 		case IO_METHOD_USERPTR:
-			
+
 			CLEAR (buf);
 
 			buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -619,7 +619,7 @@ void CameraV4L2::process_image ( const void* p ) {
 
 	Frame* frm = _buffer.pull() ;
 
-	memcpy ( frm->_data, p, frm->_data_size ) ;	
+	memcpy ( frm->_data, p, frm->_data_size ) ;
 
 	_buffer.push( frm ) ;
 
@@ -633,15 +633,15 @@ bool CameraV4L2::stop_camera() {
 	enum v4l2_buf_type type;
 
 	switch ( _io ) {
-		
+
 		case IO_METHOD_READ:
-		
+
 			/* Nothing to do. */
 			break;
 
 		case IO_METHOD_MMAP:
 		case IO_METHOD_USERPTR:
-		
+
 			type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
 			if (-1 == xioctl ( _fd, VIDIOC_STREAMOFF, &type)) {
@@ -657,14 +657,14 @@ bool CameraV4L2::stop_camera() {
 	unsigned int i;
 
 	switch ( _io ) {
-	
+
 		case IO_METHOD_READ:
-			
+
 			free (buffers[0].start);
 			break;
 
 		case IO_METHOD_MMAP:
-		
+
 			for (i = 0; i < n_buffers; ++i)
 				if (-1 == munmap (buffers[i].start, buffers[i].length)) {
 					cerr << "[camv4l2] ERROR in stop_camera() : munmap failed." << endl ;

@@ -14,7 +14,7 @@ void Camera1394::save_capa ( string filename ) {
 
     dc1394video_modes_t modes;
     dc1394error_t err ;
-	    
+
     bool framerates ;
     string modename ;
     string frate ;
@@ -40,7 +40,7 @@ void Camera1394::save_capa ( string filename ) {
 		 ( modes.modes[i] == DC1394_VIDEO_MODE_FORMAT7_4 ) ||
 		 ( modes.modes[i] == DC1394_VIDEO_MODE_FORMAT7_5 ) ||
 		 ( modes.modes[i] == DC1394_VIDEO_MODE_FORMAT7_6 ) ||
-		 ( modes.modes[i] == DC1394_VIDEO_MODE_FORMAT7_7 ) ) 
+		 ( modes.modes[i] == DC1394_VIDEO_MODE_FORMAT7_7 ) )
 			framerates = false ;
 
 
@@ -50,13 +50,13 @@ void Camera1394::save_capa ( string filename ) {
 	if (framerates) {
 
 		dc1394framerates_t framerates;
-	
+
 		err = dc1394_video_get_supported_framerates (cam, modes.modes[i], &framerates);
-		if ( err != DC1394_SUCCESS ) {	
+		if ( err != DC1394_SUCCESS ) {
 			std::cerr << "[vision_server] ERROR : could not retrieve framerate" << endl ;
 			exit(0) ;
 		}
-			
+
 		for ( unsigned int j = 0; j < framerates.num; j++) {
 			dc1394framerate_t rate = framerates.framerates[j];
 			switch (rate) {
@@ -98,7 +98,7 @@ void Camera1394::save_capa ( string filename ) {
 
 }
 
-	// Enumerates features    
+	// Enumerates features
 
 	dc1394featureset_t  features ;
 
@@ -110,21 +110,21 @@ void Camera1394::save_capa ( string filename ) {
 				capafile << std::endl << "[Feature] " << feature_2_string ( features.feature[i].id ) << std::endl ;
 
 				for (unsigned int j=0; j<features.feature[i].modes.num; j++ ) {
-					
+
 					capafile << "  Mode : " << featuremode_2_string ( features.feature[i].modes.modes[j] ) << std::endl ;
 
-					if (features.feature[i].modes.modes[j] == DC1394_FEATURE_MODE_MANUAL ) {				
-						
-							uint32_t min = 0 ; 
+					if (features.feature[i].modes.modes[j] == DC1394_FEATURE_MODE_MANUAL ) {
+
+							uint32_t min = 0 ;
 							uint32_t max = 0 ;
-						
+
 							err = dc1394_feature_get_boundaries( cam, features.feature[i].id , &min, &max);
-						
+
 							if ( err != DC1394_SUCCESS ) {
 								std::cerr << "[vision_server] ERROR : Could not get boudaries for mode " << featuremode_2_string ( features.feature[i].modes.modes[j] ) << endl ;
 								exit(0) ;
 							}
-						
+
 							capafile << "  Value : " << min << " - " << max << std::endl ;
 						}
 				}
@@ -134,7 +134,7 @@ void Camera1394::save_capa ( string filename ) {
 	}
 
 
-	// close file 
+	// close file
 
 	capafile.close() ;
 

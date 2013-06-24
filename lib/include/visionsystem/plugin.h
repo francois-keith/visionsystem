@@ -25,23 +25,23 @@ namespace visionsystem {
 
 class Plugin
 {
-	public: 
+	public:
 
-		Plugin( VisionSystem* vs, std::string plugin_name, std::string sandbox )  ;		
+		Plugin( VisionSystem* vs, std::string plugin_name, std::string sandbox )  ;
 		virtual ~Plugin() ;
 
 		std::string   get_name();
 		std::string   get_sandbox() ;
-	
+
 		virtual bool pre_fct()  = 0 ;		// Called by VisionSystem core.
 		virtual void preloop_fct() = 0 ;	// Called by VisionSystem core.
 		virtual void loop_fct() = 0 ;		// Called by VisionSystem core.
 		virtual bool post_fct() = 0 ;		// Called by VisionSystem core.
 
 		void push_frame( Camera*, Frame*, bool skip_frame = false ) ;	// Called by VisionSystem core.
-	
+
 	protected:
-		
+
 
 		std::vector<Camera*> get_all_cameras() ;
 		Camera* get_camera ( std::string cam_name )  ;
@@ -49,7 +49,7 @@ class Plugin
 
 		template < typename Timage >
 		void register_to_cam ( Camera*, int N ) ;
-		
+
 		template < typename Timage >
 		Timage* dequeue_image ( Camera* ) ;
 
@@ -71,7 +71,7 @@ class Plugin
 		std::string	_sandbox ;					// Path to the sandbox
 		std::string 	_name ;						// Name of the plugin.
 
-		std::map< Camera*, Buffer<Frame>*  >	frame_buffers ;		// This buffer for the frames received from the cameras	
+		std::map< Camera*, Buffer<Frame>*  >	frame_buffers ;		// This buffer for the frames received from the cameras
 		std::map< Camera*, boost::any >		img_buffers ;		// This buffer tor the images which will be filled from the frames.
 };
 

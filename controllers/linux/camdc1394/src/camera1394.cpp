@@ -7,7 +7,7 @@ Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
     _frame = 0;
 	handler = d ;
 	_gid = gid ;
- 	
+
     {
     std::stringstream ss;
     ss << gid;
@@ -19,20 +19,20 @@ Camera1394::Camera1394( dc1394_t* d , uint64_t gid )
         bayer = 0 ;
 
 	mode  = 	DC1394_VIDEO_MODE_640x480_MONO8 ;
-	speed = 	DC1394_ISO_SPEED_400 ; 
+	speed = 	DC1394_ISO_SPEED_400 ;
 	framerate = 	DC1394_FRAMERATE_30 ;
 	flags =		DC1394_CAPTURE_FLAGS_DEFAULT ;
-	
-	_buffersize = 100 ;	
-	
-	cam = dc1394_camera_new ( handler, gid ) ;	
+
+	_buffersize = 100 ;
+
+	cam = dc1394_camera_new ( handler, gid ) ;
 
 	if (!cam) {
 		std::cerr << "[vision_server] Could not initialise camera with gid " << gid << std::endl ;
 		std::cerr << "[vision_server] Aborting." << std::endl ;
 		exit(1) ;
 	}
-	 
+
 }
 
 Camera1394::~Camera1394() {
@@ -58,7 +58,7 @@ ImageRef Camera1394::get_size() {
 		case DC1394_VIDEO_MODE_640x480_RGB8:
 			return ImageRef(640,480) ;
 			break ;
-		
+
 		case DC1394_VIDEO_MODE_800x600_YUV422:
 		case DC1394_VIDEO_MODE_800x600_MONO8:
 		case DC1394_VIDEO_MODE_800x600_MONO16:
@@ -79,7 +79,7 @@ ImageRef Camera1394::get_size() {
 		case DC1394_VIDEO_MODE_1280x960_RGB8:
 			return ImageRef(1280,960) ;
 			break ;
-		
+
 		case DC1394_VIDEO_MODE_1600x1200_YUV422:
 		case DC1394_VIDEO_MODE_1600x1200_MONO8:
 		case DC1394_VIDEO_MODE_1600x1200_MONO16:
@@ -125,7 +125,7 @@ if ( bayer == 0 ) {
 		case DC1394_VIDEO_MODE_640x480_YUV411:
 			return VS_YUV411 ;
 			break ;
-		
+
 		case DC1394_VIDEO_MODE_640x480_MONO8:
 		case DC1394_VIDEO_MODE_800x600_MONO8:
 		case DC1394_VIDEO_MODE_1024x768_MONO8:
@@ -154,12 +154,12 @@ if ( bayer == 0 ) {
         default:
             break;
 	}
-	
+
 } else {
 
 // else ... it's less easy :)
 
-	switch ( mode ) 
+	switch ( mode )
 	{
 		case DC1394_VIDEO_MODE_640x480_MONO8:
 		case DC1394_VIDEO_MODE_800x600_MONO8:

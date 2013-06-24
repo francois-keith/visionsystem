@@ -1,12 +1,12 @@
 template< typename Timage >
 void Plugin::register_to_cam ( Camera* cam, int N ) {
-	
+
 	_vscore->register_to_cam ( this, cam ) ;
 
 	Buffer<Frame>  *frmbuff = new Buffer<Frame>() ;
 	Buffer<Timage> *imgbuff = new Buffer<Timage>() ;
 	boost::any tmp = imgbuff ;
-	
+
 	frame_buffers[cam] = frmbuff ;
 	img_buffers[cam] = tmp ;
 
@@ -19,7 +19,7 @@ void Plugin::register_to_cam ( Camera* cam, int N ) {
 
 
 template< typename Timage >
-Timage* Plugin::dequeue_image ( Camera* cam ) 
+Timage* Plugin::dequeue_image ( Camera* cam )
 {
 	Buffer<Frame>  *frmbuff = frame_buffers[cam] ;
 	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage>* >( img_buffers[cam] ) ;
@@ -37,7 +37,7 @@ Timage* Plugin::dequeue_image ( Camera* cam )
 
 
 template< typename Timage >
-void Plugin::enqueue_image ( Camera* cam, Timage* img ) 
+void Plugin::enqueue_image ( Camera* cam, Timage* img )
 {
 	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage>* >( img_buffers[cam] ) ;
 	imgbuff->enqueue ( img ) ;
@@ -48,11 +48,11 @@ void Plugin::enqueue_image ( Camera* cam, Timage* img )
 template< typename Timage >
 void Plugin::unregister_to_cam ( Camera* cam ) {
 
-	_vscore->unregister_to_cam( this, cam ) ;	
-	
+	_vscore->unregister_to_cam( this, cam ) ;
+
 	Buffer<Frame>  *frmbuff = frame_buffers[cam] ;
-	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage>* >( img_buffers[cam] ) ;	
-	
+	Buffer<Timage> *imgbuff = boost::any_cast< Buffer<Timage>* >( img_buffers[cam] ) ;
+
 	delete imgbuff ;
 	delete frmbuff ;
 }
@@ -65,7 +65,7 @@ void Plugin::whiteboard_write ( std::string key, Object value ) {
 
 template < typename Object >
 Object Plugin::whiteboard_read ( std::string key ) {
-	return _vscore->whiteboard_read< Object >( key ) ; 
+	return _vscore->whiteboard_read< Object >( key ) ;
 }
 
 

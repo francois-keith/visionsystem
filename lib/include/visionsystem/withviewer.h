@@ -8,8 +8,8 @@
 #include <visionsystem/camera.h>
 
 #ifndef _WIN32
-	
-	#include <X11/Xlib.h> 	
+
+	#include <X11/Xlib.h>
 	#include <X11/keysym.h>
 
 #else
@@ -28,12 +28,12 @@
     typedef union SDL_Event
     {} SDL_Event;
 
-#endif 
+#endif
 
 namespace visionsystem {
 
 
-class WithViewer 
+class WithViewer
 {
 
 	public:

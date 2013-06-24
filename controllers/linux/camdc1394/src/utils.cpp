@@ -51,7 +51,7 @@ std::string mode_2_string ( dc1394video_mode_t mode ) {
 				cerr << "[vision_server] ERROR : Unknown format in mode_2_string" << endl ;
 				exit(0) ;
 				break ;
-		} 
+		}
 
 		return ret ;
 	}
@@ -64,7 +64,7 @@ std::string feature_2_string ( dc1394feature_t ft ) {
 
 		switch (ft) {
 
-			    MACROCASE(DC1394_FEATURE_BRIGHTNESS) 
+			    MACROCASE(DC1394_FEATURE_BRIGHTNESS)
 			    MACROCASE(DC1394_FEATURE_EXPOSURE)
 			    MACROCASE(DC1394_FEATURE_SHARPNESS)
 			    MACROCASE(DC1394_FEATURE_WHITE_BALANCE)

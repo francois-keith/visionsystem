@@ -14,7 +14,7 @@ Controller1394::~Controller1394() {
 
 
 bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
-	
+
 	d1394_ = dc1394_new() ;
 
 	if (!d1394_) {
@@ -24,9 +24,9 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 		return false  ;
 
 	} else {
-		
+
 		#ifdef _DEBUG
-			std::cout << "[camdc1394] Initializing DC1394 system " <<std::endl ; 
+			std::cout << "[camdc1394] Initializing DC1394 system " <<std::endl ;
 		#endif
 
 		dc1394camera_list_t * list ;
@@ -44,19 +44,19 @@ bool Controller1394::pre_fct( vector< GenericCamera* > &cams ) {
 		} else {
 
 			for ( unsigned int i=0; i<list->num; i++ ) {
-				
+
 				#ifdef _DEBUG
-					std::cout <<"[camdc1394] Found camera " << list->ids[i].guid <<std::endl ;					
+					std::cout <<"[camdc1394] Found camera " << list->ids[i].guid <<std::endl ;
 				#endif
 
 				Camera1394* cam = new Camera1394( d1394_ , list->ids[i].guid ) ;
 
 				std::ostringstream capa_filename;
-				capa_filename << get_sandbox() << "/" << list->ids[i].guid << ".capa" ;  
+				capa_filename << get_sandbox() << "/" << list->ids[i].guid << ".capa" ;
 				cam->save_capa( capa_filename.str() )  ;
-				
+
 				std::ostringstream conf_filename;
-				conf_filename << get_sandbox() << "/" << list->ids[i].guid << ".conf" ;  
+				conf_filename << get_sandbox() << "/" << list->ids[i].guid << ".conf" ;
 
 				try {
 					cam->read_config_file ( conf_filename.str().c_str() ) ;
@@ -95,13 +95,13 @@ void Controller1394::loop_fct() {
 
 		dc1394error_t err ;
 		dc1394video_frame_t *frame = NULL ;
-		Frame* vsframe = NULL ;	
+		Frame* vsframe = NULL ;
 		for ( size_t i=0; i < _cams.size(); i++ ) {
 
 			if ( _cams[i]->is_active() ) {
 
 				err = dc1394_capture_dequeue ( _cams[i]->get_cam(), DC1394_CAPTURE_POLICY_POLL, &frame ) ;
-		
+
 				if ( err != DC1394_SUCCESS ) {
 					std::cerr << "[camdc1394] Could not dequeue frame" <<std::endl ;
 					exit(0) ;
@@ -109,15 +109,15 @@ void Controller1394::loop_fct() {
 
 				if ( frame ) {
 
-					vsframe = _cams[i]->_buffer.pull() ;						
+					vsframe = _cams[i]->_buffer.pull() ;
                     _cams[i]->increase_frame();
 
 					if ( _cams[i]->get_bayer() == 0 )
-							
+
 							std::memcpy ( vsframe->_data, frame->image, vsframe->_data_size ) ;
-				
+
 					else {
-					
+
 						dc1394_bayer_decoding_8bit( frame->image,
 									    vsframe->_data,
 									    frame->size[0],
@@ -129,7 +129,7 @@ void Controller1394::loop_fct() {
 					_cams[i]->_buffer.push( vsframe ) ;
 
 					err = dc1394_capture_enqueue ( _cams[i]->get_cam(), frame ) ;
-			
+
 					if ( err != DC1394_SUCCESS ) {
 						std::cerr << "[camdc1394] Could not enqueue frame" <<std::endl ;
 						exit(0) ;
@@ -150,14 +150,14 @@ bool Controller1394::post_fct() {
 		_cams[i]->stop_cam() ;
 		delete ( _cams[i] ) ;
 	}
-	
+
 	#ifdef _DEBUG
 		std::cout << "[camdc1394] cams are deleted" <<std::endl ;
 	#endif
 
 
-	if ( d1394_ != NULL ) {	
-		
+	if ( d1394_ != NULL ) {
+
 		#ifdef _DEBUG
 			std::cout << "[camdc1394] Closing DC1394 " <<std::endl ;
 		#endif

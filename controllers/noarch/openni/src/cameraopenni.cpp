@@ -130,7 +130,7 @@ bool CameraOpenNI::init_camera()
     else if (rc != XN_STATUS_OK)
     {
 
-//xnGetStatusString lead to some problem during compilation 
+//xnGetStatusString lead to some problem during compilation
 //        std::cout << "[OpenNI] Open failed: " << xnGetStatusString(rc) << std::endl;
         std::cout << "[OpenNI] Open failed: "  << std::endl;
 

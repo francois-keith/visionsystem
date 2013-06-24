@@ -26,7 +26,7 @@ class GLWindow
 {
 
 	public:
-  
+
 		GLWindow ( string title, int width, int height, Bool fullscreen );
 		~GLWindow() ;
 
@@ -37,9 +37,9 @@ class GLWindow
 		int  next_event ( XEvent *event ) ;
 		void processEvents( XEvent event ) ;
 
-		void print ( const char* s ) ;		// OpenGL stuff to draw a text  
+		void print ( const char* s ) ;		// OpenGL stuff to draw a text
 
-	private: 
+	private:
 
 		Display* dpy_;				// window stuff
 		int screen_;
@@ -49,7 +49,7 @@ class GLWindow
 
 		Bool fullScreen_;
 		Bool doubleBuffered_;
-		
+
 		XF86VidModeModeInfo deskMode_;
 		unsigned int depth_;
 
@@ -60,7 +60,7 @@ class GLWindow
 
 		void resize();
 
-		Image< uint32_t, RGB >		*RGB_img  ; 
+		Image< uint32_t, RGB >		*RGB_img  ;
 } ;
 
 
@@ -74,7 +74,7 @@ static int attrListSgl[] = { GLX_RGBA, GLX_RED_SIZE, 4,
 	None
 };
 
-/* attributes for a double buffered visual in RGBA format with at least 
+/* attributes for a double buffered visual in RGBA format with at least
  4 bits per color and a 16 bit depth buffer */
 
 static int attrListDbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
@@ -102,7 +102,7 @@ static int attrListDbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
 * \class GLWindow glwindow.h "Definition"
 * \brief Declaration of the GLwindow class.
 * \param dpy_ is a buffer to specifies the connection to the X server.
-* \param screen_  is the default screen number referenced in the XOpenDisplay routine for dpy_. 
+* \param screen_  is the default screen number referenced in the XOpenDisplay routine for dpy_.
 * \param win_ is a buffer of what we are currently displaying.
 * \param ctx_ is the GLX context.
 * \param attr_ is the window attribute.
@@ -117,11 +117,11 @@ static int attrListDbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
 * \param font_ is glx font.
 * \param fontBase_ is glx font base.
 * \param attrListSgl[] is a static attribute for a single buffered visual in RGBA format with at least
-* 4 bits per color and a 16 bit depth buffer. 
-* \param attrListDbl[] attributes for a double buffered visual in RGBA format with at least 
+* 4 bits per color and a 16 bit depth buffer.
+* \param attrListDbl[] attributes for a double buffered visual in RGBA format with at least
  4 bits per color and a 16 bit depth buffer.
 */
-		
+
 /*!
 * \fn GLWindow::GLWindow( string title, int width, int height, Bool fullscreen )
 * \brief constructor of GLWindow.
@@ -130,13 +130,13 @@ static int attrListDbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
 * \param height is the window's height.
 * \param fullscreen is usefull to know if the window should be display fullscreen or not.
 */
-		
+
 /*!
 * \fn GLWindow::~GLWindow()
 * \brief destructor of GLWindow.
 * \note destroy the glx context and switch back to original desktop resolution if we were in fullScreen.
 */
-	
+
 /*!
 * \fn void GLWindow::draw( Image<unsigned char>* img )
 * \brief This is a method to draw an image in the window background using glDrawPixels.
@@ -169,6 +169,6 @@ static int attrListDbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
 * \brief This is a method which use openGL function to display string.
 * \param s is the string we want to display.
 * \note this method is called from draw_caption.
-*/  
+*/
 
 #endif

@@ -13,7 +13,7 @@
 	#endif
 #endif
 
-template < typename Timage > 
+template < typename Timage >
 void image_fill ( Timage* img, visionsystem::Frame* frm ) {
 
 	std::cerr << "Conversion from encoding " << frm->_coding << " to image type " << typeid( Timage ).name()  << " is not implemented. Please see visionsystem/imagefill.hpp" << std::endl ;
@@ -22,7 +22,7 @@ void image_fill ( Timage* img, visionsystem::Frame* frm ) {
 }
 
 #include <vision/image/image.h>
-#include <stdint.h> 
+#include <stdint.h>
 
 template<>
 void image_fill < vision::Image< unsigned char, vision::MONO > > ( vision::Image<unsigned char, vision::MONO> *img, visionsystem::Frame* frm ) ;

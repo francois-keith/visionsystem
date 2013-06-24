@@ -12,7 +12,7 @@ using namespace configparser ;
 class Shutdown : public Plugin, public WithViewer, public WithConfigFile {
 
 	public:
-		
+
 		Shutdown( VisionSystem *vs, string sandbox ) ;
 		~Shutdown() ;
 
@@ -35,6 +35,6 @@ class Shutdown : public Plugin, public WithViewer, public WithConfigFile {
 
 
 
-PLUGIN( Shutdown ) 
+PLUGIN( Shutdown )
 
 #endif
