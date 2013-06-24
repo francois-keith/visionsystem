@@ -102,8 +102,11 @@ void  GLView::loop_fct() {
 	enqueue_image< Image<uint32_t, RGB> >( cameras[active_cam], img ) ;
 
 	if ( active_cam != next_cam ) {
-		unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
-		register_to_cam< Image<uint32_t, RGB> >( cameras[next_cam], 10 ) ;
+        if(next_cam < cameras.size() && cameras[next_cam]->is_active())
+        {
+		    unregister_to_cam< Image<uint32_t, RGB> >( cameras[active_cam] ) ;
+		    register_to_cam< Image<uint32_t, RGB> >( cameras[next_cam], 10 ) ;
+        }
 		active_cam = next_cam ;
 	}
 
@@ -113,7 +116,6 @@ void GLView::callback( XEvent event ) {
 #ifdef VS_HAS_CONTROLLER_SOCKET
 CameraSocket * current_cam = 0; 
 #endif
-	
 	if (event.type == KeyPress ) {
 
 		switch ( XLookupKeysym(&event.xkey, 0) ) {
@@ -220,6 +222,12 @@ CameraSocket * current_cam = 0;
             }
             break;
         #endif
+
+        case XK_l:
+            std::cout << "Trying to load filestream controller (debug function)" << std::endl;
+            _vscore->load_controller("filestream");
+            cameras = get_all_cameras();
+            break;
 
 		default:
 			break;
