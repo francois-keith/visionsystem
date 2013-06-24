@@ -21,11 +21,12 @@ class KinectController : public Controller
         KinectController( VisionSystem *vs, string sandbox ) ;
         ~KinectController() ;
 
-         bool pre_fct( vector< GenericCamera*> &cams ) ;
-         void preloop_fct() ;
-         void loop_fct() ;
-         bool post_fct() ;
+        bool pre_fct( vector< GenericCamera*> &cams ) ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
+        void get_cameras(std::vector<GenericCamera *> & cams);
     private:
 
         vector< KinectCamera* >    _devices ;

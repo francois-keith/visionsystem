@@ -74,5 +74,14 @@ bool ControllerOpenNI::post_fct()
     return true;
 }
 
+void ControllerOpenNI::get_cameras(std::vector<GenericCamera*> & cams_out)
+{
+    for(size_t i = 0; i < _cams.size(); ++i)
+    {
+        if(_cams[i]->get_image_camera()) { cams_out.push_back(_cams[i]->get_image_camera()); }
+        if(_cams[i]->get_depth_camera()) { cams_out.push_back(_cams[i]->get_depth_camera()); }
+    }
+}
+
 } // namespace visionsystem
 

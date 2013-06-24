@@ -85,5 +85,13 @@ bool ControllerSocket::post_fct()
     return true;
 }
 
+void ControllerSocket::get_cameras(std::vector<GenericCamera*> & cams)
+{
+    for(size_t i = 0; i < cams_.size(); ++i)
+    {
+        cams.push_back(cams_[i]);
+    }
+}
+
 } // namespace visionsystem
 

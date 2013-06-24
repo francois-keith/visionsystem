@@ -173,4 +173,11 @@ bool Controller1394::post_fct() {
     return true ;
 }
 
+void Controller1394::get_cameras(std::vector< GenericCamera* > & cams)
+{
+    for(size_t i = 0; i < _cams.size(); ++i)
+    {
+        cams.push_back(_cams[i]);
+    }
+}
 

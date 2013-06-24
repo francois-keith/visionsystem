@@ -27,6 +27,7 @@ class ControllerV4L2 : public Controller
         void loop_fct() ;
         bool post_fct() ;
 
+        void get_cameras(std::vector<GenericCamera *> & cams);
     private:
 
         vector< CameraV4L2* >  _cams ;    // Vectors of cameras detected

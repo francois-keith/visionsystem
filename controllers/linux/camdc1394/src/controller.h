@@ -26,6 +26,8 @@ class Controller1394 : public visionsystem::Controller
         void loop_fct() ;
         bool post_fct() ;
 
+        void get_cameras( std::vector<GenericCamera *> & cams);
+
     private:
 
         dc1394_t*             d1394_ ;  // handler on the 1394 controller

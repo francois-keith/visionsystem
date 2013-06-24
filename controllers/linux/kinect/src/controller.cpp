@@ -116,4 +116,12 @@ bool KinectController::post_fct()
     return 1 ;
 }
 
+void KinectController::get_cameras(std::vector<GenericCamera*> & cams)
+{
+    for(size_t i = 0; i < _devices.size(); ++i)
+    {
+        cams.push_back(_devices[i]);
+    }
+}
+
 

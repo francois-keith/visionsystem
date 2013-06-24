@@ -20,6 +20,7 @@ public:
     void loop_fct();
     bool post_fct();
 
+    void get_cameras(std::vector<GenericCamera*> & cams);
 private:
     boost::asio::io_service io_service_;
     boost::thread * io_service_th_;

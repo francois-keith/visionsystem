@@ -69,5 +69,13 @@ bool ControllerFilestream::post_fct()
     return true;
 }
 
+void ControllerFilestream::get_cameras(std::vector<GenericCamera *> & cams)
+{
+    for(size_t i = 0; i < _cams.size(); ++i)
+    {
+        cams.push_back(_cams[i]);
+    }
+}
+
 } // namespace visionsystem
 

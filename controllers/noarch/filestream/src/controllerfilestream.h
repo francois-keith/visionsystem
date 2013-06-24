@@ -20,6 +20,7 @@ public:
     void loop_fct();
     bool post_fct();
 
+    void get_cameras(std::vector<GenericCamera *> & cams);
 private:
     std::vector<visionsystem::CameraFilestream *> _cams;
 };

@@ -33,6 +33,8 @@ namespace visionsystem {
             virtual void loop_fct() = 0 ;                // This function will be run in a thread. Put your acquisition loop there.
             virtual bool post_fct() = 0 ;                // This function is called after the loop is stopped. Close everything smoothly here.
 
+            virtual void get_cameras( std::vector<GenericCamera *> & cams) = 0; // Should provide all available cameras
+
             std::string get_name() ;
             std::string get_sandbox() ;
 
