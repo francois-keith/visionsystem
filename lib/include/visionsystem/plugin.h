@@ -38,6 +38,9 @@ class Plugin
         virtual void loop_fct() = 0 ;        // Called by VisionSystem core.
         virtual bool post_fct() = 0 ;        // Called by VisionSystem core.
 
+        /* Can be optionally implemetend to handle end of camera life properly */
+        virtual void notify_end_of_camera(Camera * cam);
+
         void push_frame( Camera*, Frame*, bool skip_frame = false ) ;    // Called by VisionSystem core.
 
     protected:

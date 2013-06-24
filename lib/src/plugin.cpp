@@ -57,5 +57,10 @@ Camera* Plugin::get_default_camera () {
     return _vscore->get_default_camera() ;
 }
 
+void Plugin::notify_end_of_camera(Camera * cam)
+{
+    std::cerr << "[WARNING] Plugin " << get_name() << " received a notification about the end of camera " << cam->get_name() << std::endl;
+    std::cerr << "This plugin is not prepared for this, expect the worst..." << std::endl;
+}
 
 }
