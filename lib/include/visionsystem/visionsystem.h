@@ -11,53 +11,62 @@
 namespace visionsystem {
 
 
-	class Plugin ;
-
-	
-	class VisionSystem {
-
-		public :
-	
-			VisionSystem() ;
-			virtual ~VisionSystem() ;
-			
-			std::vector<Camera*> get_all_cameras() ;
-			Camera* get_camera ( std::string cam_name ) ;
-			Camera* get_default_camera() ;
-
-			void register_to_cam ( Plugin* plugin, Camera* cam ) ;
-			void unregister_to_cam  ( Plugin* plugin, Camera* cam ) ;	
-
-			template< typename Obj >
-			void whiteboard_write ( std::string key, Obj value ) ;
-
-			template< typename Obj >
-			Obj whiteboard_read ( std::string key ) ;
+    class Plugin ;
 
 
-		protected :
+    class VisionSystem {
 
-			void add_camera ( GenericCamera * ) ;
-			
-			std::vector<GenericCamera*> get_all_genericcameras() ;
-			std::vector<Plugin*>        get_all_subscriptions ( GenericCamera* ) ;
+        public :
+
+            VisionSystem() ;
+            virtual ~VisionSystem() ;
+
+            std::vector<Camera*> get_all_cameras() ;
+            Camera* get_camera ( std::string cam_name ) ;
+            Camera* get_default_camera() ;
+
+            void register_to_cam ( Plugin* plugin, Camera* cam ) ;
+            void unregister_to_cam  ( Plugin* plugin, Camera* cam ) ;
+
+            template< typename Obj >
+            void whiteboard_write ( std::string key, Obj value ) ;
+
+            template< typename Obj >
+            Obj whiteboard_read ( std::string key ) ;
+
+            /* Those can be overrided for dynamic camera loading/unloading */
+            virtual const std::vector<std::string> & get_loaded_controllers() {}
+
+            virtual const std::vector<std::string> & get_available_controllers() {}
+
+            virtual void unload_controller(const std::string & controller_name) {}
+
+            virtual void load_controller(const std::string & controller_name) {}
+
+
+        protected :
+
+            void add_camera ( GenericCamera * ) ;
+
+            std::vector<GenericCamera*> get_all_genericcameras() ;
+            std::vector<Plugin*>        get_all_subscriptions ( GenericCamera* ) ;
 
             void whiteboard_wipe();
 
             /* WARNING: don't use those when you inherit from VisionSystem unless you KNOW what you're doing */
-			std::map< std::string, boost::recursive_mutex* >  whiteboard_mutex ;
+            std::map< std::string, boost::recursive_mutex* >  whiteboard_mutex ;
 
-		private :
-
-			
-			std::vector< GenericCamera* >			_cameras ;
-			boost::mutex			        _cameras_mutex ;
+        private :
 
 
-			std::map< Camera*, std::vector<Plugin*> >   _subscriptions ;
-			boost::mutex			       	    _subscriptions_mutex ;
+            std::vector< GenericCamera* >            _cameras ;
+            boost::mutex                    _cameras_mutex ;
 
-			std::map< std::string, boost::any >    whiteboard_data ;
+
+            std::map< Camera*, std::vector<Plugin*> >   _subscriptions ;
+            boost::mutex                           _subscriptions_mutex ;
+
+            std::map< std::string, boost::any >    whiteboard_data ;
 
 } ;
 

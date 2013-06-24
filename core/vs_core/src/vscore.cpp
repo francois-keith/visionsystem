@@ -12,12 +12,13 @@
 #include "vscore.h"
 
 
-VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_frames(false)
+VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_frames(false),
+    _loaded_controllers(0), _available_controllers(0)
 {
     // Set base directory
 
     for (int i = 0 ; envv[i]; i++ ) {
-        if ( strncmp ( envv[i], "HOME=", 5 ) == 0 ) 
+        if ( strncmp ( envv[i], "HOME=", 5 ) == 0 )
             _basedir = string( &(envv[i][5]) ) + "/.vs_core/" ;
         else if ( strncmp ( envv[i], "APPDATA=", 8 ) == 0 )
             _basedir = string( &(envv[i][8]) ) + "/vs_core/" ;
@@ -29,7 +30,7 @@ VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_
     }
 
     // Set config file
-    
+
     if ( argc >= 2 )
     {
         _configfile = string( argv[1] ) ;
@@ -39,7 +40,7 @@ VsCore::VsCore( int argc, char** argv, char** envv ) : catch_sigint(true), skip_
         _configfile = _basedir / "vs_core.conf" ;
     }
 
-    if ( !exists( _configfile) || is_directory( _configfile) ) 
+    if ( !exists( _configfile) || is_directory( _configfile) )
     {
         std::cout << "[vs_core] ERROR: Config file " << _configfile << " is not a file." << std::endl;
     }
@@ -78,7 +79,7 @@ void VsCore::sigint_handler(int signum)
     #endif
 }
 
-void VsCore::parse_config_line ( vector<string> &line ) 
+void VsCore::parse_config_line ( vector<string> &line )
 {
     if( fill_member(line, "CatchSIGINT", catch_sigint) ) return;
 
@@ -86,16 +87,16 @@ void VsCore::parse_config_line ( vector<string> &line )
 
     if ( line[0] == "Controller" ) {
 
-		if ((line.size()!= 2) && (line.size()!=3)) 
+		if ((line.size()!= 2) && (line.size()!=3))
 			throw("[vs_core] ERROR : Wrong Number of arguments for command [Controller]") ;
-		
+
 		path sandbox = _basedir / "controllers" /  line[1];
 
         cout << "[vs_core] Loading Controller: " << line[1] << " " << sandbox << endl ;
 
         if (!exists( sandbox )) {
             cout << "[vs_core]  WARNING: Could not find sandbox. Creating ... " <<  endl ;
-             create_directory( sandbox );    
+             create_directory( sandbox );
         }
 
         if (!is_directory( sandbox )) {
@@ -116,18 +117,18 @@ void VsCore::parse_config_line ( vector<string> &line )
             _loaded_controllers.push_back(line[1]);
             _controller_threads.push_back( new Thread<Controller>( this, line[1], sandbox.string() + "/") ) ;
         }
-		
+
 		return ;
 
     }
 
     if ( line[0] == "Plugin" ) {
 
-        if ((line.size()!= 2) && (line.size()!=3)) 
+        if ((line.size()!= 2) && (line.size()!=3))
             throw("[vs_core] ERROR : Wrong Number of arguments for command [Plugin]") ;
-        
+
         path sandbox ;
-        
+
         if ( line.size() == 2 )
             sandbox = _basedir / "plugins" / line[1];
         else
@@ -137,7 +138,7 @@ void VsCore::parse_config_line ( vector<string> &line )
 
         if (!exists( sandbox )) {
             cout << "[vs_core]  WARNING: Could not find sandbox. Creating ... " <<  endl ;
-             create_directory( sandbox );    
+             create_directory( sandbox );
         }
 
         if (!is_directory( sandbox )) {
@@ -151,7 +152,7 @@ void VsCore::parse_config_line ( vector<string> &line )
     }
 
     cerr << "[vs_core] WARNING: Can't parse line in config file beginning with " << line[0] <<endl ;
-    
+
 }
 
 void VsCore::run()
@@ -169,19 +170,19 @@ void VsCore::run()
 
     if (!exists( _basedir)) {
         cout << "[vs_core] WARNING: Could not find Base directory. Creating ... " << _basedir << endl ;
-         create_directory( _basedir );    
+         create_directory( _basedir );
     }
 
     if (!is_directory(_basedir)) {
         cerr << "[vs_core] ERROR: Expecting Base directory, found a file. << " << endl ;
-        cerr << "[vs_core] ERROR: " << _basedir << endl ; 
+        cerr << "[vs_core] ERROR: " << _basedir << endl ;
         return ;
     }
 
 
     if (!exists( _controller_path )) {
         cout << "[vs_core] WARNING: Could not find 'controllers' subdirectory. Creating ... " << endl ;
-         create_directory( _controller_path );    
+         create_directory( _controller_path );
     }
 
     if (!is_directory(_controller_path)) {
@@ -191,7 +192,7 @@ void VsCore::run()
 
     if (!exists( _plugin_path )) {
         cout << "[vs_core] WARNING: Could not find 'plugins' subdirectory. Creating ... " <<  endl ;
-         create_directory( _plugin_path );    
+         create_directory( _plugin_path );
     }
 
     if (!is_directory(_plugin_path)) {
@@ -200,7 +201,7 @@ void VsCore::run()
     }
 
     if (exists( _configfile) ) {
-        if (!is_directory( _configfile) ) 
+        if (!is_directory( _configfile) )
             cout << "[vs_core] Found config file" << endl ;
         else {
             cerr << "[vs_core] ERROR: Expected config file, found a directory." << endl ;
@@ -240,26 +241,26 @@ void VsCore::run()
         cout << "[vs_core] WARNING: no controller loaded" << endl ;
     else
         cout << "[vs_core] " << _controllers.size() << " controllers loaded" << endl ;
-    
+
     if (_plugins.size() == 0 )
         cout << "[vs_core] WARNING: no plugin loaded" << endl ;
     else
         cout << "[vs_core] " << _plugins.size() << " plugins loaded" << endl ;
 
-    // Controllers pre_fct() 
+    // Controllers pre_fct()
 
     cout << "[vs_core] Initialising all controllers" << endl ;
 
     for ( size_t i=0; i<_controllers.size(); i++) {
-        
+
         cout << "[vs_core] Initializing " << _controllers[i]->get_name() << endl ;
-        
+
         vector<GenericCamera*> tmp ;
         if ( !_controllers[i]->pre_fct(tmp) ) {
             cerr << "[vs_core] ERROR: Controller pre_fct() returned false" << endl ;
             return ;
         }
-        
+
         for ( size_t j=0; j<tmp.size(); j++ ) {
             cout << "[vs_core] Found camera " << tmp[j]->get_name() << endl ;
             add_camera( tmp[j] ) ;
@@ -267,7 +268,7 @@ void VsCore::run()
     }
 
     // Test if at least one camera is found
-    
+
     Camera* _cm = get_default_camera() ;
     if ( _cm == NULL ) {
         cerr << "[vs_core] ERROR : No camera Found. Aborting." << endl ;
@@ -292,31 +293,33 @@ void VsCore::run()
 
     for ( size_t i=0 ; i<_plugin_threads.size(); i++ )
         _plugin_threads[i]->start_thread() ;
-        
+
 
     // Start Controllers threads
-    
+
     cout << "[vs_core] Starting controllers Threads" << endl ;
 
     for ( size_t i=0 ; i<_controller_threads.size(); i++ )
         _controller_threads[i]->start_thread() ;
-    
+
     // Main loop
-    
+
     Frame* frm ;
 
     while( whiteboard_read<unsigned int>("threads_ready") < _plugin_threads.size() + _controller_threads.size() );
-    
+
     std::cout << "[vs_core] Acquisition starting" << std::endl;
     whiteboard_write("core_stop", false);
-    
+
     while ( ! whiteboard_read< bool >("core_stop") ) {
-        
-        vector<GenericCamera*> all_cameras = get_all_genericcameras() ;    
-        
+
+        boost::mutex::scoped_lock(_controller_lock);
+
+        vector<GenericCamera*> all_cameras = get_all_genericcameras() ;
+
         for ( size_t c=0; c < all_cameras.size(); c++ ) {
-            
-            frm = all_cameras[c]->_buffer.nbl_dequeue() ;    
+
+            frm = all_cameras[c]->_buffer.nbl_dequeue() ;
 
             if ( frm != ( Frame*) NULL ) {
 
@@ -324,9 +327,9 @@ void VsCore::run()
 
                 for ( size_t p=0; p < subscribed.size(); p++ )
                     subscribed[p]->push_frame( (Camera*) all_cameras[c] , frm, skip_frames ) ;
-                
+
             all_cameras[c]->_buffer.enqueue( frm ) ;
-            
+
             }
 
 
@@ -334,7 +337,7 @@ void VsCore::run()
     }
 
     // Stop Controllers threads
-    
+
     cout << "[vs_core] Sending stop signal to controller Threads ..." << endl ;
 
     for ( size_t i=0 ; i<_controller_threads.size(); i++ ) {
@@ -342,7 +345,7 @@ void VsCore::run()
     }
 
     // Join Controllers threads
-    
+
     cout << "[vs_core] Waiting for controller threads to stop ..." << endl ;
 
     for ( size_t i=0 ; i<_controller_threads.size(); i++ ) {
@@ -352,24 +355,24 @@ void VsCore::run()
 
 
     // Stop Plugins threads
-    
+
     cout << "[vs_core] Sending stop signal to plugins Threads ..." << endl ;
 
     for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) {
         _plugin_threads[i-1]->request_stop() ;
     }
-    
+
     // Join Plugins threads
-    
+
     cout << "[vs_core] Waiting for plugin threads to stop ..." << endl ;
 
     for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) {
         cout << "[vs_core] Waiting for " << _plugin_threads[i-1]->pointer->get_name() << endl ;
         _plugin_threads[i-1]->join() ;
     }
-    
-    // Plugins post_fct() 
-    
+
+    // Plugins post_fct()
+
     cout << "[vs_core] Calling post_fct() for Plugins ..." << endl ;
 
     for ( size_t i = _plugins.size() ; i > 0 ; --i ) {
@@ -377,31 +380,100 @@ void VsCore::run()
     }
 
     // Controllers post_fct()
-    
+
     cout << "[vs_core] Calling post_fct() for Controllers ... " << endl ;
 
-    for ( size_t i=0 ; i<_controllers.size(); i++ ) 
+    for ( size_t i=0 ; i<_controllers.size(); i++ )
         _controllers[i]->post_fct() ;
 
     // Cleaning up a bit
 
     whiteboard_wipe();
 
-    for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) 
+    for ( size_t i = _plugin_threads.size() ; i > 0 ; --i )
     {
         _plugin_threads[i-1]->cleanup();
     }
 
-    for ( size_t i = _plugin_threads.size() ; i > 0 ; --i ) 
+    for ( size_t i = _plugin_threads.size() ; i > 0 ; --i )
     {
         delete _plugin_threads[i-1] ;
     }
-    
+
     for ( size_t i=0 ; i<_controller_threads.size(); i++ )
         delete _controller_threads[i] ;
 
     _plugins.clear() ;
     _controllers.clear() ;
     std::cout << "[vs_core] Bye ... " << std::endl;
+}
+
+const std::vector<std::string> & VsCore::get_loaded_controllers()
+{
+    return _loaded_controllers;
+}
+
+const std::vector<std::string> & VsCore::get_available_controllers()
+{
+    return _available_controllers;
+}
+
+void VsCore::unload_controller(const std::string & controller_name)
+{
+    boost::mutex::scoped_lock(_controller_lock);
+    //TODO
+}
+
+void VsCore::load_controller(const std::string & controller_name)
+{
+    bool controller_check = false;
+    for(size_t i = 0; i < _available_controllers.size(); ++i)
+    {
+        if(_available_controllers[i] == controller_name)
+        {
+            controller_check = true;
+            break;
+        }
+    }
+    if(!controller_check)
+    {
+        std::cerr << "[vs_core] Request for controller " << controller_name << " aborted, this controller is not available" << std::endl;
+        return;
+    }
+    for(size_t i = 0; i < _loaded_controllers.size(); ++i)
+    {
+        if(_loaded_controllers[i] == controller_name)
+        {
+            controller_check = false;
+            break;
+        }
+    }
+    if(!controller_check)
+    {
+        std::cerr << "[vs_core] Request for controller " << controller_name << " aborted, this controller is already loaded" << std::endl;
+        return;
+    }
+    path sandbox = _basedir / "controllers" / controller_name;
+    Thread<Controller> * newThread =  new Thread<Controller>( this, controller_name, sandbox.string() + "/" );
+
+    std::vector<GenericCamera *> tmp;
+    if(! newThread->pointer->pre_fct(tmp) )
+    {
+        std::cerr << "[vs_core] Runtime loading of controller " << controller_name << " failed, unable to find cameras" << std::endl;
+        newThread->request_stop();
+        newThread->join();
+        newThread->pointer->post_fct();
+        delete newThread;
+        return;
+    }
+    for(size_t i = 0; i < tmp.size(); ++i)
+    {
+        add_camera( tmp[i] );
+    }
+    boost::mutex::scoped_lock(_controller_lock);
+    _loaded_controllers.push_back(controller_name);
+    _controller_threads.push_back( newThread );
+    _controllers.push_back( newThread->pointer );
+    newThread->start_thread();
 }
 

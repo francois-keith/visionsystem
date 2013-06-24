@@ -36,6 +36,14 @@ class VsCore : public VisionSystem, public WithConfigFile
 
         bool catch_sigint;
 
+        const std::vector<std::string> & get_loaded_controllers();
+
+        const std::vector<std::string> & get_available_controllers();
+
+        void unload_controller(const std::string & controller_name);
+
+        void load_controller(const std::string & controller_name);
+
     private:
         bool skip_frames;
 
@@ -47,6 +55,7 @@ class VsCore : public VisionSystem, public WithConfigFile
 
         std::vector<std::string> _available_controllers;
         std::vector<std::string> _loaded_controllers;
+        boost::mutex _controller_lock;
 
 		vector<Controller*>  _controllers ;
 		vector<Plugin*>	     _plugins ;

@@ -65,10 +65,10 @@ class Plugin
 		template < typename Obj >
 		Obj whiteboard_read ( std::string ) ;
 
+		VisionSystem*	_vscore ;					// Pointer to the VisionSystem core running this plugin
 	private:
 
 		std::string	_sandbox ;					// Path to the sandbox
-		VisionSystem*	_vscore ;					// Pointer to the VisionSystem core running this plugin
 		std::string 	_name ;						// Name of the plugin.
 
 		std::map< Camera*, Buffer<Frame>*  >	frame_buffers ;		// This buffer for the frames received from the cameras	
