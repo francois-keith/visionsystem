@@ -9,17 +9,17 @@ using namespace visionsystem ;
 
 class ImgController : public visionsystem::Controller
 {
-	public:
+    public:
 
-		ImgController( VisionSystem* vs, std::string configfile ) ;
-		~ImgController() ;
+        ImgController( VisionSystem* vs, std::string configfile ) ;
+        ~ImgController() ;
 
-	private:
+    private:
 
-		bool pre_fct( std::vector<GenericCamera*> &cam ) ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct( std::vector<GenericCamera*> &cam ) ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
 
 } ;

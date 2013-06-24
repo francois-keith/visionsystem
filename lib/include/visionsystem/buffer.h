@@ -6,30 +6,30 @@
 
 namespace visionsystem {
 
-	template < typename Data >
-	class Buffer {
+    template < typename Data >
+    class Buffer {
 
-		private:
+        private:
 
-			std::vector< Data* > _frames ;
-			std::vector< Data* > _trash  ;
-			boost::mutex	    _mutex ;
+            std::vector< Data* > _frames ;
+            std::vector< Data* > _trash  ;
+            boost::mutex        _mutex ;
 
-		public:
+        public:
 
-			Buffer()  ;
-			~Buffer() ;
+            Buffer()  ;
+            ~Buffer() ;
 
-			// Primitives to use data inside the buffer ( Consummer side )
+            // Primitives to use data inside the buffer ( Consummer side )
 
-			Data* bl_dequeue() ;
-			Data* nbl_dequeue() ;
-			void enqueue ( Data* ) ;
+            Data* bl_dequeue() ;
+            Data* nbl_dequeue() ;
+            void enqueue ( Data* ) ;
 
-			// Primitives to feed data to the buffer ( Producer side )
+            // Primitives to feed data to the buffer ( Producer side )
 
-			Data* pull() ;
-			void push( Data* ) ;
+            Data* pull() ;
+            void push( Data* ) ;
 
             // Access front of frame buffer ( Producer side with frameskipping enabled )
             // Will keep the buffer lock closed until update_front is called
@@ -38,13 +38,13 @@ namespace visionsystem {
             // Unlock the buffer once front has been updated
             void update_front(Data * in);
 
-			// Misc.
+            // Misc.
 
-			void clear() ;
-			int size() ;
-			bool is_full() ;
+            void clear() ;
+            int size() ;
+            bool is_full() ;
 
-	} ;
+    } ;
 
 #include <visionsystem/buffer.hpp>
 

@@ -15,31 +15,31 @@ using namespace visionsystem ;
 
 class GLView: public Viewer, public WithConfigFile
 {
-	public:
+    public:
 
-		GLView( VisionSystem* core, string sandbox ) ;
-		~GLView() ;
+        GLView( VisionSystem* core, string sandbox ) ;
+        ~GLView() ;
 
-		 bool  pre_fct() ;
-		 void  preloop_fct() ;
-		 void  loop_fct() ;
-		 bool  post_fct() ;
+         bool  pre_fct() ;
+         void  preloop_fct() ;
+         void  loop_fct() ;
+         bool  post_fct() ;
 
-		 void gl_print ( ImageRef position, string text ) ;
+         void gl_print ( ImageRef position, string text ) ;
 
-	private:
+    private:
 
-		void parse_config_line( vector<string> &line ) ;
-		void callback( XEvent event ) ;
+        void parse_config_line( vector<string> &line ) ;
+        void callback( XEvent event ) ;
 
-	private:
+    private:
 
-		GLWindow*	   win ;
-		vector<Camera*> cameras ;
-		int		active_cam ;
-		int 		next_cam ;
+        GLWindow*       win ;
+        vector<Camera*> cameras ;
+        int        active_cam ;
+        int         next_cam ;
 
-		bool		callback_active ;
+        bool        callback_active ;
 } ;
 
 PLUGIN( GLView )

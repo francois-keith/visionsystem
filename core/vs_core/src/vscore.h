@@ -57,8 +57,8 @@ class VsCore : public VisionSystem, public WithConfigFile
         std::vector<std::string> _loaded_controllers;
         boost::mutex _controller_lock;
 
-		vector<Controller*>  _controllers ;
-		vector<Plugin*>	     _plugins ;
+        vector<Controller*>  _controllers ;
+        vector<Plugin*>         _plugins ;
 
         vector<Thread<Controller>*>    _controller_threads ;
         vector<Thread<Plugin>*>        _plugin_threads ;

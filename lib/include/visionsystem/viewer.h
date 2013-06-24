@@ -10,31 +10,31 @@ namespace visionsystem {
 class Viewer: public Plugin
 {
 
-	public:
+    public:
 
-		Viewer( VisionSystem* core, std::string name, std::string sandbox ) ;
-		~Viewer() ;
+        Viewer( VisionSystem* core, std::string name, std::string sandbox ) ;
+        ~Viewer() ;
 
-		void register_glfunc     ( WithViewer* ) ;
-		void unregister_glfunc   ( WithViewer* ) ;
-		void register_callback   ( WithViewer* ) ;
-		void unregister_callback ( WithViewer* ) ;
+        void register_glfunc     ( WithViewer* ) ;
+        void unregister_glfunc   ( WithViewer* ) ;
+        void register_callback   ( WithViewer* ) ;
+        void unregister_callback ( WithViewer* ) ;
 
-		virtual void gl_print ( vision::ImageRef position, std::string s ) =0 ;
+        virtual void gl_print ( vision::ImageRef position, std::string s ) =0 ;
 
-		void operator<<(const std::string& s);
-		friend void operator<<(Viewer * plugin, const std::string & s);
+        void operator<<(const std::string& s);
+        friend void operator<<(Viewer * plugin, const std::string & s);
 
-	protected:
+    protected:
 
-		std::vector< WithViewer* >	glfuncs ;
-		boost::mutex			glfuncs_mutex ;
+        std::vector< WithViewer* >    glfuncs ;
+        boost::mutex            glfuncs_mutex ;
 
-		std::vector< WithViewer* >	callbacks ;
-		boost::mutex			callbacks_mutex ;
+        std::vector< WithViewer* >    callbacks ;
+        boost::mutex            callbacks_mutex ;
 
-		std::vector< std::string >	captions ;
-		boost::mutex			captions_mutex ;
+        std::vector< std::string >    captions ;
+        boost::mutex            captions_mutex ;
 
 } ;
 

@@ -11,26 +11,26 @@ using namespace configparser ;
 
 class Shutdown : public Plugin, public WithViewer, public WithConfigFile {
 
-	public:
+    public:
 
-		Shutdown( VisionSystem *vs, string sandbox ) ;
-		~Shutdown() ;
+        Shutdown( VisionSystem *vs, string sandbox ) ;
+        ~Shutdown() ;
 
-		bool pre_fct()  ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct()  ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
-	private:
+    private:
         void sleep_fct() ;
 
-		void callback( Camera* cam, XEvent event ) ;
-		void glfunc( Camera* cam ) ;
+        void callback( Camera* cam, XEvent event ) ;
+        void glfunc( Camera* cam ) ;
 
-		void parse_config_line( vector<string> &line ) ;
+        void parse_config_line( vector<string> &line ) ;
 
-		int time ;		// Number of seconds before the kill signal is sent
-		bool esc ;		// If this is true, a press on the esc key will kill the core.
+        int time ;        // Number of seconds before the kill signal is sent
+        bool esc ;        // If this is true, a press on the esc key will kill the core.
 } ;
 
 

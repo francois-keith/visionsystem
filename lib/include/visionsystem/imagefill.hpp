@@ -6,19 +6,19 @@
 #include <visionsystem/frame.h>
 
 #ifndef VS_EXPORT
-	#ifdef WIN32
-		#define VS_EXPORT __declspec(dllexport)
-	#else
-		#define VS_EXPORT
-	#endif
+    #ifdef WIN32
+        #define VS_EXPORT __declspec(dllexport)
+    #else
+        #define VS_EXPORT
+    #endif
 #endif
 
 template < typename Timage >
 void image_fill ( Timage* img, visionsystem::Frame* frm ) {
 
-	std::cerr << "Conversion from encoding " << frm->_coding << " to image type " << typeid( Timage ).name()  << " is not implemented. Please see visionsystem/imagefill.hpp" << std::endl ;
+    std::cerr << "Conversion from encoding " << frm->_coding << " to image type " << typeid( Timage ).name()  << " is not implemented. Please see visionsystem/imagefill.hpp" << std::endl ;
 
-	throw("CONVERSION NOT IMPLEMENTED") ;
+    throw("CONVERSION NOT IMPLEMENTED") ;
 }
 
 #include <vision/image/image.h>

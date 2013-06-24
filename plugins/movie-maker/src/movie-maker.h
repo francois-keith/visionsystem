@@ -15,17 +15,17 @@ namespace visionsystem
 class MovieMaker : public Plugin
 {
 
-	public:
+    public:
 
-		MovieMaker( VisionSystem *vs, std::string sandbox ) ;
-		~MovieMaker() ;
+        MovieMaker( VisionSystem *vs, std::string sandbox ) ;
+        ~MovieMaker() ;
 
-		bool pre_fct()  ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct()  ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
-	private:
+    private:
         void EncoderThread();
 
         boost::thread * m_encode_th;

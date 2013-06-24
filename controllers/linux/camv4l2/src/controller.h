@@ -17,19 +17,19 @@ using namespace std ;
 
 class ControllerV4L2 : public Controller
 {
-	public:
+    public:
 
-		ControllerV4L2( VisionSystem *vs, std::string sandbox ) ;
-		~ControllerV4L2() ;
+        ControllerV4L2( VisionSystem *vs, std::string sandbox ) ;
+        ~ControllerV4L2() ;
 
-		bool pre_fct( vector< GenericCamera* > &cams ) ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct( vector< GenericCamera* > &cams ) ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
-	private:
+    private:
 
-		vector< CameraV4L2* >  _cams ;	// Vectors of cameras detected
+        vector< CameraV4L2* >  _cams ;    // Vectors of cameras detected
 
 };
 

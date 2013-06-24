@@ -6,24 +6,24 @@ using namespace std ;
 using namespace vision ;
 using namespace visionsystem ;
 
-//TODO	penser a ajouter gestion fichier de config
+//TODO    penser a ajouter gestion fichier de config
 
 class Dump2Disk : public Plugin
 {
-	public:
+    public:
 
-		Dump2Disk( VisionSystem *vs, std::string sandbox ) ;
-		~Dump2Disk() ;
+        Dump2Disk( VisionSystem *vs, std::string sandbox ) ;
+        ~Dump2Disk() ;
 
-		bool pre_fct() ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct() ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
-	private:
+    private:
 
-		Camera*					_cam ;
-		Buffer< Image<unsigned char, MONO> >	_buffer ;
+        Camera*                    _cam ;
+        Buffer< Image<unsigned char, MONO> >    _buffer ;
 } ;
 
 PLUGIN(Dump2Disk)

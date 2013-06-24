@@ -17,13 +17,13 @@ Dump2Disk::~Dump2Disk() {
 
 bool Dump2Disk::pre_fct() {
 
-	_cam = get_default_camera() ;
-	register_to_cam< Image<unsigned char, MONO> >( _cam, 10 ) ;
+    _cam = get_default_camera() ;
+    register_to_cam< Image<unsigned char, MONO> >( _cam, 10 ) ;
 
-	for ( int i=0; i < 100; i++ )
-		_buffer.enqueue( new Image<unsigned char, MONO>( _cam->get_size() ) ) ;
+    for ( int i=0; i < 100; i++ )
+        _buffer.enqueue( new Image<unsigned char, MONO>( _cam->get_size() ) ) ;
 
-	return true ;
+    return true ;
 
 }
 
@@ -32,23 +32,23 @@ void Dump2Disk::preloop_fct() {
 
 void Dump2Disk::loop_fct() {
 
-	Image<unsigned char, MONO> *img ;
-	img = dequeue_image< Image<unsigned char,MONO> > ( _cam ) ;
+    Image<unsigned char, MONO> *img ;
+    img = dequeue_image< Image<unsigned char,MONO> > ( _cam ) ;
 
 
-	if ( !_buffer.is_full() ) {
+    if ( !_buffer.is_full() ) {
 
-		Image<unsigned char, MONO> *cpy ;
-		cpy = _buffer.pull() ;
+        Image<unsigned char, MONO> *cpy ;
+        cpy = _buffer.pull() ;
 
-		cpy->copy( img ) ;
+        cpy->copy( img ) ;
 
-		_buffer.push( cpy ) ;
+        _buffer.push( cpy ) ;
 
-	}
+    }
 
 
-	enqueue_image< Image<unsigned char, MONO> >( _cam, img ) ;
+    enqueue_image< Image<unsigned char, MONO> >( _cam, img ) ;
 
 }
 
@@ -56,22 +56,22 @@ void Dump2Disk::loop_fct() {
 bool Dump2Disk::post_fct() {
 
 
-	unregister_to_cam< Image<unsigned char, MONO> >( _cam ) ;
+    unregister_to_cam< Image<unsigned char, MONO> >( _cam ) ;
 
-	int i=0 ;
-	Image< unsigned char, MONO > *img ;
+    int i=0 ;
+    Image< unsigned char, MONO > *img ;
 
-	while ( _buffer.size() != 0 ) {
+    while ( _buffer.size() != 0 ) {
         std::stringstream ss;
         ss << i << ".bin";
         std::string to_file = ss.str();
-		img = _buffer.nbl_dequeue() ;
-		vision::serialize ( to_file, *img ) ;
-		delete ( img ) ;
-		++i ;
-	}
+        img = _buffer.nbl_dequeue() ;
+        vision::serialize ( to_file, *img ) ;
+        delete ( img ) ;
+        ++i ;
+    }
 
-	return true ;
+    return true ;
 
 }
 

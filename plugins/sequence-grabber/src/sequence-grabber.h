@@ -17,22 +17,22 @@ namespace visionsystem
 class SequenceGrabber : public Plugin, public configparser::WithConfigFile, public XmlRpc::XmlRpcServerMethod
 {
 
-	public:
+    public:
 
-		SequenceGrabber( VisionSystem *vs, std::string sandbox ) ;
-		~SequenceGrabber() ;
+        SequenceGrabber( VisionSystem *vs, std::string sandbox ) ;
+        ~SequenceGrabber() ;
 
-		bool pre_fct()  ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct()  ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
         /* Method for XML-RPC call */
         /* Params should be start/stop string */
         void execute(XmlRpc::XmlRpcValue & params, XmlRpc::XmlRpcValue & result);
 
-	private:
-		void parse_config_line( std::vector<std::string> &line ) ;
+    private:
+        void parse_config_line( std::vector<std::string> &line ) ;
 
         boost::thread * m_save_th_mono;
         boost::thread * m_save_th_rgb;

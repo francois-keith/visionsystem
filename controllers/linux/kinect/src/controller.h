@@ -16,25 +16,25 @@ using namespace visionsystem ;
 class KinectController : public Controller
 {
 
-	public:
+    public:
 
-		KinectController( VisionSystem *vs, string sandbox ) ;
-		~KinectController() ;
+        KinectController( VisionSystem *vs, string sandbox ) ;
+        ~KinectController() ;
 
-		 bool pre_fct( vector< GenericCamera*> &cams ) ;
-		 void preloop_fct() ;
-		 void loop_fct() ;
-		 bool post_fct() ;
+         bool pre_fct( vector< GenericCamera*> &cams ) ;
+         void preloop_fct() ;
+         void loop_fct() ;
+         bool post_fct() ;
 
-	private:
+    private:
 
-		vector< KinectCamera* >	_devices ;
+        vector< KinectCamera* >    _devices ;
 
-	private:
+    private:
 
-		freenect_context* f_ctx;
+        freenect_context* f_ctx;
 
-		int nr_devices ;
+        int nr_devices ;
 } ;
 
 

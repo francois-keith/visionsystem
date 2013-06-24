@@ -17,65 +17,65 @@ using namespace vision;
 class CameraV4L2 : public GenericCamera, public WithConfigFile
 {
 
-	public:
+    public:
 
-	CameraV4L2( string dev ) ;
-	~CameraV4L2() ;
+    CameraV4L2( string dev ) ;
+    ~CameraV4L2() ;
 
-	ImageRef    get_size() ;
-	bool        is_active() ;
-	FrameCoding get_coding() ;
-	float       get_fps() ;
-	string      get_name() ;
+    ImageRef    get_size() ;
+    bool        is_active() ;
+    FrameCoding get_coding() ;
+    float       get_fps() ;
+    string      get_name() ;
 
-	public:
+    public:
 
-	bool    init_camera() ;
-	int     read_frame() ;
-	bool    stop_camera() ;
+    bool    init_camera() ;
+    int     read_frame() ;
+    bool    stop_camera() ;
 
-	private:
+    private:
 
-	void parse_config_line( vector<string> &line ) ;
+    void parse_config_line( vector<string> &line ) ;
 
-	private:
+    private:
 
-	bool	 	_active ;
-	float		_fps ;
-	string		_name ;
+    bool         _active ;
+    float        _fps ;
+    string        _name ;
 
-	private:
-
-
-	typedef enum {
-		IO_METHOD_READ,
-		IO_METHOD_MMAP,
-		IO_METHOD_USERPTR,
-	} io_method;
+    private:
 
 
-	struct buffer {
-        	void *                  start;
-	        size_t                  length;
-	};
+    typedef enum {
+        IO_METHOD_READ,
+        IO_METHOD_MMAP,
+        IO_METHOD_USERPTR,
+    } io_method;
 
 
-	string 		   _dev_name ; 	        // Name of the device
-	io_method	   _io ;		// IO method
-	int                _fd ;                // File descriptor
+    struct buffer {
+            void *                  start;
+            size_t                  length;
+    };
 
-	struct v4l2_capability _cap;
+
+    string            _dev_name ;             // Name of the device
+    io_method       _io ;        // IO method
+    int                _fd ;                // File descriptor
+
+    struct v4l2_capability _cap;
         struct v4l2_cropcap    _cropcap;
         struct v4l2_crop       _crop;
-	struct v4l2_format     _fmt;
+    struct v4l2_format     _fmt;
 
-	struct buffer*	 buffers ;
-	unsigned int     n_buffers ;
+    struct buffer*     buffers ;
+    unsigned int     n_buffers ;
 
-	bool init_read() ;
-	bool init_mmap() ;
-	bool init_userp() ;
-	void process_image( const void* p) ;
+    bool init_read() ;
+    bool init_mmap() ;
+    bool init_userp() ;
+    void process_image( const void* p) ;
 };
 
 

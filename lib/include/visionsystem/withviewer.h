@@ -9,14 +9,14 @@
 
 #ifndef _WIN32
 
-	#include <X11/Xlib.h>
-	#include <X11/keysym.h>
+    #include <X11/Xlib.h>
+    #include <X11/keysym.h>
 
 #else
 
-	// FIXME	Windows compatibility ?
-	typedef union _XEvent
-	{} XEvent;
+    // FIXME    Windows compatibility ?
+    typedef union _XEvent
+    {} XEvent;
 #endif
 
 #if VS_HAS_SDL == 1
@@ -36,23 +36,23 @@ namespace visionsystem {
 class WithViewer
 {
 
-	public:
-			WithViewer( VisionSystem *core ) ;
-			~WithViewer() ;
+    public:
+            WithViewer( VisionSystem *core ) ;
+            ~WithViewer() ;
 
-			virtual void glfunc ( Camera* ) = 0  ;
-			virtual void callback ( Camera* , XEvent ) = 0 ;
+            virtual void glfunc ( Camera* ) = 0  ;
+            virtual void callback ( Camera* , XEvent ) = 0 ;
             virtual void sdl_callback( Camera *, SDL_Event ) {}
 
-	protected:
+    protected:
 
-			void register_glfunc  () ;
-			void unregister_glfunc  () ;
-			void register_callback() ;
-			void unregister_callback() ;
+            void register_glfunc  () ;
+            void unregister_glfunc  () ;
+            void register_callback() ;
+            void unregister_callback() ;
 
-	private:
-			VisionSystem* wv_core ;
+    private:
+            VisionSystem* wv_core ;
 } ;
 
 

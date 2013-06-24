@@ -12,26 +12,26 @@ namespace visionsystem {
 
 typedef enum {
 
-	VS_INVALID,
-	VS_MONO8,
-	VS_MONO16,
-	VS_RGB24,
-	VS_RGB32,
-	VS_YUV411,
-	VS_YUV422_YYUV,
-	VS_YUV422_YUYV,
-	VS_YUV422_YVYU,
-	VS_YUV422_UYVY,
-	VS_YUV422_VYUY,
-	VS_YUV444,
-	VS_DEPTH8,
-	VS_DEPTH16,
-	VS_DEPTH24,
-	VS_DEPTH32,
-	VS_IR8,
-	VS_IR16,
-	VS_IR24,
-	VS_IR32,
+    VS_INVALID,
+    VS_MONO8,
+    VS_MONO16,
+    VS_RGB24,
+    VS_RGB32,
+    VS_YUV411,
+    VS_YUV422_YYUV,
+    VS_YUV422_YUYV,
+    VS_YUV422_YVYU,
+    VS_YUV422_UYVY,
+    VS_YUV422_VYUY,
+    VS_YUV444,
+    VS_DEPTH8,
+    VS_DEPTH16,
+    VS_DEPTH24,
+    VS_DEPTH32,
+    VS_IR8,
+    VS_IR16,
+    VS_IR24,
+    VS_IR32,
     VS_RAW,
 
 } FrameCoding ;
@@ -41,17 +41,17 @@ typedef enum {
 
 class Frame {
 
-	public:
+    public:
 
-		FrameCoding	 _coding ;
-		size_t		 _data_size ;
-		vision::ImageRef _frame_size ;
-		unsigned char*	 _data ;
+        FrameCoding     _coding ;
+        size_t         _data_size ;
+        vision::ImageRef _frame_size ;
+        unsigned char*     _data ;
 
-		Frame( FrameCoding, vision::ImageRef size ) ;
-		~Frame() ;
+        Frame( FrameCoding, vision::ImageRef size ) ;
+        ~Frame() ;
 
-		void clone ( Frame* frm ) ;
+        void clone ( Frame* frm ) ;
 
 } ;
 

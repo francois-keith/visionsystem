@@ -14,8 +14,8 @@ Dummy::~Dummy() {
 }
 
 bool Dummy::pre_fct() {
-	cout << "[Dummy] pre_fct()" << endl ;
-	return true ;
+    cout << "[Dummy] pre_fct()" << endl ;
+    return true ;
 }
 
 void Dummy::preloop_fct() {
@@ -24,13 +24,13 @@ void Dummy::preloop_fct() {
 
 void Dummy::loop_fct() {
 
-	cout << "[Dummy] loop_fct() - 10 Seconds wait" << endl ;
-	sleep(10) ;
+    cout << "[Dummy] loop_fct() - 10 Seconds wait" << endl ;
+    sleep(10) ;
 }
 
 bool Dummy::post_fct() {
-	cout << "[Dummy] post_fct()" << endl ;
-	return true ;
+    cout << "[Dummy] post_fct()" << endl ;
+    return true ;
 }
 
 

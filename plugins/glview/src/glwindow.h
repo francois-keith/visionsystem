@@ -25,42 +25,42 @@ using namespace vision;
 class GLWindow
 {
 
-	public:
+    public:
 
-		GLWindow ( string title, int width, int height, Bool fullscreen );
-		~GLWindow() ;
+        GLWindow ( string title, int width, int height, Bool fullscreen );
+        ~GLWindow() ;
 
-		void draw( Image<unsigned char, MONO>* img ) ;
-		void draw( Image<uint32_t, RGB>* img ) ;
-		void draw_caption(int captionPos, vector<string> s);
-		void swap_buffers() ;
-		int  next_event ( XEvent *event ) ;
-		void processEvents( XEvent event ) ;
+        void draw( Image<unsigned char, MONO>* img ) ;
+        void draw( Image<uint32_t, RGB>* img ) ;
+        void draw_caption(int captionPos, vector<string> s);
+        void swap_buffers() ;
+        int  next_event ( XEvent *event ) ;
+        void processEvents( XEvent event ) ;
 
-		void print ( const char* s ) ;		// OpenGL stuff to draw a text
+        void print ( const char* s ) ;        // OpenGL stuff to draw a text
 
-	private:
+    private:
 
-		Display* dpy_;				// window stuff
-		int screen_;
-		Window win_;
-		GLXContext ctx_;
-		XSetWindowAttributes attr_;
+        Display* dpy_;                // window stuff
+        int screen_;
+        Window win_;
+        GLXContext ctx_;
+        XSetWindowAttributes attr_;
 
-		Bool fullScreen_;
-		Bool doubleBuffered_;
+        Bool fullScreen_;
+        Bool doubleBuffered_;
 
-		XF86VidModeModeInfo deskMode_;
-		unsigned int depth_;
+        XF86VidModeModeInfo deskMode_;
+        unsigned int depth_;
 
-		int winWidth_, winHeight_;		// window size
+        int winWidth_, winHeight_;        // window size
 
-		char	font_[255];			// font used for info display
-		GLuint 	fontBase_;			// liste des fontes
+        char    font_[255];            // font used for info display
+        GLuint     fontBase_;            // liste des fontes
 
-		void resize();
+        void resize();
 
-		Image< uint32_t, RGB >		*RGB_img  ;
+        Image< uint32_t, RGB >        *RGB_img  ;
 } ;
 
 
@@ -68,21 +68,21 @@ class GLWindow
  * 4 bits per color and a 16 bit depth buffer */
 
 static int attrListSgl[] = { GLX_RGBA, GLX_RED_SIZE, 4,
-	GLX_GREEN_SIZE, 4,
-	GLX_BLUE_SIZE, 4,
-	GLX_DEPTH_SIZE, 16,
-	None
+    GLX_GREEN_SIZE, 4,
+    GLX_BLUE_SIZE, 4,
+    GLX_DEPTH_SIZE, 16,
+    None
 };
 
 /* attributes for a double buffered visual in RGBA format with at least
  4 bits per color and a 16 bit depth buffer */
 
 static int attrListDbl[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
-	GLX_RED_SIZE, 4,
-	GLX_GREEN_SIZE, 4,
-	GLX_BLUE_SIZE, 4,
-	GLX_DEPTH_SIZE, 16,
-	None
+    GLX_RED_SIZE, 4,
+    GLX_GREEN_SIZE, 4,
+    GLX_BLUE_SIZE, 4,
+    GLX_DEPTH_SIZE, 16,
+    None
 };
 
 

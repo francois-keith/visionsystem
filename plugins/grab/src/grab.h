@@ -27,27 +27,27 @@ using namespace boost::filesystem ;
 
 class Grab : public Plugin, public WithViewer, public WithConfigFile {
 
-	public:
+    public:
 
-		Grab( VisionSystem *vs, string sandbox ) ;
-		~Grab() ;
+        Grab( VisionSystem *vs, string sandbox ) ;
+        ~Grab() ;
 
-		bool pre_fct()  ;
-		void preloop_fct() ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct()  ;
+        void preloop_fct() ;
+        void loop_fct() ;
+        bool post_fct() ;
 
-	private:
+    private:
 
-		void callback( Camera* cam, XEvent event ) ;
+        void callback( Camera* cam, XEvent event ) ;
         void sdl_callback(Camera * cam, SDL_Event event);
-		void glfunc( Camera* cam ) ;
+        void glfunc( Camera* cam ) ;
 
-		void parse_config_line( vector<string> &line ) ;
+        void parse_config_line( vector<string> &line ) ;
 
 
         template<typename TImage>
-		class Registration {
+        class Registration {
         public:
             Registration() : camera(0), current_frame(0), grabbed_frames(0) {}
             Registration(Camera * cam) : camera(cam), current_frame(0), grabbed_frames(0) {}
@@ -60,10 +60,10 @@ class Grab : public Plugin, public WithViewer, public WithConfigFile {
                 }
             }
         public:
-			Camera* camera ;
-			TImage *current_frame ;
-			vector< TImage* > grabbed_frames ;
-		} ;
+            Camera* camera ;
+            TImage *current_frame ;
+            vector< TImage* > grabbed_frames ;
+        } ;
 
         template<typename TImage>
         void dump2disk(Registration<TImage> & reg)
@@ -94,8 +94,8 @@ class Grab : public Plugin, public WithViewer, public WithConfigFile {
         unsigned int captured_frames;
         unsigned int saved_frames;
 
-		bool grab_next ;			// should next frames be grabbed ?
-		vector< Registration< Image<uint32_t, RGB> >* >	grabbed_rgb ;
+        bool grab_next ;            // should next frames be grabbed ?
+        vector< Registration< Image<uint32_t, RGB> >* >    grabbed_rgb ;
         vector< Registration< Image<uint16_t, DEPTH> >* > grabbed_depth;
 } ;
 

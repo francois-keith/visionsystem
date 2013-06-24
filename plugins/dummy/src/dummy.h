@@ -8,15 +8,15 @@ using namespace visionsystem ;
 
 class Dummy : public Plugin {
 
-	public:
+    public:
 
-		Dummy( VisionSystem *vs, string sandbox ) ;
-		~Dummy() ;
+        Dummy( VisionSystem *vs, string sandbox ) ;
+        ~Dummy() ;
 
-		bool pre_fct()  ;
-		void preloop_fct()  ;
-		void loop_fct() ;
-		bool post_fct() ;
+        bool pre_fct()  ;
+        void preloop_fct()  ;
+        void loop_fct() ;
+        bool post_fct() ;
 
 
 } ;

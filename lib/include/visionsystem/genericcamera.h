@@ -10,9 +10,9 @@ namespace visionsystem {
 class GenericCamera : public Camera
 {
 
-	public:
+    public:
 
-		Buffer<Frame>	_buffer ;
+        Buffer<Frame>    _buffer ;
 
 } ;
 

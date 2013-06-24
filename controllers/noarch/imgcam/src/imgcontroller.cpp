@@ -10,7 +10,7 @@ ImgController::~ImgController() {
 }
 
 bool ImgController::pre_fct( std::vector<GenericCamera*> &cams ) {
-	return true ;
+    return true ;
 
 }
 
@@ -23,7 +23,7 @@ void ImgController::loop_fct() {
 
 
 bool ImgController::post_fct() {
-	return true ;
+    return true ;
 }
 
 
