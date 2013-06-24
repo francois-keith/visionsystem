@@ -22,6 +22,7 @@ class Thread {
         Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox ) ;
         ~Thread() ;
 
+        const std::string & get_name() { return _name; }
 
         void start_thread() ;
         void request_stop() ;
@@ -31,6 +32,7 @@ class Thread {
         data*  pointer  ;
 
     private:
+        std::string _name;
 
         boost::thread    _thread ;
 
@@ -60,7 +62,7 @@ class Thread {
 
 template<typename data>
 Thread<data>::Thread( visionsystem::VisionSystem* core, std::string plugin, std::string sandbox )
-: _core(core)
+: _name(plugin), _core(core)
 {
 
     std::string filename ;
