@@ -420,8 +420,77 @@ const std::vector<std::string> & VsCore::get_available_controllers()
 
 void VsCore::unload_controller(const std::string & controller_name)
 {
+    bool controller_check = false;
+    for(size_t i = 0; i < _loaded_controllers.size(); ++i)
+    {
+        if(_loaded_controllers[i] == controller_name)
+        {
+            controller_check = true;
+            break;
+        }
+    }
+    if(!controller_check)
+    {
+        std::cerr << "[vs_core] Controller " << controller_name << " not loaded, cannot unload" << std::endl;
+        return;
+    }
     boost::mutex::scoped_lock(_controller_lock);
-    //TODO
+
+    /* Get pointer on controller and controller thread */
+    std::vector< Controller*>::iterator controller_it = _controllers.begin();
+    std::vector< Thread<Controller>* >::iterator controller_thread_it = _controller_threads.begin();
+    for(controller_thread_it; controller_thread_it != _controller_threads.end(); ++controller_thread_it)
+    {
+        if((*controller_thread_it)->get_name() == controller_name)
+        {
+            break;
+        }
+    }
+    for(controller_it; controller_it != _controllers.end(); ++controller_it)
+    {
+        if((*controller_it) == (*controller_thread_it)->pointer)
+        {
+            break;
+        }
+    }
+
+    /* Get cameras owned by the controller */
+    std::vector<GenericCamera*> cams;
+    (*controller_it)->get_cameras(cams);
+    for(size_t i = 0; i < cams.size(); ++i)
+    {
+        /* Remove camera from all cameras */
+        for(std::vector<GenericCamera*>::iterator it = _cameras.begin(); it != _cameras.end(); ++it)
+        {
+            if((*it)->get_name() == cams[i]->get_name())
+            {
+                _cameras.erase(it);
+                break;
+            }
+        }
+        std::vector<Plugin*> & subscribed = _subscriptions[cams[i]];
+        for(size_t j = 0; j < subscribed.size(); ++j)
+        {
+            /* Unregister has to be handled on the plugin size because only the plugin knows how it registered with the camera */
+            subscribed[j]->notify_end_of_camera(cams[i]);
+        }
+    }
+    std::cout << "[vs_core] Stopping controller " << (*controller_thread_it)->get_name() << std::endl;
+    (*controller_thread_it)->request_stop();
+    (*controller_thread_it)->join();
+    (*controller_it)->post_fct();
+    delete (*controller_it);
+    delete (*controller_thread_it);
+    _controllers.erase(controller_it);
+    _controller_threads.erase(controller_thread_it);
+    for(std::vector<std::string>::iterator it = _loaded_controllers.begin(); it != _loaded_controllers.end(); ++it)
+    {
+        if((*it) == controller_name)
+        {
+            _loaded_controllers.erase(it);
+            break;
+        }
+    }
 }
 
 void VsCore::load_controller(const std::string & controller_name)
