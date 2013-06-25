@@ -468,11 +468,10 @@ void VsCore::unload_controller(const std::string & controller_name)
                 break;
             }
         }
-        std::vector<Plugin*> & subscribed = _subscriptions[cams[i]];
-        for(size_t j = 0; j < subscribed.size(); ++j)
+        for(size_t j = 0; j < _plugins.size(); ++j)
         {
             /* Unregister has to be handled on the plugin size because only the plugin knows how it registered with the camera */
-            subscribed[j]->notify_end_of_camera(cams[i]);
+            _plugins[j]->notify_end_of_camera(cams[i]);
         }
     }
     std::cout << "[vs_core] Stopping controller " << (*controller_thread_it)->get_name() << std::endl;
