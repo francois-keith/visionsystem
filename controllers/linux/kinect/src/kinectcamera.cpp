@@ -1,5 +1,7 @@
 #include "kinectcamera.h"
 
+#include <iostream>
+
 void depth_cb(freenect_device *dev, void *v_depth, uint32_t timestamp) ;
 void rgb_cb(freenect_device *dev, void *rgb, uint32_t timestamp) ;
 
