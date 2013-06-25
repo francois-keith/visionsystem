@@ -27,6 +27,8 @@ class GLView: public Viewer, public WithConfigFile
 
         void notify_end_of_camera(Camera * cam);
 
+        void notify_new_camera(Camera * cam);
+
         void gl_print ( ImageRef position, string text ) ;
 
     private:

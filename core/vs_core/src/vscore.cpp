@@ -539,6 +539,11 @@ void VsCore::load_controller(const std::string & controller_name)
     for(size_t i = 0; i < tmp.size(); ++i)
     {
         add_camera( tmp[i] );
+        for(size_t j = 0; j < _plugins.size(); ++j)
+        {
+            /* Unregister has to be handled on the plugin size because only the plugin knows how it registered with the camera */
+            _plugins[j]->notify_new_camera( tmp[i] );
+        }
     }
     boost::mutex::scoped_lock(_controller_lock);
     _loaded_controllers.push_back(controller_name);

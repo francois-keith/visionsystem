@@ -150,6 +150,11 @@ void GLView::notify_end_of_camera(Camera * cam)
     }
 }
 
+void GLView::notify_new_camera(Camera * cam)
+{
+            cameras = get_all_cameras();
+}
+
 void GLView::callback( XEvent event ) {
 #ifdef VS_HAS_CONTROLLER_SOCKET
 CameraSocket * current_cam = 0;
@@ -264,7 +269,6 @@ CameraSocket * current_cam = 0;
         case XK_l:
             std::cout << "Trying to load filestream controller (debug function)" << std::endl;
             _vscore->load_controller("filestream");
-            cameras = get_all_cameras();
             break;
 
         case XK_u:
