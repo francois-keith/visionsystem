@@ -490,6 +490,7 @@ void VsCore::unload_controller(const std::string & controller_name)
             break;
         }
     }
+    std::cout << "[vs_core] " << controller_name << " controller stopped" << std::endl;
 }
 
 void VsCore::load_controller(const std::string & controller_name)
@@ -521,6 +522,7 @@ void VsCore::load_controller(const std::string & controller_name)
         std::cerr << "[vs_core] Request for controller " << controller_name << " aborted, this controller is already loaded" << std::endl;
         return;
     }
+    std::cout << "[vs_core] Loading controller " << controller_name << std::endl;
     path sandbox = _basedir / "controllers" / controller_name;
     Thread<Controller> * newThread =  new Thread<Controller>( this, controller_name, sandbox.string() + "/" );
 
@@ -543,5 +545,6 @@ void VsCore::load_controller(const std::string & controller_name)
     _controller_threads.push_back( newThread );
     _controllers.push_back( newThread->pointer );
     newThread->start_thread();
+    std::cout << "[vs_core] " << controller_name << " controller loaded" << std::endl;
 }
 
