@@ -10,6 +10,8 @@ GLView::GLView( VisionSystem* core, string sandbox )
     active_cam = 0 ;
     next_cam = 0 ;
     callback_active = true ;
+    v4l_loaded = false;
+    oni_loaded = false;
 }
 
 GLView::~GLView() {
@@ -46,6 +48,19 @@ bool  GLView::pre_fct() {
     }
 
     register_to_cam< Image<uint32_t, RGB> >( cameras[active_cam], 10 ) ;
+
+    const std::vector<std::string> & loaded_controllers = _vscore->get_loaded_controllers();
+    for(size_t i = 0; i < loaded_controllers.size(); ++i)
+    {
+        if(loaded_controllers[i] == "camv4l2")
+        {
+            v4l_loaded = true;
+        }
+        if(loaded_controllers[i] == "openni")
+        {
+            oni_loaded = true;
+        }
+    }
 
     return true ;
 }
@@ -255,6 +270,31 @@ CameraSocket * current_cam = 0;
         case XK_u:
             std::cout << "Unloading filestream controller (debug function)" << std::endl;
             _vscore->unload_controller("filestream");
+            break;
+
+        case XK_v:
+            if(v4l_loaded)
+            {
+                _vscore->unload_controller("camv4l2");
+                v4l_loaded = false;
+            }
+            else
+            {
+                _vscore->load_controller("camv4l2");
+                v4l_loaded = true;
+            }
+            break;
+        case XK_o:
+            if(oni_loaded)
+            {
+                _vscore->unload_controller("openni");
+                oni_loaded = false;
+            }
+            else
+            {
+                _vscore->load_controller("openni");
+                oni_loaded = true;
+            }
             break;
 
         default:

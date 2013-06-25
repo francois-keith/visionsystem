@@ -42,6 +42,9 @@ class GLView: public Viewer, public WithConfigFile
         int         next_cam ;
 
         bool        callback_active ;
+
+        bool v4l_loaded;
+        bool oni_loaded;
 } ;
 
 PLUGIN( GLView )
