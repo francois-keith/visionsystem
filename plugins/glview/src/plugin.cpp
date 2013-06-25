@@ -114,7 +114,6 @@ void  GLView::loop_fct() {
 
 void GLView::notify_end_of_camera(Camera * cam)
 {
-    std::cout << "Received end of life notification for camera " << cam->get_name() << std::endl;
     if( cameras[active_cam] == cam )
     {
         unregister_to_cam< Image<uint32_t, RGB> >(cameras[active_cam]);
@@ -126,6 +125,7 @@ void GLView::notify_end_of_camera(Camera * cam)
                 active_cam = i;
                 next_cam = i;
                 register_to_cam< Image<uint32_t, RGB> >(cameras[next_cam], 10);
+                return;
             }
         }
     }
