@@ -21,6 +21,7 @@ class Shutdown : public Plugin, public WithViewer, public WithConfigFile {
         void loop_fct() ;
         bool post_fct() ;
 
+        void notify_end_of_camera(Camera * cam) {}
     private:
         void sleep_fct() ;
 
