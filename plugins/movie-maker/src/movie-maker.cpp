@@ -70,7 +70,7 @@ void MovieMaker::loop_fct() {
         {
             vision::Image<uint32_t, vision::RGB> * img = 0;
             img = dequeue_image<vision::Image<uint32_t, vision::RGB> > (m_cameras[i]);
-            m_images.push_back(make_pair(m_cameras[i]->get_name()+".mkv", new vision::Image<uint32_t, vision::RGB>(*img)));
+            m_images.push_back(std::make_pair(m_cameras[i]->get_name()+".mkv", new vision::Image<uint32_t, vision::RGB>(*img)));
             enqueue_image(m_cameras[i], img);
         }
     }

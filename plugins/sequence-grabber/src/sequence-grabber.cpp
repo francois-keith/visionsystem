@@ -145,17 +145,17 @@ void SequenceGrabber::loop_fct() {
             {
                 case ACQ_MONO:
                     img_mono = dequeue_image<vision::Image<unsigned char, vision::MONO> > (m_cameras[i].cam);
-                    m_images_mono.push_back(make_pair(m_cameras[i].name, new vision::Image<unsigned char, vision::MONO>(*img_mono)));
+                    m_images_mono.push_back(std::make_pair(m_cameras[i].name, new vision::Image<unsigned char, vision::MONO>(*img_mono)));
                     enqueue_image(m_cameras[i].cam, img_mono);
                     break;
                 case ACQ_RGB:
                     img_rgb = dequeue_image<vision::Image<uint32_t, vision::RGB> > (m_cameras[i].cam);
-                    m_images_rgb.push_back(make_pair(m_cameras[i].name, new vision::Image<uint32_t, vision::RGB>(*img_rgb)));
+                    m_images_rgb.push_back(std::make_pair(m_cameras[i].name, new vision::Image<uint32_t, vision::RGB>(*img_rgb)));
                     enqueue_image(m_cameras[i].cam, img_rgb);
                     break;
                 case ACQ_DEPTH:
                     img_depth = dequeue_image<vision::Image<uint16_t, vision::DEPTH> > (m_cameras[i].cam);
-                    m_images_depth.push_back(make_pair(m_cameras[i].name, new vision::Image<uint16_t, vision::DEPTH>(*img_depth)));
+                    m_images_depth.push_back(std::make_pair(m_cameras[i].name, new vision::Image<uint16_t, vision::DEPTH>(*img_depth)));
                     enqueue_image(m_cameras[i].cam, img_depth);
                     break;
                 default:
