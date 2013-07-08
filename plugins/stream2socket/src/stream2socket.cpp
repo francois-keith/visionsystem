@@ -17,29 +17,133 @@ using boost::asio::ip::udp;
 namespace visionsystem
 {
 
-Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
-: Plugin( vs, "stream2socket", sandbox ),
-  io_service_(), io_service_th_(0),
-  socket_(0),
-  server_name_(), server_port_(4242),
-  port_(0), chunkID_(0),
-  raw_(false),
-  ready_(false),
-  reverse_connection_(false),
-  active_cam_(0), cams_(0),
-  compress_data_(false), encoder_(0),
-  send_img_(0), img_lock_(false),
-  next_cam_(false), request_cam_(false), request_name_(""),
-  verbose_(false)
-{}
+Stream2SocketProcess::Stream2SocketProcess( boost::asio::io_service & io_service, short port, unsigned int active_cam, Camera * cam, 
+                            bool compress, bool raw, bool reverse_connection, const std::string & server_name,
+                            bool verbose)
+: socket_(0), server_name_(server_name), port_(port), chunkID_(0),
+  encoder_(0), ready_(false), active_cam_(active_cam), cam_(cam), send_img_(0), send_img_raw_data_(0), send_img_data_size_(0),
+  img_lock_(false), next_cam_(false), request_cam_(false), request_name_(""),
+  verbose_(verbose)
+{
+    if(compress)
+    {
+        encoder_ = new vision::H264Encoder(cam->get_size().x, cam->get_size().y, cam->get_fps());
+        #if Vision_HAS_LIBAVCODEC != 1
+        std::cerr << "[stream2socket] H.264 support not built in vision library, Compress option is not usable" << std::endl;
+        #endif
+    }
 
-Stream2Socket::~Stream2Socket()
+    vision::ImageRef image_size = cam->get_size();
+    send_img_ = new vision::Image<uint32_t, vision::RGB>(image_size);
+    send_img_data_size_ = 3 * send_img_->pixels;
+    send_img_raw_data_ = (unsigned char *)(send_img_->raw_data);
+
+    socket_ = new udp::socket(io_service);
+    socket_->open(udp::v4());
+    client_data_ = new char[max_request_];
+    send_buffer_ = new unsigned char[send_size_];
+
+    if(reverse_connection)
+    {
+        /* DNS Resolution */
+        {
+            udp::resolver resolver(io_service);
+            std::stringstream ss;
+            ss << port;
+            udp::resolver::query query(udp::v4(), server_name_, ss.str());
+            receiver_endpoint_ = *resolver.resolve(query);
+        }
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] connected to " << server_name_ << ":" << port_ << " to stream images" << std::endl;
+        }
+        ready_ = true;
+        /* Get ready for eventual request */
+        socket_->async_receive_from(
+           boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
+           boost::bind(&Stream2SocketProcess::handle_receive_from, this,
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred));
+    }
+    else
+    {
+        socket_->bind(udp::endpoint(udp::v4(), port_));
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Waiting for request now" << std::endl;
+        }
+        socket_->async_receive_from(
+           boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
+           boost::bind(&Stream2SocketProcess::handle_receive_from, this,
+               boost::asio::placeholders::error,
+               boost::asio::placeholders::bytes_transferred));
+    }
+}
+
+Stream2SocketProcess::~Stream2SocketProcess()
 {
     delete send_img_;
     delete[] client_data_;
     delete[] send_buffer_;
     delete socket_;
     delete encoder_;
+}
+
+Stream2Socket::Stream2Socket( visionsystem::VisionSystem * vs, std::string sandbox )
+: Plugin( vs, "stream2socket", sandbox ),
+  io_service_(), io_service_th_(0),
+  raw_(false),
+  reverse_connection_(false),
+  cams_(0),
+  compress_data_(false),
+  ports_(0),
+  cam_names_(0),
+  processes_(0),
+  verbose_(false)
+{}
+
+Stream2Socket::~Stream2Socket()
+{
+    for(size_t i = 0; i < processes_.size(); ++i)
+    {
+        delete processes_[i];
+    }
+}
+
+void Stream2SocketProcess::handle_send_to(const boost::system::error_code & error,
+                            size_t bytes_send)
+{
+    if(error) { std::cerr << error.message() << std::endl; }
+    if(bytes_send < send_size_) // after last packet sent
+    {
+        img_lock_ = false;
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Image sent, waiting for next image" << std::endl;
+        }
+        return;
+    }
+    chunkID_++;
+    send_buffer_[0] = chunkID_;
+    size_t send_size = 0;
+    if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
+    {
+        send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
+    }
+    else
+    {
+        send_size = send_size_;
+    }
+    std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
+    if(verbose_)
+    {
+        std::cout << "[stream2socket] More data to send, next packet size: " << send_size << std::endl;
+    }
+    socket_->async_send_to(
+        boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
+        boost::bind(&Stream2SocketProcess::handle_send_to, this,
+        boost::asio::placeholders::error,
+        boost::asio::placeholders::bytes_transferred));
 }
 
 bool Stream2Socket::pre_fct()
@@ -55,6 +159,15 @@ bool Stream2Socket::pre_fct()
         throw(std::string("stream2socket will not work without a correct stream2socket.conf config file"));
     }
 
+    if( ports_.size() > 1 && (reverse_connection_ && server_names_.size() != ports_.size()) )
+    {
+        throw(std::string("stream2socket configured for reverse connection but mismatching ports and servers"));
+    }
+    if( cam_names_.size() != 0 && cam_names_.size() != ports_.size() )
+    {
+        throw(std::string("stream2socket configured for specific streaming but mismatching ports and cameras"));
+    }
+
     /* Store all active cameras */
     std::vector<Camera *> cameras = get_all_cameras();
     for(size_t i = 0; i < cameras.size(); ++i)
@@ -68,59 +181,32 @@ bool Stream2Socket::pre_fct()
     {
         throw(std::string("No active cameras in the server, stream2socket cannot operate"));
     }
-    if(compress_data_)
+
+    if(cam_names_.size() != 0 && cams_.size() < cam_names_.size() )
     {
-        encoder_ = new vision::H264Encoder(cams_[0]->get_size().x, cams_[0]->get_size().y, cams_[0]->get_fps());
-        #if Vision_HAS_LIBAVCODEC != 1
-        std::cerr << "[stream2socket] H.264 support not built in vision library, Compress option is not usable" << std::endl;
-        #endif
+        throw(std::string("stream2socket configured for specific streaming but not enough cameras to stream"));
     }
 
-    vision::ImageRef image_size = cams_[0]->get_size();
-    register_to_cam< vision::Image<uint32_t, vision::RGB> >( cams_[0], 10 ) ;
-    send_img_ = new vision::Image<uint32_t, vision::RGB>(image_size);
-    send_img_data_size_ = 3 * send_img_->pixels;
-    send_img_raw_data_ = (unsigned char *)(send_img_->raw_data);
-
-    socket_ = new udp::socket(io_service_);
-    socket_->open(udp::v4());
-    client_data_ = new char[max_request_];
-    send_buffer_ = new unsigned char[send_size_];
-
-    if(reverse_connection_)
+    for(size_t i = 0; i < ports_.size(); ++i)
     {
-        /* DNS Resolution */
+        Camera * cam = cams_[0];
+        std::string server_name = "";
+        if(cam_names_.size())
         {
-            udp::resolver resolver(io_service_);
-            std::stringstream ss;
-            ss << server_port_;
-            udp::resolver::query query(udp::v4(), server_name_, ss.str());
-            receiver_endpoint_ = *resolver.resolve(query);
+            cam = get_camera(cam_names_[i]);
         }
-        if(verbose_)
+        if(server_names_.size())
         {
-            std::cout << "[stream2socket] connected to " << server_name_ << ":" << server_port_ << " to stream images" << std::endl;
+            server_name = server_names_[i];
         }
-        ready_ = true;
-        /* Get ready for eventual request */
-        socket_->async_receive_from(
-           boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-           boost::bind(&Stream2Socket::handle_receive_from, this,
-               boost::asio::placeholders::error,
-               boost::asio::placeholders::bytes_transferred));
-    }
-    else
-    {
-        socket_->bind(udp::endpoint(udp::v4(), port_));
-        if(verbose_)
+        if(!cam)
         {
-            std::cout << "[stream2socket] Waiting for request now" << std::endl;
+            std::stringstream ss; ss << "stream2socket cannot find camera named " << cam_names_[i] << std::endl;
+            throw(ss.str());
         }
-        socket_->async_receive_from(
-           boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-           boost::bind(&Stream2Socket::handle_receive_from, this,
-               boost::asio::placeholders::error,
-               boost::asio::placeholders::bytes_transferred));
+        Stream2SocketProcess * process = new Stream2SocketProcess(io_service_, ports_[i], 0, cam, compress_data_, raw_, reverse_connection_, server_name, verbose_);
+        register_to_cam< vision::Image<uint32_t, vision::RGB> >( cam, 10 ) ;
+        processes_.push_back(process);
     }
 
     return true ;
@@ -133,91 +219,102 @@ void Stream2Socket::preloop_fct()
 
 void Stream2Socket::loop_fct()
 {
-    vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
-
-    if(!img_lock_ && ready_)
+    for(size_t i = 0; i < processes_.size(); ++i)
     {
-        if(compress_data_)
-        {
-            vision::H264EncoderResult res = encoder_->Encode(*img);
-            send_img_data_size_ = res.frame_size;
-            send_img_raw_data_  = res.frame_data;
-        }
-        else if(raw_)
-        {
-            memcpy(send_img_raw_data_, img->raw_data, img->data_size);
-            send_img_data_size_ = img->data_size;
-        }
-        else
-        {
-            remove_alpha((unsigned char*)(img->raw_data), img->pixels, send_img_raw_data_);
-        }
-        chunkID_ = 0;
-        img_lock_ = true;
-        send_buffer_[0] = chunkID_;
-        size_t send_size = 0;
-        if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
-        {
-            send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
-        }
-        else
-        {
-            send_size = send_size_;
-        }
-        std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
-        if(verbose_)
-        {
-            std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
-        }
-        socket_->async_send_to(
-            boost::asio::buffer(send_buffer_, send_size), receiver_endpoint_,
-            boost::bind(&Stream2Socket::handle_send_to, this,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-    }
+        Stream2SocketProcess * process = processes_[i];
+        vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (process->cam_);
 
-    enqueue_image< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_], img);
-
-    if(next_cam_)
-    {
-        unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
-        active_cam_ = (active_cam_ + 1) % cams_.size();
-        register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
-        next_cam_ = false;
-    }
-    if(request_cam_)
-    {
-        if(raw_)
+        if(!process->img_lock_ && process->ready_)
         {
-#ifdef VS_HAS_CONTROLLER_SOCKET
-            CameraSocket * cam = dynamic_cast<CameraSocket*>(cams_[active_cam_]);
-            if(cam && cam->from_stream())
+            if(compress_data_)
             {
-                cam->request_cam(request_name_);
+                vision::H264EncoderResult res = process->encoder_->Encode(*img);
+                process->send_img_data_size_ = res.frame_size;
+                process->send_img_raw_data_  = res.frame_data;
             }
-#endif
-        }
-        else
-        {
-            for(size_t i = 0; i < cams_.size(); ++i)
+            else if(raw_)
             {
-                if(cams_[i]->get_name() == request_name_)
+                memcpy(process->send_img_raw_data_, img->raw_data, img->data_size);
+                process->send_img_data_size_ = img->data_size;
+            }
+            else
+            {
+                remove_alpha((unsigned char*)(img->raw_data), img->pixels, process->send_img_raw_data_);
+            }
+            process->chunkID_ = 0;
+            process->img_lock_ = true;
+            process->send_buffer_[0] = process->chunkID_;
+            size_t send_size = 0;
+            if( (process->chunkID_ + 1)*(process->send_size_ - 1) > process->send_img_data_size_ )
+            {
+                send_size = process->send_img_data_size_ - process->chunkID_*(process->send_size_ - 1) + 1;
+            }
+            else
+            {
+                send_size = process->send_size_;
+            }
+            std::memcpy(&(process->send_buffer_[1]), &(process->send_img_raw_data_[process->chunkID_*(process->send_size_ - 1)]), send_size - 1);
+            if(verbose_)
+            {
+                std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
+            }
+            process->socket_->async_send_to(
+                boost::asio::buffer(process->send_buffer_, send_size), process->receiver_endpoint_,
+                boost::bind(&Stream2SocketProcess::handle_send_to, process,
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+        }
+
+        enqueue_image< vision::Image<uint32_t, vision::RGB> >(process->cam_, img);
+
+        if(process->next_cam_)
+        {
+            unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (process->cam_);
+            process->active_cam_ = (process->active_cam_ + 1) % cams_.size();
+            register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[process->active_cam_], 10);
+            process->cam_ = cams_[process->active_cam_];
+            process->next_cam_ = false;
+        }
+        if(process->request_cam_)
+        {
+            if(raw_)
+            {
+    #ifdef VS_HAS_CONTROLLER_SOCKET
+                CameraSocket * cam = dynamic_cast<CameraSocket*>(process->cam_);
+                if(cam && cam->from_stream())
                 {
-                    unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_]);
-                    active_cam_ = i;
-                    register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[active_cam_], 10);
+                    cam->request_cam(process->request_name_);
+                }
+    #endif
+            }
+            else
+            {
+                for(size_t i = 0; i < cams_.size(); ++i)
+                {
+                    if(cams_[i]->get_name() == process->request_name_)
+                    {
+                        unregister_to_cam< vision::Image<uint32_t, vision::RGB> > (process->cam_);
+                        process->active_cam_ = i;
+                        register_to_cam< vision::Image<uint32_t, vision::RGB> > (cams_[process->active_cam_], 10);
+                        process->cam_ = cams_[process->active_cam_];
+                    }
                 }
             }
+            process->request_cam_ = false;
         }
-        request_cam_ = false;
     }
 }
 
 bool Stream2Socket::post_fct()
 {
-    unregister_to_cam< vision::Image<uint32_t, vision::RGB> >(cams_[active_cam_]);
+    for(size_t i = 0; i < processes_.size(); ++i)
+    {
+        Stream2SocketProcess * process = processes_[i];
 
-    socket_->close();
+        unregister_to_cam< vision::Image<uint32_t, vision::RGB> >(process->cam_);
+
+        process->socket_->close();
+    }
     io_service_.stop();
     io_service_th_->join();
     delete io_service_th_;
@@ -226,7 +323,7 @@ bool Stream2Socket::post_fct()
     return true;
 }
 
-void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
+void Stream2SocketProcess::handle_receive_from(const boost::system::error_code & error,
                                  size_t bytes_recvd)
 {
     if(!error && bytes_recvd > 0)
@@ -263,50 +360,14 @@ void Stream2Socket::handle_receive_from(const boost::system::error_code & error,
     }
     socket_->async_receive_from(
         boost::asio::buffer(client_data_, max_request_), sender_endpoint_,
-        boost::bind(&Stream2Socket::handle_receive_from, this,
+        boost::bind(&Stream2SocketProcess::handle_receive_from, this,
             boost::asio::placeholders::error,
             boost::asio::placeholders::bytes_transferred));
 }
 
-void Stream2Socket::handle_send_to(const boost::system::error_code & error,
-                            size_t bytes_send)
-{
-    if(error) { std::cerr << error.message() << std::endl; }
-    if(bytes_send < send_size_) // after last packet sent
-    {
-        img_lock_ = false;
-        if(verbose_)
-        {
-            std::cout << "[stream2socket] Image sent, waiting for next image" << std::endl;
-        }
-        return;
-    }
-    chunkID_++;
-    send_buffer_[0] = chunkID_;
-    size_t send_size = 0;
-    if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
-    {
-        send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
-    }
-    else
-    {
-        send_size = send_size_;
-    }
-    std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
-    if(verbose_)
-    {
-        std::cout << "[stream2socket] More data to send, next packet size: " << send_size << std::endl;
-    }
-    socket_->async_send_to(
-        boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
-        boost::bind(&Stream2Socket::handle_send_to, this,
-        boost::asio::placeholders::error,
-        boost::asio::placeholders::bytes_transferred));
-}
-
 void Stream2Socket::parse_config_line( std::vector<std::string> & line )
 {
-    if( fill_member(line, "Port", port_) )
+    if( fill_member(line, "Port", ports_) )
         return;
 
     if( fill_member(line, "Compress", compress_data_) )
@@ -326,13 +387,16 @@ void Stream2Socket::parse_config_line( std::vector<std::string> & line )
     if( fill_member(line, "ReverseConnection", reverse_connection_) )
         return;
 
-    if( fill_member(line, "ServerName", server_name_) )
+    if( fill_member(line, "ServerName", server_names_) )
         return;
 
-    if( fill_member(line, "ServerPort", server_port_) )
+    if( fill_member(line, "ServerPort", ports_) )
         return;
 
     if( fill_member(line, "Verbose", verbose_) )
+        return;
+
+    if( fill_member(line, "Cameras", cam_names_) )
         return;
 }
 
