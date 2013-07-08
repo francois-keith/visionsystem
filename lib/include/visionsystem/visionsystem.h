@@ -35,13 +35,13 @@ namespace visionsystem {
             Obj whiteboard_read ( std::string key ) ;
 
             /* Those can be overrided for dynamic camera loading/unloading */
-            virtual const std::vector<std::string> & get_loaded_controllers() {}
+            virtual const std::vector<std::string> & get_loaded_controllers() = 0;
 
-            virtual const std::vector<std::string> & get_available_controllers() {}
+            virtual const std::vector<std::string> & get_available_controllers() = 0;
 
-            virtual void unload_controller(const std::string & controller_name) {}
+            virtual void unload_controller(const std::string & controller_name) = 0;
 
-            virtual void load_controller(const std::string & controller_name) {}
+            virtual void load_controller(const std::string & controller_name) = 0;
 
 
         protected :
