@@ -1,3 +1,4 @@
+#include <vision/config.h>
 #include <vision/io/imageio.h>
 #include <vision/io/MKVEncoder.h>
 #include <boost/filesystem.hpp>
@@ -21,6 +22,7 @@ void usage(const char * exec_name)
 
 int main(int argc, char * argv[])
 {
+#if Vision_HAS_LIBAVCODEC == 1
     if(argc < 2)
     {
         usage(argv[0]);
@@ -97,5 +99,9 @@ int main(int argc, char * argv[])
     }
 
     return 0;
+#else
+    std::cerr << "libvision was not built with encoding support for h.264" << std::endl;
+    return 1;
+#endif // VISION HAS LIBAVCODEC
 }
 
