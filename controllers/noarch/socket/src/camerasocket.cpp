@@ -438,19 +438,16 @@ void CameraSocket::handle_timeout(const boost::system::error_code & error)
 {
     if(error != boost::asio::error::operation_aborted)
     {
+        request_ = "get";
         if(verbose_)
         {
-            std::cout << "[camerasocket] " << get_name() << ": timeout, waiting another frame" << std::endl;
+            std::cout << "[camerasocket] " << get_name() << " timeout, sending request for image" << std::endl;
         }
-        chunkID_ = 0;
-        socket_.async_receive_from(
-              boost::asio::buffer(chunk_buffer_, chunk_size_), sender_endpoint_,
-              boost::bind(&CameraSocket::handle_receive_from, this,
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
-        timeout_timer_.expires_from_now(boost::posix_time::seconds(1));
-        timeout_timer_.async_wait(boost::bind(&CameraSocket::handle_timeout, this,
-                boost::asio::placeholders::error));
+        socket_.async_send_to(
+            boost::asio::buffer(request_.c_str(), request_.size()+1), receiver_endpoint_,
+            boost::bind(&CameraSocket::handle_send_to, this,
+              boost::asio::placeholders::error,
+              boost::asio::placeholders::bytes_transferred));
     }
 }
 
