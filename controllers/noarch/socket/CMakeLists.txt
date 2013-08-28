@@ -14,14 +14,14 @@ if ( CONTROLLER_SOCKET )
 	add_library( "socket" SHARED ${socket_src} ${socket_hdr} )
 
 	target_link_libraries ("socket" ${VISION_LIBRARIES})
-	IF(WIN32)
-	# This is done on win32 only because gcc does not need to resolve symbol at link time for libs
 	target_link_libraries("socket" "visionsystem" )
 	target_link_libraries("socket" "vision" )
 	target_link_libraries("socket" "configparser" )
+    if(${LIBAVCODEC_FOUND})
 	target_link_libraries("socket" ${LIBSWSCALE_LIBRARIES})
 	target_link_libraries("socket" ${LIBAVCODEC_LIBRARIES})
-	ENDIF(WIN32)
+	target_link_libraries("socket" ${LIBAVUTIL_LIBRARIES})
+    endif(${LIBAVCODEC_FOUND})
     # Check for ZLIB
     SET(ZLIB_FOUND_NUMERAL 0)
     find_package(ZLIB)
