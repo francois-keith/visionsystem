@@ -30,14 +30,14 @@ public:
     void handle_receive_from(const boost::system::error_code & error,
                                 size_t bytes_recvd);
     void handle_send_to(const boost::system::error_code & error,
-                                size_t bytes_send);
+                                size_t bytes_send, size_t id);
 public:
     /* Socket related members */
     udp::socket * socket_;
     std::string server_name_;
     short port_;
     udp::endpoint sender_endpoint_;
-    udp::endpoint receiver_endpoint_;
+    std::vector<udp::endpoint> receivers_endpoint_;
     /* client request */
     enum { max_request_ = 256 };
     char* client_data_;
@@ -45,7 +45,7 @@ public:
     enum { send_size_ = 32769 };
     unsigned char * send_buffer_;
     /* Protocol related */
-    uint8_t chunkID_;
+    std::vector<uint8_t> chunkIDs_;
 
     /* H.264 compression if available */
     vision::H264Encoder * encoder_;

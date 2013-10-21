@@ -20,7 +20,7 @@ namespace visionsystem
 Stream2SocketProcess::Stream2SocketProcess( boost::asio::io_service & io_service, short port, unsigned int active_cam, Camera * cam, 
                             bool compress, bool raw, bool reverse_connection, const std::string & server_name,
                             bool verbose)
-: socket_(0), server_name_(server_name), port_(port), chunkID_(0),
+: socket_(0), server_name_(server_name), port_(port), chunkIDs_(0),
   encoder_(0), ready_(false), active_cam_(active_cam), cam_(cam), send_img_(0), send_img_raw_data_(0), send_img_data_size_(0),
   img_lock_(false), next_cam_(false), request_cam_(false), request_name_(""),
   verbose_(verbose)
@@ -40,8 +40,8 @@ Stream2SocketProcess::Stream2SocketProcess( boost::asio::io_service & io_service
 
     socket_ = new udp::socket(io_service);
     socket_->open(udp::v4());
-    client_data_ = new char[max_request_];
     send_buffer_ = new unsigned char[send_size_];
+    client_data_ = new char[max_request_];
 
     if(reverse_connection)
     {
@@ -51,7 +51,8 @@ Stream2SocketProcess::Stream2SocketProcess( boost::asio::io_service & io_service
             std::stringstream ss;
             ss << port;
             udp::resolver::query query(udp::v4(), server_name_, ss.str());
-            receiver_endpoint_ = *resolver.resolve(query);
+            receivers_endpoint_.push_back(*resolver.resolve(query));
+            chunkIDs_.push_back(0);
         }
         if(verbose_)
         {
@@ -111,7 +112,7 @@ Stream2Socket::~Stream2Socket()
 }
 
 void Stream2SocketProcess::handle_send_to(const boost::system::error_code & error,
-                            size_t bytes_send)
+                            size_t bytes_send, size_t id)
 {
     if(error) { std::cerr << error.message() << std::endl; }
     if(bytes_send < send_size_) // after last packet sent
@@ -123,27 +124,27 @@ void Stream2SocketProcess::handle_send_to(const boost::system::error_code & erro
         }
         return;
     }
-    chunkID_++;
-    send_buffer_[0] = chunkID_;
+    chunkIDs_[id]++;
+    send_buffer_[0] = chunkIDs_[id];
     size_t send_size = 0;
-    if( (chunkID_ + 1)*(send_size_ - 1) > send_img_data_size_ )
+    if( (chunkIDs_[id] + 1)*(send_size_ - 1) > send_img_data_size_ )
     {
-        send_size = send_img_data_size_ - chunkID_*(send_size_ - 1) + 1;
+        send_size = send_img_data_size_ - chunkIDs_[id]*(send_size_ - 1) + 1;
     }
     else
     {
         send_size = send_size_;
     }
-    std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkID_*(send_size_ - 1)]), send_size - 1);
+    std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[chunkIDs_[id]*(send_size_ - 1)]), send_size - 1);
     if(verbose_)
     {
         std::cout << "[stream2socket] More data to send, next packet size: " << send_size << std::endl;
     }
     socket_->async_send_to(
-        boost::asio::buffer(send_buffer_, send_size), sender_endpoint_,
+        boost::asio::buffer(send_buffer_, send_size), receivers_endpoint_[id],
         boost::bind(&Stream2SocketProcess::handle_send_to, this,
         boost::asio::placeholders::error,
-        boost::asio::placeholders::bytes_transferred));
+        boost::asio::placeholders::bytes_transferred, id));
 }
 
 bool Stream2Socket::pre_fct()
@@ -241,28 +242,31 @@ void Stream2Socket::loop_fct()
             {
                 remove_alpha((unsigned char*)(img->raw_data), img->pixels, process->send_img_raw_data_);
             }
-            process->chunkID_ = 0;
             process->img_lock_ = true;
-            process->send_buffer_[0] = process->chunkID_;
+            process->send_buffer_[0] = 0;
             size_t send_size = 0;
-            if( (process->chunkID_ + 1)*(process->send_size_ - 1) > process->send_img_data_size_ )
+            if( (0 + 1)*(process->send_size_ - 1) > process->send_img_data_size_ )
             {
-                send_size = process->send_img_data_size_ - process->chunkID_*(process->send_size_ - 1) + 1;
+                send_size = process->send_img_data_size_ - 0*(process->send_size_ - 1) + 1;
             }
             else
             {
                 send_size = process->send_size_;
             }
-            std::memcpy(&(process->send_buffer_[1]), &(process->send_img_raw_data_[process->chunkID_*(process->send_size_ - 1)]), send_size - 1);
+            std::memcpy(&(process->send_buffer_[1]), &(process->send_img_raw_data_[0*(process->send_size_ - 1)]), send_size - 1);
             if(verbose_)
             {
                 std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
             }
-            process->socket_->async_send_to(
-                boost::asio::buffer(process->send_buffer_, send_size), process->receiver_endpoint_,
-                boost::bind(&Stream2SocketProcess::handle_send_to, process,
-                boost::asio::placeholders::error,
-                boost::asio::placeholders::bytes_transferred));
+            for(size_t id = 0; id < process->receivers_endpoint_.size(); ++id)
+            {
+                process->chunkIDs_[id] = 0;
+                process->socket_->async_send_to(
+                    boost::asio::buffer(process->send_buffer_, send_size), process->receivers_endpoint_[id],
+                    boost::bind(&Stream2SocketProcess::handle_send_to, process,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred, id));
+            }
         }
 
         enqueue_image< vision::Image<uint32_t, vision::RGB> >(process->cam_, img);
@@ -336,7 +340,20 @@ void Stream2SocketProcess::handle_receive_from(const boost::system::error_code &
         if(client_message == "get")
         {
             /* Client request: reset sending vision::Image */
-            receiver_endpoint_ = sender_endpoint_;
+            bool new_client = true;
+            for(size_t id = 0; id < receivers_endpoint_.size(); ++id)
+            {
+                if(sender_endpoint_ == receivers_endpoint_[id])
+                {
+                    new_client = false;
+                    break;
+                }
+            }
+            if(new_client)
+            {
+                receivers_endpoint_.push_back(sender_endpoint_);
+                chunkIDs_.push_back(0);
+            }
             ready_ = true;
         }
         else if(client_message == "next")
