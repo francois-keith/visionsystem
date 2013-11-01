@@ -23,6 +23,8 @@ public:
                             bool verbose = false);
     ~Stream2SocketProcess();
 
+    void Initialize(vision::ImageRef size, float fps);
+
     void SendImage( vision::Image<uint32_t, vision::RGB> & img );
 
 public:

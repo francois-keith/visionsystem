@@ -25,18 +25,10 @@ Stream2SocketProcess::Stream2SocketProcess( boost::asio::io_service & io_service
   img_lock_(false), next_cam_(false), request_cam_(false), request_name_(""),
   compress_(compress), raw_(raw), reverse_(reverse_connection), verbose_(verbose)
 {
-    if(compress)
+    if(cam)
     {
-        encoder_ = new vision::H264Encoder(cam->get_size().x, cam->get_size().y, cam->get_fps());
-        #if Vision_HAS_LIBAVCODEC != 1
-        std::cerr << "[stream2socket] H.264 support not built in vision library, Compress option is not usable" << std::endl;
-        #endif
+        Initialize(cam->get_size(), cam->get_fps());
     }
-
-    vision::ImageRef image_size = cam->get_size();
-    send_img_ = new vision::Image<uint32_t, vision::RGB>(image_size);
-    send_img_data_size_ = 3 * send_img_->pixels;
-    send_img_raw_data_ = (unsigned char *)(send_img_->raw_data);
 
     socket_ = new udp::socket(io_service);
     socket_->open(udp::v4());
@@ -90,24 +82,39 @@ Stream2SocketProcess::~Stream2SocketProcess()
     delete encoder_;
 }
 
+void Stream2SocketProcess::Initialize(vision::ImageRef size, float fps)
+{
+    if(compress_)
+    {
+        encoder_ = new vision::H264Encoder(size.x, size.y, fps);
+        #if Vision_HAS_LIBAVCODEC != 1
+        std::cerr << "[stream2socket] H.264 support not built in vision library, Compress option is not usable" << std::endl;
+        #endif
+    }
+
+    send_img_ = new vision::Image<uint32_t, vision::RGB>(size);
+    send_img_data_size_ = 3 * send_img_->pixels;
+    send_img_raw_data_ = (unsigned char *)(send_img_->raw_data);
+}
+
 void Stream2SocketProcess::SendImage( vision::Image<uint32_t, vision::RGB> & img )
 {
     if(!img_lock_ && ready_)
     {
         if(compress_)
         {
-            vision::H264EncoderResult res = encoder_->Encode(*img);
+            vision::H264EncoderResult res = encoder_->Encode(img);
             send_img_data_size_ = res.frame_size;
             send_img_raw_data_  = res.frame_data;
         }
         else if(raw_)
         {
-            memcpy(send_img_raw_data_, img->raw_data, img->data_size);
-            send_img_data_size_ = img->data_size;
+            memcpy(send_img_raw_data_, img.raw_data, img.data_size);
+            send_img_data_size_ = img.data_size;
         }
         else
         {
-            remove_alpha((unsigned char*)(img->raw_data), img->pixels, send_img_raw_data_);
+            remove_alpha((unsigned char*)(img.raw_data), img.pixels, send_img_raw_data_);
         }
         img_lock_ = true;
         send_buffer_[0] = 0;
@@ -130,7 +137,7 @@ void Stream2SocketProcess::SendImage( vision::Image<uint32_t, vision::RGB> & img
             chunkIDs_[id] = 0;
             socket_->async_send_to(
                 boost::asio::buffer(send_buffer_, send_size), receivers_endpoint_[id],
-                boost::bind(&Stream2SocketProcess::handle_send_to, process,
+                boost::bind(&Stream2SocketProcess::handle_send_to, this,
                 boost::asio::placeholders::error,
                 boost::asio::placeholders::bytes_transferred, id));
         }
