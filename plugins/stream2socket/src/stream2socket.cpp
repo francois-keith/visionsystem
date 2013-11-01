@@ -4,14 +4,6 @@
 
 #include "stream2socket.h"
 
-inline void remove_alpha(unsigned char * data_in, unsigned int nb_pixels, unsigned char * data_out)
-{
-    for(unsigned int i = 0; i < nb_pixels; ++i)
-    {
-        memcpy(&(data_out[3*i]), &(data_in[4*i]), 3);
-    }
-}
-
 using boost::asio::ip::udp;
 
 namespace visionsystem
@@ -116,49 +108,7 @@ void Stream2Socket::loop_fct()
         Stream2SocketProcess * process = processes_[i];
         vision::Image<uint32_t, vision::RGB> * img = dequeue_image< vision::Image<uint32_t, vision::RGB> > (process->cam_);
 
-        if(!process->img_lock_ && process->ready_)
-        {
-            if(compress_data_)
-            {
-                vision::H264EncoderResult res = process->encoder_->Encode(*img);
-                process->send_img_data_size_ = res.frame_size;
-                process->send_img_raw_data_  = res.frame_data;
-            }
-            else if(raw_)
-            {
-                memcpy(process->send_img_raw_data_, img->raw_data, img->data_size);
-                process->send_img_data_size_ = img->data_size;
-            }
-            else
-            {
-                remove_alpha((unsigned char*)(img->raw_data), img->pixels, process->send_img_raw_data_);
-            }
-            process->img_lock_ = true;
-            process->send_buffer_[0] = 0;
-            size_t send_size = 0;
-            if( (0 + 1)*(process->send_size_ - 1) > process->send_img_data_size_ )
-            {
-                send_size = process->send_img_data_size_ - 0*(process->send_size_ - 1) + 1;
-            }
-            else
-            {
-                send_size = process->send_size_;
-            }
-            std::memcpy(&(process->send_buffer_[1]), &(process->send_img_raw_data_[0*(process->send_size_ - 1)]), send_size - 1);
-            if(verbose_)
-            {
-                std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
-            }
-            for(size_t id = 0; id < process->receivers_endpoint_.size(); ++id)
-            {
-                process->chunkIDs_[id] = 0;
-                process->socket_->async_send_to(
-                    boost::asio::buffer(process->send_buffer_, send_size), process->receivers_endpoint_[id],
-                    boost::bind(&Stream2SocketProcess::handle_send_to, process,
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred, id));
-            }
-        }
+        process->SendImage(*img);
 
         enqueue_image< vision::Image<uint32_t, vision::RGB> >(process->cam_, img);
 

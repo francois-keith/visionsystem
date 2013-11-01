@@ -23,6 +23,8 @@ class Stream2SocketProcess
                             bool verbose);
     ~Stream2SocketProcess();
 
+    void SendImage( vision::Image<uint32_t, vision::RGB> & img );
+
 public:
     /* Socket callbacks */
     void handle_receive_from(const boost::system::error_code & error,
@@ -60,6 +62,9 @@ public:
     bool request_cam_;
     std::string request_name_;
     bool verbose_;
+    bool compress_;
+    bool raw_;
+    bool reverse_;
 };
 
 } //namespace visionsystem

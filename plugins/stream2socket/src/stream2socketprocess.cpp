@@ -6,6 +6,14 @@
 
 using boost::asio::ip::udp;
 
+inline void remove_alpha(unsigned char * data_in, unsigned int nb_pixels, unsigned char * data_out)
+{
+    for(unsigned int i = 0; i < nb_pixels; ++i)
+    {
+        memcpy(&(data_out[3*i]), &(data_in[4*i]), 3);
+    }
+}
+
 namespace visionsystem
 {
 
@@ -15,7 +23,7 @@ Stream2SocketProcess::Stream2SocketProcess( boost::asio::io_service & io_service
 : socket_(0), server_name_(server_name), port_(port), chunkIDs_(0),
   encoder_(0), ready_(false), active_cam_(active_cam), cam_(cam), send_img_(0), send_img_raw_data_(0), send_img_data_size_(0),
   img_lock_(false), next_cam_(false), request_cam_(false), request_name_(""),
-  verbose_(verbose)
+  compress_(compress), raw_(raw), reverse_(reverse_connection), verbose_(verbose)
 {
     if(compress)
     {
@@ -80,6 +88,53 @@ Stream2SocketProcess::~Stream2SocketProcess()
     delete[] send_buffer_;
     delete socket_;
     delete encoder_;
+}
+
+void Stream2SocketProcess::SendImage( vision::Image<uint32_t, vision::RGB> & img )
+{
+    if(!img_lock_ && ready_)
+    {
+        if(compress_)
+        {
+            vision::H264EncoderResult res = encoder_->Encode(*img);
+            send_img_data_size_ = res.frame_size;
+            send_img_raw_data_  = res.frame_data;
+        }
+        else if(raw_)
+        {
+            memcpy(send_img_raw_data_, img->raw_data, img->data_size);
+            send_img_data_size_ = img->data_size;
+        }
+        else
+        {
+            remove_alpha((unsigned char*)(img->raw_data), img->pixels, send_img_raw_data_);
+        }
+        img_lock_ = true;
+        send_buffer_[0] = 0;
+        size_t send_size = 0;
+        if( (0 + 1)*(send_size_ - 1) > send_img_data_size_ )
+        {
+            send_size = send_img_data_size_ - 0*(send_size_ - 1) + 1;
+        }
+        else
+        {
+            send_size = send_size_;
+        }
+        std::memcpy(&(send_buffer_[1]), &(send_img_raw_data_[0*(send_size_ - 1)]), send_size - 1);
+        if(verbose_)
+        {
+            std::cout << "[stream2socket] Sending data to client, data size: " << send_size << std::endl;
+        }
+        for(size_t id = 0; id < receivers_endpoint_.size(); ++id)
+        {
+            chunkIDs_[id] = 0;
+            socket_->async_send_to(
+                boost::asio::buffer(send_buffer_, send_size), receivers_endpoint_[id],
+                boost::bind(&Stream2SocketProcess::handle_send_to, process,
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred, id));
+        }
+    }
 }
 
 void Stream2SocketProcess::handle_send_to(const boost::system::error_code & error,
