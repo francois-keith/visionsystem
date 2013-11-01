@@ -15,6 +15,8 @@ using boost::asio::ip::udp;
 namespace visionsystem
 {
 
+class Camera;
+
 class Stream2SocketProcess
 {
 public:

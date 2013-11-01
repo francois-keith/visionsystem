@@ -4,6 +4,8 @@
 
 #include "stream2socketprocess.h"
 
+#include <visionsystem/camera.h>
+
 using boost::asio::ip::udp;
 
 inline void remove_alpha(unsigned char * data_in, unsigned int nb_pixels, unsigned char * data_out)
