@@ -40,6 +40,8 @@ if ( PLUGIN_STREAM2SOCKET )
     configure_file("config.h.in" "${CMAKE_SOURCE_DIR}/plugins/stream2socket/src/config.h")
 
 	### INSTAll
+    install( FILES ${stream2socket_hdr}
+             DESTINATION ${INSTALL_HEADERS_PATH}/stream2socket )
 
 	install( TARGETS "stream2socket" 
 			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main 
