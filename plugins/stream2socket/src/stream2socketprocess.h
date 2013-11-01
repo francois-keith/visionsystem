@@ -17,10 +17,10 @@ namespace visionsystem
 
 class Stream2SocketProcess
 {
-    public:
-    Stream2SocketProcess( boost::asio::io_service & io_service, short port, unsigned int active_cam, Camera * cam, 
-                            bool compress, bool raw, bool reverse_connection, const std::string & server_name,
-                            bool verbose);
+public:
+    Stream2SocketProcess( boost::asio::io_service & io_service, short port, unsigned int active_cam = 0, Camera * cam = 0,
+                            bool compress = true, bool raw = false, bool reverse_connection = false, const std::string & server_name = "localhost",
+                            bool verbose = false);
     ~Stream2SocketProcess();
 
     void SendImage( vision::Image<uint32_t, vision::RGB> & img );
