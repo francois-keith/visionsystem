@@ -9,8 +9,8 @@ if ( PLUGIN_STREAM2SOCKET )
 
 	### File Lists
 
-	SET( stream2socket_src "src/stream2socket.cpp" )
-	SET( stream2socket_hdr "src/stream2socket.h")
+	SET( stream2socket_src "src/stream2socket.cpp" "src/stream2socketprocess.cpp" )
+	SET( stream2socket_hdr "src/stream2socket.h" "src/stream2socketprocess.h" )
 
 	### Targets
 
