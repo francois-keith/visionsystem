@@ -1,0 +1,19 @@
+language: cpp
+compiler: gcc
+env:
+  global:
+  - APT_DEPENDENCIES="doxygen doxygen-latex libboost-all-dev libavcodec-dev libswscale-dev libx264-dev libeigen3-dev libmagick++-dev libsdl1.2-dev libxxf86vm-dev"
+  - GIT_DEPENDENCIES="LIRMM-Beziers/configparser LIRMM-Beziers/libvision"
+  - CMAKE_ADDITIONAL_OPTIONS="-DCONTROLLER_OPENNI=OFF -DPLUGINS_XMLRPC=OFF"
+  - ALLOW_TESTSUITE_FAILURE=true
+notifications:
+  email:
+  - francois.keith@gmail.com
+branches:
+  only:
+  - master
+script: ./.travis/run build
+after_success: ./.travis/run after_success
+after_failure: ./.travis/run after_failure
+before_install: ./.travis/run  before_install
+
