@@ -70,6 +70,9 @@ IF(WIN32)
 
 	SET(LIBSWSCALE_FOUND 1)
 	SET(LIBSWSCALE_LIBRARIES "swscale.lib")
+ELSE()
+    include(FindPkgConfig)
+    pkg_check_modules(LIBXXF86VM xxf86vm)
 ENDIF(WIN32)
 
 ### OpenMP support

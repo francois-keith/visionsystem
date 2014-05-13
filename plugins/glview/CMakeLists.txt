@@ -23,7 +23,13 @@ if ( PLUGIN_GLVIEW )
 
 	add_library( "glview" SHARED ${glview_src} ${glview_hdr} )
 
-	target_link_libraries ("glview" ${CONFIGPARSER_LIBRARIES} ${VISION_LIBRARIES} ${X11_X11_LIB} ${OPENGL_gl_LIBRARY} "Xxf86vm" )
+	target_link_libraries ("glview" ${CONFIGPARSER_LIBRARIES} ${VISION_LIBRARIES} ${X11_X11_LIB} ${OPENGL_gl_LIBRARY})
+  if(WIN32)
+    target_link_libraries ("glview"  "Xxf86vm")
+  else(WIN32)
+    target_link_libraries ("glview"  "${LIBXXF86VM_LIBRARIES}")
+  endif(WIN32)
+
     if(CONTROLLER_SOCKET)
         target_link_libraries("glview" "socket")
     endif(CONTROLLER_SOCKET)
