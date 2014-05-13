@@ -1,6 +1,6 @@
 option ( PLUGIN_SEQUENCE_GRABBER "Include plugin sequence-grabber ?" ON )
 
-if ( PLUGIN_SEQUENCE_GRABBER )
+if ( PLUGINS_XMLRPC AND PLUGIN_SEQUENCE_GRABBER )
 
 	### File Lists
 
@@ -28,8 +28,8 @@ if ( PLUGIN_SEQUENCE_GRABBER )
 	install( TARGETS "sequence-grabber" 
 			DESTINATION "${INSTALL_LIB_PATH}/vs_plugins"  COMPONENT main )
 
-else ( PLUGIN_SEQUENCE_GRABBER )
+else ( PLUGINS_XMLRPC AND PLUGIN_SEQUENCE_GRABBER )
 
 	message ( WARNING "Plugin sequence-grabber will not be included" )
 
-endif ( PLUGIN_SEQUENCE_GRABBER ) 
+endif ( PLUGINS_XMLRPC AND PLUGIN_SEQUENCE_GRABBER )
