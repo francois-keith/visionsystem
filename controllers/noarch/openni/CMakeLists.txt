@@ -19,7 +19,11 @@ if ( CONTROLLER_OPENNI )
     )
 
     include_directories(${OPENNI_INCLUDE_DIR})
-    message(STATUS "OpenNI found (include: ${OPENNI_INCLUDE_DIR}, lib: ${OPENNI_LIBRARY})")
+    if(NOT OPENNI_INCLUDE_DIR OR NOT OPENNI_LIBRARY)
+      message(FATAL_ERROR "OpenNI not found (include: ${OPENNI_INCLUDE_DIR}, lib: ${OPENNI_LIBRARY})")
+    else()
+      message(STATUS "OpenNI found (include: ${OPENNI_INCLUDE_DIR}, lib: ${OPENNI_LIBRARY})")
+    endif(NOT OPENNI_INCLUDE_DIR OR NOT OPENNI_LIBRARY)
 
 
 	### File Lists
