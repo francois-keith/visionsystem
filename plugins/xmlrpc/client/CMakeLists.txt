@@ -11,7 +11,7 @@ if ( PLUGIN_XMLRPCCLIENT )
 
 	add_library( "xmlrpc-client" SHARED ${XMLRPCCLIENT_src} ${XMLRPCCLIENT_hdr} )
 
-	target_link_libraries( "xmlrpc-client" ${VISION_LIBRARIES} ${XMLRPC_LIBRARIES})
+	target_link_libraries( "xmlrpc-client" ${VISION_LIBRARIES} -L${XMLRPC_LIBRARY_DIRS} ${XMLRPC_LIBRARIES})
     if(WIN32)
     target_link_libraries( "xmlrpc-client" "visionsystem" "vision" "configparser" "ws2_32")
     endif(WIN32)

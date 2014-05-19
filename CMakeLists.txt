@@ -29,6 +29,19 @@ set ( INSTALL_LIB_PATH lib )
 set ( INSTALL_AR_PATH  lib )
 set ( INSTALL_HEADERS_PATH include )
 
+
+IF(WIN32)
+  SET(LIBDIR_KW "/LIBPATH:")
+  SET(LIBINCL_KW "")
+  SET(LIB_EXT ".lib")
+ENDIF(WIN32)
+
+IF(UNIX)
+  SET(LIBDIR_KW "-L")
+  SET(LIBINCL_KW "-l")
+  SET(LIB_EXT "")
+ENDIF(UNIX)
+
 # Make relative paths absolute (needed later on)
 
 foreach(p LIB BIN HEADERS AR)
